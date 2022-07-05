@@ -1,19 +1,14 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-
+import 'package:mysql1/mysql1.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-
-
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,7 +33,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -56,19 +50,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  var teste;
-
-  _listarDados() async{
-    final url = Uri.parse("http://localhost/flutter/Select.php");
-    final response = await http.get(url);
-    final map = json.decode(response.body);
-    final itens = map["result"];
-
-  }
-
-  
-
-
 
   void _incrementCounter() {
     setState(() {
@@ -116,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'Produto',
             ),
             Text(
               '$_counter',
@@ -133,5 +114,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-
