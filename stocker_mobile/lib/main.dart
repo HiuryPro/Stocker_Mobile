@@ -53,6 +53,21 @@ class _MyHomePageState extends State<MyHomePage> {
   var teste = Dados();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getProduto();
+  }
+
+  void getProduto() {
+    teste.pegaSelect().then((produto) {
+      setState(() {
+        id = produto;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
