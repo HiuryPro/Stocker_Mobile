@@ -1,20 +1,23 @@
-<?php 
+<?php
+require("conexao.php");
 
-include_once("./conexao.php");
+header("Access-Control-Allow-Origin: *");
+header("Access—Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-$dados = array();
 
-$query = $pdo->query("Select * from produto_venda");
-$res = $query->fetchAll(PDO:: FETCH_ASSOC);
+$makeQuery = "SELECT * FROM produto_venda ";
+$statement = $pdo->prepare($makeQuery);
+$statement->execute();
+$myarray = array();
 
-for($i = 0; $i < count($res);$i++){
-    foreach($res[$i] as $key => $value){}
-    $dados = $res;
+while ($resultsFrom = $statement ->fetch()){
+array_push(
+$myarray,array(
+"id"=>$resultsFrom['id'],
+
+"nome_produto"=>$resultsFrom['nome_produto'],
+"cliente"=>$resultsFrom['cliente']
+)
+);
 }
-
-echo($res) ?
-json_encode(array("code" => 1, "result" => $dados)):
-json_encode(array("code" => 0, message=>"Data not found" ))
-
-
-?>
+echo json_encode($myarray);
