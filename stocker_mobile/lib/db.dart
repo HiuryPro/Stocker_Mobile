@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class UserService {
+  // ignore: prefer_typing_uninitialized_variables
   var results;
   Future register() async {
     dynamic body;
@@ -36,6 +37,7 @@ void main() async {
 
 class Dados {
   var teste = UserService();
+  // ignore: prefer_typing_uninitialized_variables
   var results;
 
   pegaSelect() async {
@@ -49,12 +51,6 @@ class Dados {
       id.add(row['id']);
       produto.add(row['nome_produto']);
       cliente.add(row['cliente']);
-    }
-
-    for (int i = 0; i < id.length; i++) {
-      print(id[i]);
-      print(produto[i]);
-      print(cliente[i]);
     }
 
     return produto;
