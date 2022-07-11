@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 
 class AppController extends ChangeNotifier{
@@ -5,7 +7,7 @@ class AppController extends ChangeNotifier{
     
     bool isDarkTheme = false;
 
-    void changeTheme(){
+    changeTheme(){
       isDarkTheme = !isDarkTheme;
       notifyListeners();
     }
