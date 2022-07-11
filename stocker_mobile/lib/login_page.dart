@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stocker_mobile/home_page.dart';
 
 import 'db.dart';
 
@@ -48,6 +49,13 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children:[
+                    Container(
+                      width: 400,
+                      child: Image.asset('images/Stocker_blue_transp.png')
+                      ),
+                    const SizedBox(
+                      height: 15,
+                    ),
                     TextField(
                        onChanged: (text) {
                         usuario = text;
@@ -82,6 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                       if(teste){
                         print("Login feito com sucesso");
+                        Navigator.of(context).pushNamed('/homepage');
                       }else{
                         print('Usuário/senha incorretos');
                       }
