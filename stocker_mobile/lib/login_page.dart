@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stocker_mobile/home_page.dart';
 
 import 'db.dart';
 
@@ -12,13 +11,16 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
+  final fieldText = TextEditingController();
+  final fieldText2 = TextEditingController();
+
   var teste = Dados();
+  
   dynamic listaU;
   dynamic listaS;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     teste.pegaUsuario().then((usuario){
       setState(() {
@@ -36,69 +38,103 @@ class _LoginPageState extends State<LoginPage> {
   String usuario = '';
   String senha = '';
 
+  void clearText() {
+    fieldText.clear();
+    fieldText2.clear();
+  }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: SizedBox(
+  Widget _body(){
+    return SizedBox(
         width: double.infinity,
         height: double.infinity,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children:[
-                    Container(
-                      width: 400,
-                      child: Image.asset('images/Stocker_blue_transp.png')
+            child: Theme(
+              data: ThemeData(
+                  primaryColor: Colors.black,
+                  primaryColorDark: Colors.black,
+                ),
+              child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:[
+                      SizedBox(
+                        width: 400,
+                        child: Image.asset('images/Stocker_blue_transp.png')
+                        ),
+                      const SizedBox(
+                        height: 15,
                       ),
-                    const SizedBox(
-                      height: 15,
-                    ),
                     TextField(
-                       onChanged: (text) {
-                        usuario = text;
-                      },
+                        onChanged: (text) {
+                          usuario = text;
+                        },
+                        controller: fieldText,
+                          decoration: const InputDecoration(
+                          labelText: 'Usuário',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      TextField(
+                        onChanged: (text) {
+                          senha = text;
+                        },
+                        controller: fieldText2,
                         decoration: const InputDecoration(
-                        labelText: 'Usuário',
-                        border: OutlineInputBorder(),
+                          labelText: 'Senha',
+                          border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.red
+                          )
+                          ),
+                          
+                        )
                       ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                      onChanged: (text) {
-                        senha = text;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Senha',
-                        border: OutlineInputBorder(),
-                      )
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                   ElevatedButton(
-                    onPressed: () {
-                      bool teste = false;
-                      for(int i = 0; i < listaU.length; i++){
-                        if(usuario == listaU[i] && senha == listaS[i]){
-                          teste = true;
+                      const SizedBox(
+                        height: 15,
+                      ),
+                    ElevatedButton(
+                      onPressed: () {
+                        bool autoriza = false;
+                        for(int i = 0; i < listaU.length; i++){
+                            if(usuario == listaU[i] && senha == listaS[i]){
+                              autoriza = true;
+                            }
                         }
-                      }
-                      if(teste){
-                        print("Login feito com sucesso");
-                        Navigator.of(context).pushNamed('/homepage');
-                      }else{
-                        print('Usuário/senha incorretos');
-                      }
-                    }, child: const Text('Entrar'))
-                  ],
-                )
+
+                        if(autoriza){
+                          print("Login feito com sucesso!");
+                          Navigator.of(context).pushNamed("/homepage");
+                        }else{
+                          print("Usuário/senha incorretos");
+                        }
+                        clearText();
+                      }, 
+                      child: const Text('Entrar'))
+                    ],
+                  ),
+            )
             )   
-      )
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: Image.asset('images/backstocker.jpg',fit: BoxFit.cover)
+            ),
+          _body()
+        ]
+       
+        )
     );
     
   }
