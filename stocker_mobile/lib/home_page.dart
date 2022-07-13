@@ -10,23 +10,22 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   int count = 0;
-  
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-         title: const Text('Dandjaro'),
-         actions: [Switch(
-                    value: AppController.instance.isDarkTheme,
-                    onChanged: (value) {
-                      setState(() {
-                         AppController.instance.changeTheme();
-                      });
-                        
-                    },
-                  ),],
+        title: const Text('Dandjaro'),
+        actions: [
+          Switch(
+            value: AppController.instance.isDarkTheme,
+            onChanged: (value) {
+              setState(() {
+                AppController.instance.changeTheme();
+              });
+            },
+          ),
+        ],
       ),
       body: SizedBox(
         width: double.infinity,
@@ -38,45 +37,42 @@ class HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-              "Dandjaro $count",
-              style: const TextStyle(fontSize: 20),
-            ),
-              Switch(
+                  "Dandjaro $count",
+                  style: const TextStyle(fontSize: 20),
+                ),
+                Switch(
                   value: AppController.instance.isDarkTheme,
                   onChanged: (value) {
-                      setState(() {
-                        AppController.instance.changeTheme();
-                        });
-                                  
-                  },            
-              ),
+                    setState(() {
+                      AppController.instance.changeTheme();
+                    });
+                  },
+                ),
               ],
             ),
             Text(
               "Dandjaro $count",
               style: const TextStyle(fontSize: 20),
             ),
-              Switch(
-                  value: AppController.instance.isDarkTheme,
-                  onChanged: (value) {
-                      setState(() {
-                        AppController.instance.changeTheme();
-                        });
-                                  
-                  },            
-              ),
+            Switch(
+              value: AppController.instance.isDarkTheme,
+              onChanged: (value) {
+                setState(() {
+                  AppController.instance.changeTheme();
+                });
+              },
+            ),
           ],
+        ),
       ),
-      ),  
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
           setState(() {
             count++;
           });
-        },  
+        },
       ),
-    
     );
   }
 }
