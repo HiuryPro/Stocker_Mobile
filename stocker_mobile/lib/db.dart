@@ -3,47 +3,35 @@ import 'dart:convert';
 
 class UserService {
   // ignore: prefer_typing_uninitialized_variables
-  var results;
-  Future register() async {
+  Future usuario() async {
     dynamic body;
     var url = Uri.parse("http://192.168.3.9/ConexaoDBStocker/login.php");
     http.Response response = await http.get(url);
     body = jsonDecode(response.body);
     return body;
   }
-}
 
-/*
-void main() async {
-  var teste = UserService();
-  var results = await teste.register();
-  var id = [];
-  var produto = [];
-  var cliente = [];
-
-  for (var row in results) {
-    id.add(row['id']);
-    produto.add(row['nome_produto']);
-    cliente.add(row['cliente']);
-  }
-
-  for (int i = 0; i < id.length; i++) {
-    print(id[i]);
-    print(produto[i]);
-    print(cliente[i]);
+  cadUsuario(List<String> lista) async {
+    var url = Uri.parse("http://192.168.3.9/ConexaoDBStocker/cadastro.php");
+    http.Response response = await http.post(url, body: {
+      "nome_empresa": lista[0],
+      "cnpj": lista[1],
+      "email": lista[2],
+      "endereco": lista[3],
+      "cidade": lista[4],
+      "estado": lista[5],
+      "ganho_mensal": lista[6],
+      "telefone": lista[7]
+    });
   }
 }
-*/
 
 class Dados {
   var teste = UserService();
 
- 
-
   pegaUsuario() async {
-    var results = await teste.register();
+    var results = await teste.usuario();
     var usuario = [];
-   
 
     for (var row in results) {
       usuario.add(row['login']);
@@ -53,11 +41,11 @@ class Dados {
   }
 
   pegaSenha() async {
-    var results = await teste.register();
+    var results = await teste.usuario();
     var senha = [];
     for (var row in results) {
-          senha.add(row['senha']);
-        }
+      senha.add(row['senha']);
+    }
     return senha;
   }
 }

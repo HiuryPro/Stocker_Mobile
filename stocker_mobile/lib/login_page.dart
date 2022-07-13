@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
       SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Image.asset('images/backstocker.jpg', fit: BoxFit.cover)),
+          child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
       _body()
     ]));
   }
