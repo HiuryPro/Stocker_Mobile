@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class UserService {
+class Conexao {
   // ignore: prefer_typing_uninitialized_variables
   Future usuario() async {
     dynamic body;
@@ -13,7 +13,7 @@ class UserService {
 
   cadUsuario(List<String> lista) async {
     var url = Uri.parse("http://192.168.3.9/ConexaoDBStocker/cadastro.php");
-    http.Response response = await http.post(url, body: {
+    await http.post(url, body: {
       "nome_empresa": lista[0],
       "cnpj": lista[1],
       "email": lista[2],
@@ -27,7 +27,7 @@ class UserService {
 }
 
 class Dados {
-  var teste = UserService();
+  var teste = Conexao();
 
   pegaUsuario() async {
     var results = await teste.usuario();

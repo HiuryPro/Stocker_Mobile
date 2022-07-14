@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:stocker_mobile/onHover.dart';
 
-import 'db.dart';
+import 'DadosDB/dados.dart';
+import 'on_hover.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<bool> autorizaLogin() async {
     Future<bool> autoriza = Future<bool>.value(false);
-    var listaU, listaS;
+    var listaU = [], listaS = [];
     listaU = await teste.pegaUsuario();
     listaS = await teste.pegaSenha();
 
@@ -39,16 +39,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _body() {
-    bool isHovered = false;
-
-    void alteraHover(bool value) {
-      setState(() {
-        isHovered = value;
-        print(isHovered);
-      });
-    }
-
-    final color = isHovered ? Colors.blue : Colors.black;
     return SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -56,8 +46,8 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(10.0),
             child: Theme(
               data: ThemeData(
-                primaryColor: color,
-                primaryColorDark: color,
+                primaryColor: Colors.black,
+                primaryColorDark: Colors.black,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -97,10 +87,13 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                       onPressed: () async {
                         if (await autorizaLogin()) {
-                          print("Login feito com sucesso!");
                           Navigator.of(context).pushNamed("/homepage");
                         } else {
-                          print("Usuário/senha incorretos");
+                          showDialog(
+                            context: context,
+                            builder: (_) => alert(),
+                            barrierDismissible: true,
+                          );
                         }
                         clearText();
                       },
@@ -143,5 +136,19 @@ class _LoginPageState extends State<LoginPage> {
           child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
       _body()
     ]));
+  }
+
+  Widget alert() {
+    return AlertDialog(
+      title: const Text("Login Invalido"),
+      content: const Text("Usuário/senha incorretos"),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Ok"))
+      ],
+    );
   }
 }
