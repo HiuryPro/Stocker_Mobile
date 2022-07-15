@@ -10,12 +10,13 @@ $statement = $pdo->prepare($makeQuery);
 $statement->execute();
 $myarray = array();
 
-while ($resultsFrom = $statement ->fetch()){
-array_push(
-$myarray,array(
-"login"=>$resultsFrom['login'],
-"senha"=>$resultsFrom['senha'],
-)
-);
+while ($resultsFrom = $statement->fetch()) {
+    array_push(
+        $myarray,
+        array(
+            "login" => $resultsFrom['login'],
+            "senha" => $resultsFrom['senha'],
+        )
+    );
 }
 echo json_encode($myarray);

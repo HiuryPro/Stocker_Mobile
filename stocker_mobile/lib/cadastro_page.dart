@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import 'DadosDB/db.dart';
+import 'DadosDB/validacao.dart';
 
 class CadPage extends StatefulWidget {
   const CadPage({Key? key}) : super(key: key);
@@ -12,6 +13,8 @@ class CadPage extends StatefulWidget {
 
 class _CadPageState extends State<CadPage> {
   var teste = Conexao();
+  var valida = Validacao();
+
   String nomeE = "",
       cnpj = "",
       email = "",
@@ -76,7 +79,7 @@ class _CadPageState extends State<CadPage> {
                         });
                       },
                       decoration: const InputDecoration(
-                        labelText: 'Cnpj',
+                        labelText: 'CNPJ',
                         border: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red)),
                       )),
@@ -171,24 +174,32 @@ class _CadPageState extends State<CadPage> {
                   Center(
                     child: ElevatedButton(
                         onPressed: () async {
-                          /*
                           valores.add(nomeE);
                           valores.add(cnpj);
                           valores.add(email);
                           valores.add(endereco);
                           valores.add(cidade);
                           valores.add(estado);
-                          valores.add(ganho);
                           valores.add(telefone);
-            
-                          await teste.cadUsuario(valores);
+                          valores.add(ganho);
+
+                          if (await valida.isVazio(valores)) {
+                            if (valida.validacnpj(cnpj)) {
+                              if (await valida.validaCad(
+                                  nomeE, cnpj, email, telefone, endereco)) {
+                                mensagem("Cadastro feito com sucesso");
+                                valida.abrevia(nomeE);
+                                await teste.cadUsuario(valores);
+                              } else {
+                                mensagem(valida.getMensagem());
+                              }
+                            } else {
+                              mensagem("CNPJ inválido");
+                            }
+                          } else {
+                            mensagem(valida.getMensagem());
+                          }
                           valores.clear();
-            */
-                          showDialog(
-                            context: context,
-                            builder: (_) => alert(),
-                            barrierDismissible: true,
-                          );
                         },
                         child: const Text('Cadastrar')),
                   )
@@ -213,10 +224,10 @@ class _CadPageState extends State<CadPage> {
     ));
   }
 
-  Widget alert() {
+  Widget alert(String mensagem) {
     return AlertDialog(
       title: const Text("Cadastro"),
-      content: const Text("Cadastro feito com sucesso!"),
+      content: Text(mensagem),
       actions: [
         TextButton(
             onPressed: () {
@@ -224,6 +235,14 @@ class _CadPageState extends State<CadPage> {
             },
             child: const Text("Ok"))
       ],
+    );
+  }
+
+  mensagem(String mensagem) {
+    return showDialog(
+      context: context,
+      builder: (_) => alert(mensagem),
+      barrierDismissible: true,
     );
   }
 }

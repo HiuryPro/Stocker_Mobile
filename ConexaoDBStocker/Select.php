@@ -10,14 +10,17 @@ $statement = $pdo->prepare($makeQuery);
 $statement->execute();
 $myarray = array();
 
-while ($resultsFrom = $statement ->fetch()){
-array_push(
-$myarray,array(
-"id"=>$resultsFrom['id'],
+while ($resultsFrom = $statement->fetch()) {
+    array_push(
+        $myarray,
+        array(
+            "id" => $resultsFrom['id'],
 
-"nome_produto"=>$resultsFrom['nome_produto'],
-"cliente"=>$resultsFrom['cliente']
-)
-);
+            "nome_produto" => $resultsFrom['nome_produto'],
+            "cliente" => $resultsFrom['cliente']
+        )
+    );
 }
+
+
 echo json_encode($myarray);

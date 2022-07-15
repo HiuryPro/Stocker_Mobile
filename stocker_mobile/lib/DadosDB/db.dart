@@ -20,32 +20,17 @@ class Conexao {
       "endereco": lista[3],
       "cidade": lista[4],
       "estado": lista[5],
-      "ganho_mensal": lista[6],
-      "telefone": lista[7]
+      "telefone": lista[6],
+      "ganho_mensal": lista[7],
     });
   }
-}
 
-class Dados {
-  var teste = Conexao();
-
-  pegaUsuario() async {
-    var results = await teste.usuario();
-    var usuario = [];
-
-    for (var row in results) {
-      usuario.add(row['login']);
-    }
-
-    return usuario;
-  }
-
-  pegaSenha() async {
-    var results = await teste.usuario();
-    var senha = [];
-    for (var row in results) {
-      senha.add(row['senha']);
-    }
-    return senha;
+  Future usuarioDados() async {
+    dynamic body;
+    var url =
+        Uri.parse("http://192.168.3.9/ConexaoDBStocker/usuario_dados.php");
+    http.Response response = await http.get(url);
+    body = jsonDecode(response.body);
+    return body;
   }
 }

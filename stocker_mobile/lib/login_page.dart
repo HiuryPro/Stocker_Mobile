@@ -26,12 +26,11 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<bool> autorizaLogin() async {
     Future<bool> autoriza = Future<bool>.value(false);
-    var listaU = [], listaS = [];
+    var listaU = [];
     listaU = await teste.pegaUsuario();
-    listaS = await teste.pegaSenha();
 
-    for (int i = 0; i < listaU.length; i++) {
-      if (usuario == listaU[i] && senha == listaS[i]) {
+    for (int i = 0; i < listaU.length; i = i + 2) {
+      if (usuario == listaU[i] && senha == listaU[i + 1]) {
         autoriza = Future<bool>.value(true);
       }
     }

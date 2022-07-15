@@ -7,17 +7,23 @@ class Dados extends Conexao {
 
     for (var row in results) {
       usuarios.add(row['login']);
+      usuarios.add(row['senha']);
     }
 
     return usuarios;
   }
 
-  pegaSenha() async {
-    var results = await usuario();
-    var senha = [];
+  pegaUsuarioDadosV() async {
+    var results = await usuarioDados();
+    var dados = [];
+
     for (var row in results) {
-      senha.add(row['senha']);
+      dados.add(row['nome_empresa']);
+      dados.add(row['cnpj']);
+      dados.add(row['email']);
+      dados.add(row['telefone']);
+      dados.add(row['endereco']);
     }
-    return senha;
+    return dados;
   }
 }
