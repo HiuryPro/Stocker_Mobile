@@ -6,8 +6,10 @@ class Dados extends Conexao {
     var usuarios = [];
 
     for (var row in results) {
+      usuarios.add(row['id']);
       usuarios.add(row['login']);
       usuarios.add(row['senha']);
+      usuarios.add(row['confirma_login']);
     }
 
     return usuarios;

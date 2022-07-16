@@ -33,4 +33,19 @@ class Conexao {
     body = jsonDecode(response.body);
     return body;
   }
+
+  cadLogin(String login, String senha) async {
+    var url =
+        Uri.parse("http://192.168.3.9/ConexaoDBStocker/cadastro_login.php");
+    await http.post(url, body: {
+      "login": login,
+      "senha": senha,
+    });
+  }
+
+  atualizaLogin(String login, String senha, int id) async {
+    var url =
+        Uri.parse("http://192.168.3.9/ConexaoDBStocker/atualiza_login.php");
+    await http.post(url, body: {"login": login, "senha": senha, "id": "$id"});
+  }
 }

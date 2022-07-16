@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/cadastro_page.dart';
+import 'package:stocker_mobile/novo_login.dart';
 import 'app_controller.dart';
 import 'home_page.dart';
 import 'login_page.dart';
@@ -21,7 +22,8 @@ class AppWidget extends StatelessWidget {
               routes: {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),
-                '/cadpage': (context) => const CadPage()
+                '/cadpage': (context) => const CadPage(),
+                '/novologinpage': (context) => const NovoLoginPage()
               });
         });
   }

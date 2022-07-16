@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:stocker_mobile/DadosDB/gambiarra.dart';
 
 import 'DadosDB/dados.dart';
-import 'on_hover.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class NovoLoginPage extends StatefulWidget {
+  const NovoLoginPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<NovoLoginPage> createState() => _NovoLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _NovoLoginPageState extends State<NovoLoginPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
@@ -19,41 +18,10 @@ class _LoginPageState extends State<LoginPage> {
 
   String usuario = '';
   String senha = '';
-  int id = 0;
 
   void clearText() {
     fieldText.clear();
     fieldText2.clear();
-  }
-
-  Future<bool> autorizaLogin() async {
-    Future<bool> autoriza = Future<bool>.value(false);
-    var listaU = [];
-    listaU = await teste.pegaUsuario();
-
-    for (int i = 0; i < listaU.length; i = i + 4) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        autoriza = Future<bool>.value(true);
-      }
-    }
-    return autoriza;
-  }
-
-  Future<bool> novoLogin() async {
-    Future<bool> autoriza = Future<bool>.value(false);
-    var listaU = [];
-    listaU = await teste.pegaUsuario();
-
-    for (int i = 0; i < listaU.length; i = i + 4) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        print(listaU[i + 3]);
-        if (listaU[i + 3] == 0) {
-          autoriza = Future<bool>.value(true);
-          id = listaU[i];
-        }
-      }
-    }
-    return autoriza;
   }
 
   Widget _body() {
@@ -104,46 +72,21 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        if (await autorizaLogin()) {
-                          if (await novoLogin()) {
-                            Navigator.of(context).pushNamed("/novologinpage");
-                            Gambiarra.gambiarra.mudaLogin(id);
-                          } else {
-                            Navigator.of(context).pushNamed("/homepage");
-                          }
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (_) => alert(),
-                            barrierDismissible: true,
-                          );
-                        }
+                        await teste.atualizaLogin(
+                            usuario, senha, Gambiarra.gambiarra.loginAntigo);
+
+                        showDialog(
+                          context: context,
+                          builder: (_) => alert(),
+                          barrierDismissible: true,
+                        );
+
                         clearText();
                       },
                       child: const Text('Entrar')),
                   const SizedBox(
                     height: 20,
                   ),
-                  OnHover(builder: (isHovered) {
-                    final color = isHovered ? Colors.blue : Colors.black;
-                    return GestureDetector(
-                      child: Text("Esqueci minha Senha ?",
-                          style: TextStyle(color: color)),
-                    );
-                  }),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  OnHover(builder: (isHovered) {
-                    final color = isHovered ? Colors.blue : Colors.black;
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pushNamed("/cadpage");
-                      },
-                      child: Text("Ainda não é cadastrado ?",
-                          style: TextStyle(color: color)),
-                    );
-                  }),
                 ],
               ),
             )));
@@ -163,12 +106,12 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget alert() {
     return AlertDialog(
-      title: const Text("Login Invalido"),
-      content: const Text("Usuário/senha incorretos"),
+      title: const Text("Atualização"),
+      content: const Text("Atualização de login e senha feito com sucesso!"),
       actions: [
         TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed('/');
             },
             child: const Text("Ok"))
       ],

@@ -15,6 +15,26 @@ class _CadPageState extends State<CadPage> {
   var teste = Conexao();
   var valida = Validacao();
 
+  final fieldText = TextEditingController();
+  final fieldText2 = TextEditingController();
+  final fieldText3 = TextEditingController();
+  final fieldText4 = TextEditingController();
+  final fieldText5 = TextEditingController();
+  final fieldText6 = TextEditingController();
+  final fieldText7 = TextEditingController();
+  final fieldText8 = TextEditingController();
+
+  void clearText() {
+    fieldText.clear();
+    fieldText2.clear();
+    fieldText3.clear();
+    fieldText4.clear();
+    fieldText5.clear();
+    fieldText6.clear();
+    fieldText7.clear();
+    fieldText8.clear();
+  }
+
   String nomeE = "",
       cnpj = "",
       email = "",
@@ -58,6 +78,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                    controller: fieldText,
                     onChanged: (text) {
                       setState(() {
                         nomeE = text;
@@ -72,6 +93,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText2,
                       inputFormatters: [maskFormatterCnpj],
                       onChanged: (text) {
                         setState(() {
@@ -87,6 +109,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText3,
                       onChanged: (text) {
                         setState(() {
                           email = text;
@@ -101,6 +124,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText4,
                       onChanged: (text) {
                         setState(() {
                           endereco = text;
@@ -115,6 +139,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText5,
                       onChanged: (text) {
                         setState(() {
                           cidade = text;
@@ -129,6 +154,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText6,
                       onChanged: (text) {
                         setState(() {
                           estado = text;
@@ -143,6 +169,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText7,
                       inputFormatters: [maskFormatterTelefone],
                       onChanged: (text) {
                         setState(() {
@@ -158,6 +185,7 @@ class _CadPageState extends State<CadPage> {
                     height: 15,
                   ),
                   TextField(
+                      controller: fieldText8,
                       onChanged: (text) {
                         setState(() {
                           ganho = text;
@@ -190,6 +218,9 @@ class _CadPageState extends State<CadPage> {
                                 mensagem("Cadastro feito com sucesso");
                                 valida.abrevia(nomeE);
                                 await teste.cadUsuario(valores);
+                                await teste.cadLogin(
+                                    valida.abrevia(nomeE), cnpj);
+                                clearText();
                               } else {
                                 mensagem(valida.getMensagem());
                               }
