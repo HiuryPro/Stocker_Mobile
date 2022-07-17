@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-
+import 'package:http/http.dart' as http;
 import 'DadosDB/db.dart';
 import 'DadosDB/validacao.dart';
 
@@ -55,6 +57,7 @@ class _CadPageState extends State<CadPage> {
       mask: '(##) #####-####',
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
+
   Widget _body() {
     return SizedBox(
         width: double.infinity,
@@ -220,6 +223,7 @@ class _CadPageState extends State<CadPage> {
                                 await teste.cadUsuario(valores);
                                 await teste.cadLogin(
                                     valida.abrevia(nomeE), cnpj);
+
                                 clearText();
                               } else {
                                 mensagem(valida.getMensagem());
