@@ -7,12 +7,13 @@ header('Content-Type: application/json');
 
 try {
 
-    $login = $_POST["login"];
     $senha = $_POST["senha"];
+    $ns =  intval($_POST['ns']);
     $id =  intval($_POST['id']);
 
-    $stmt = $pdo->prepare('UPDATE usuario_login SET login = ? , senha = ? , confirma_login = 1 WHERE id = ?');
-    $stmt->execute([$login, $senha, $id]);
+
+    $stmt = $pdo->prepare('UPDATE usuario_login SET senha = ? , nova_senha = ? WHERE id = ?');
+    $stmt->execute([$senha, $ns, $id]);
 
     echo $stmt->rowCount();
 } catch (PDOException $e) {

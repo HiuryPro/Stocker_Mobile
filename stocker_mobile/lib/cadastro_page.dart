@@ -1,10 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:http/http.dart' as http;
-import 'DadosDB/db.dart';
+
+import 'DadosDB/crud.dart';
 import 'DadosDB/validacao.dart';
+import 'sendEmail/send_email.dart';
 
 class CadPage extends StatefulWidget {
   const CadPage({Key? key}) : super(key: key);
@@ -14,8 +13,9 @@ class CadPage extends StatefulWidget {
 }
 
 class _CadPageState extends State<CadPage> {
-  var teste = Conexao();
+  var teste = CRUD();
   var valida = Validacao();
+  var enviaEmail = SendMail();
 
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
@@ -220,9 +220,14 @@ class _CadPageState extends State<CadPage> {
                                   nomeE, cnpj, email, telefone, endereco)) {
                                 mensagem("Cadastro feito com sucesso");
                                 valida.abrevia(nomeE);
-                                await teste.cadUsuario(valores);
-                                await teste.cadLogin(
+                                await teste.insertUD(valores);
+                                await teste.inserUL(
                                     valida.abrevia(nomeE), cnpj);
+                                await enviaEmail.sendEmailWelcome(
+                                    abrevia: valida.abrevia(valores[0]),
+                                    cnpj: valores[1],
+                                    name: valores[0],
+                                    email: valores[2]);
 
                                 clearText();
                               } else {

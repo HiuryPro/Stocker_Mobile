@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/DadosDB/gambiarra.dart';
 
-import 'DadosDB/dados.dart';
+import 'DadosDB/crud.dart';
 import 'on_hover.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
-  var teste = Dados();
+  var teste = CRUD();
 
   String usuario = '';
   String senha = '';
@@ -29,9 +29,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> autorizaLogin() async {
     Future<bool> autoriza = Future<bool>.value(false);
     var listaU = [];
-    listaU = await teste.pegaUsuario();
+    listaU = await teste.selectUL();
 
-    for (int i = 0; i < listaU.length; i = i + 4) {
+    for (int i = 0; i < listaU.length; i = i + 5) {
       if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
         autoriza = Future<bool>.value(true);
       }
@@ -42,12 +42,27 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> novoLogin() async {
     Future<bool> autoriza = Future<bool>.value(false);
     var listaU = [];
-    listaU = await teste.pegaUsuario();
+    listaU = await teste.selectUL();
 
-    for (int i = 0; i < listaU.length; i = i + 4) {
+    for (int i = 0; i < listaU.length; i = i + 5) {
       if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        print(listaU[i + 3]);
         if (listaU[i + 3] == 0) {
+          autoriza = Future<bool>.value(true);
+          id = listaU[i];
+        }
+      }
+    }
+    return autoriza;
+  }
+
+  Future<bool> mudaSenha() async {
+    Future<bool> autoriza = Future<bool>.value(false);
+    var listaU = [];
+    listaU = await teste.selectUL();
+
+    for (int i = 0; i < listaU.length; i = i + 5) {
+      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
+        if (listaU[i + 4] == 0) {
           autoriza = Future<bool>.value(true);
           id = listaU[i];
         }
@@ -104,7 +119,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        if (await autorizaLogin()) {
+                        if (await mudaSenha()) {
+                          Navigator.of(context).pushNamed("/atualizasenha");
+                        } else if (await autorizaLogin()) {
                           if (await novoLogin()) {
                             Navigator.of(context).pushNamed("/novologinpage");
                             Gambiarra.gambiarra.mudaLogin(id);
@@ -127,6 +144,9 @@ class _LoginPageState extends State<LoginPage> {
                   OnHover(builder: (isHovered) {
                     final color = isHovered ? Colors.blue : Colors.black;
                     return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushNamed("/novasenhapage");
+                      },
                       child: Text("Esqueci minha Senha ?",
                           style: TextStyle(color: color)),
                     );

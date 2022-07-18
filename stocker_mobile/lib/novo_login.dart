@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:stocker_mobile/DadosDB/gambiarra.dart';
 
-import 'DadosDB/dados.dart';
+import 'DadosDB/crud.dart';
+import 'DadosDB/gambiarra.dart';
 
 class NovoLoginPage extends StatefulWidget {
   const NovoLoginPage({Key? key}) : super(key: key);
@@ -14,16 +14,15 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
-  var teste = Dados();
-
-  String usuario = '';
-  String senha = '';
-
   void clearText() {
     fieldText.clear();
     fieldText2.clear();
   }
 
+  var teste = CRUD();
+
+  String usuario = "";
+  String senha = "";
   Widget _body() {
     return SizedBox(
         width: double.infinity,
@@ -72,12 +71,13 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        await teste.atualizaLogin(
+                        await teste.updateUL(
                             usuario, senha, Gambiarra.gambiarra.loginAntigo);
 
                         showDialog(
                           context: context,
-                          builder: (_) => alert(),
+                          builder: (_) => alert("Atualização de Login",
+                              "Atualizalção feita com sucesso"),
                           barrierDismissible: true,
                         );
 
@@ -92,6 +92,28 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
             )));
   }
 
+  Widget alert(String mensagem1, String mensagem2) {
+    return AlertDialog(
+      title: Text(mensagem1),
+      content: Text(mensagem2),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed('/');
+            },
+            child: const Text("Ok"))
+      ],
+    );
+  }
+
+  mensagem(String mensagem1, String mensagem2) {
+    return showDialog(
+      context: context,
+      builder: (_) => alert(mensagem1, mensagem2),
+      barrierDismissible: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,19 +124,5 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
           child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
       _body()
     ]));
-  }
-
-  Widget alert() {
-    return AlertDialog(
-      title: const Text("Atualização"),
-      content: const Text("Atualização de login e senha feito com sucesso!"),
-      actions: [
-        TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('/');
-            },
-            child: const Text("Ok"))
-      ],
-    );
   }
 }

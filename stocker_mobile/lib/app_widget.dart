@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:stocker_mobile/cadastro_page.dart';
-import 'package:stocker_mobile/novo_login.dart';
+
 import 'app_controller.dart';
+import 'atualiza_senha.dart';
+import 'cadastro_page.dart';
 import 'home_page.dart';
 import 'login_page.dart';
+import 'nova_senha.dart';
+import 'novo_login.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({Key? key}) : super(key: key);
@@ -23,7 +26,9 @@ class AppWidget extends StatelessWidget {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),
                 '/cadpage': (context) => const CadPage(),
-                '/novologinpage': (context) => const NovoLoginPage()
+                '/novologinpage': (context) => const NovoLoginPage(),
+                '/novasenhapage': (context) => const NovaSenhaPage(),
+                '/atualizasenha': (context) => const AtualizaSenha()
               });
         });
   }

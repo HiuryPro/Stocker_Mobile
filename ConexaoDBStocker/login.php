@@ -17,7 +17,8 @@ while ($resultsFrom = $statement->fetch()) {
             "id" => $resultsFrom['id'],
             "login" => $resultsFrom['login'],
             "senha" => $resultsFrom['senha'],
-            "confirma_login" => $resultsFrom['confirma_login']
+            "confirma_login" => $resultsFrom['confirma_login'],
+            "nova_senha" => $resultsFrom['nova_senha']
         )
     );
 }

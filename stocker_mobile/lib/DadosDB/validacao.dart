@@ -1,7 +1,7 @@
-import 'dados.dart';
+import 'crud.dart';
 
 class Validacao {
-  var dados = Dados();
+  var dados = CRUD();
   String mensagem = '';
 
   bool validacnpj(String cnpj) {
@@ -129,7 +129,7 @@ class Validacao {
   Future<bool> validaCad(String nomeE, String cnpj, String email,
       String telefone, String endereco) async {
     Future<bool> valida = Future<bool>.value(true);
-    var itens = await dados.pegaUsuarioDadosV();
+    var itens = await dados.selectUD();
     if (itens.length == 0) {
       valida = Future<bool>.value(true);
     } else {
@@ -193,7 +193,6 @@ class Validacao {
         nomeA = (nomeA + nome[i + 1]);
       }
     }
-    print(nomeA);
 
     return nomeA;
   }

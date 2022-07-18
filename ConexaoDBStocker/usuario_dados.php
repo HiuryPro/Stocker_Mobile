@@ -14,13 +14,14 @@ while ($resultsFrom = $statement->fetch()) {
     array_push(
         $myarray,
         array(
+            "id" => $resultsFrom['id'],
             "nome_empresa" => $resultsFrom['nome_empresa'],
             "cnpj" => $resultsFrom['cnpj'],
             "email" => $resultsFrom['email'],
-            "telefone" => $resultsFrom['telefone'],
             "cidade" => $resultsFrom['cidade'],
             "estado" => $resultsFrom['estado'],
             "endereco" => $resultsFrom['endereco'],
+            "telefone" => $resultsFrom['telefone'],
             "ganho_mensal" => $resultsFrom['ganho_mensal'],
         )
     );
