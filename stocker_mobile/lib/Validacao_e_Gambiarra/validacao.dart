@@ -1,4 +1,4 @@
-import 'crud.dart';
+import '../DadosDB/crud.dart';
 
 class Validacao {
   var dados = CRUD();

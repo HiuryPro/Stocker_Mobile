@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'DadosDB/crud.dart';
-import 'SendEmail/send_email.dart';
+import '../DadosDB/crud.dart';
+import '../SendEmail/send_email.dart';
 
 class NovaSenhaPage extends StatefulWidget {
   const NovaSenhaPage({Key? key}) : super(key: key);

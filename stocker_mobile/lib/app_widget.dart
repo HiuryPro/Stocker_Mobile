@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'app_controller.dart';
-import 'atualiza_senha.dart';
-import 'cadastro_page.dart';
-import 'home_page.dart';
-import 'login_page.dart';
-import 'nova_senha.dart';
-import 'novo_login.dart';
+import 'Validacao_e_Gambiarra/app_controller.dart';
+import 'Login_e_Cadastro/atualiza_senha.dart';
+import 'Login_e_Cadastro/cadastro_page.dart';
+import 'Home/home_page.dart';
+import 'Login_e_Cadastro/login_page.dart';
+import 'Login_e_Cadastro/nova_senha.dart';
+import 'Login_e_Cadastro/novo_login.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({Key? key}) : super(key: key);

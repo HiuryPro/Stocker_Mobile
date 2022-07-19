@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'DadosDB/crud.dart';
+import '../DadosDB/crud.dart';
 
 class AtualizaSenha extends StatefulWidget {
   const AtualizaSenha({Key? key}) : super(key: key);

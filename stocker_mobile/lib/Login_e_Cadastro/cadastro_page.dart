@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-import 'DadosDB/crud.dart';
-import 'DadosDB/validacao.dart';
-import 'sendEmail/send_email.dart';
+import '../DadosDB/crud.dart';
+import '../Validacao_e_Gambiarra/validacao.dart';
+import '../sendEmail/send_email.dart';
 
 class CadPage extends StatefulWidget {
   const CadPage({Key? key}) : super(key: key);

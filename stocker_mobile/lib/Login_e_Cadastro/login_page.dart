@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stocker_mobile/DadosDB/gambiarra.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/gambiarra.dart';
 
-import 'DadosDB/crud.dart';
-import 'on_hover.dart';
+import '../DadosDB/crud.dart';
+import '../Validacao_e_Gambiarra/on_hover.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);

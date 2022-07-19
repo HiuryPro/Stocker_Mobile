@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_controller.dart';
+import '../Validacao_e_Gambiarra/app_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

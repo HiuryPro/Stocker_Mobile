@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'DadosDB/crud.dart';
-import 'DadosDB/gambiarra.dart';
+import '../DadosDB/crud.dart';
+import '../Validacao_e_Gambiarra/gambiarra.dart';
 
 class NovoLoginPage extends StatefulWidget {
   const NovoLoginPage({Key? key}) : super(key: key);
