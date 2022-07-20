@@ -79,9 +79,12 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(10.0),
             child: Theme(
               data: ThemeData(
-                primaryColor: Colors.black,
-                primaryColorDark: Colors.black,
-              ),
+                  primaryColor: Colors.black,
+                  primaryColorDark: Colors.black,
+                  elevatedButtonTheme: ElevatedButtonThemeData(
+                      style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFF0080d9),
+                  ))),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -137,6 +140,11 @@ class _LoginPageState extends State<LoginPage> {
                         }
                         clearText();
                       },
+                      style: ElevatedButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 24),
+                        minimumSize: const Size.fromHeight(72),
+                        shape: const StadiumBorder(),
+                      ),
                       child: const Text('Entrar')),
                   const SizedBox(
                     height: 20,
@@ -148,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.of(context).pushNamed("/novasenhapage");
                       },
                       child: Text("Esqueci minha Senha ?",
-                          style: TextStyle(color: color)),
+                          style: TextStyle(color: color, fontSize: 16)),
                     );
                   }),
                   const SizedBox(
@@ -161,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.of(context).pushNamed("/cadpage");
                       },
                       child: Text("Ainda não é cadastrado ?",
-                          style: TextStyle(color: color)),
+                          style: TextStyle(color: color, fontSize: 16)),
                     );
                   }),
                 ],

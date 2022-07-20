@@ -46,6 +46,9 @@ class _CadPageState extends State<CadPage> {
       telefone = "",
       ganho = "";
 
+  bool carrega = false;
+  bool isDone = false;
+
   List<String> valores = [];
 
   var maskFormatterCnpj = MaskTextInputFormatter(
@@ -67,9 +70,12 @@ class _CadPageState extends State<CadPage> {
           child: Center(
             child: Theme(
               data: ThemeData(
-                primaryColor: Colors.black,
-                primaryColorDark: Colors.black,
-              ),
+                  primaryColor: Colors.black,
+                  primaryColorDark: Colors.black,
+                  elevatedButtonTheme: ElevatedButtonThemeData(
+                      style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFF0080d9),
+                  ))),
               child: ListView(
                 shrinkWrap: true,
                 children: [
@@ -205,6 +211,10 @@ class _CadPageState extends State<CadPage> {
                   Center(
                     child: ElevatedButton(
                         onPressed: () async {
+                          setState(() {
+                            carrega = true;
+                          });
+
                           valores.add(nomeE);
                           valores.add(cnpj);
                           valores.add(email);
@@ -218,7 +228,6 @@ class _CadPageState extends State<CadPage> {
                             if (valida.validacnpj(cnpj)) {
                               if (await valida.validaCad(
                                   nomeE, cnpj, email, telefone, endereco)) {
-                                mensagem("Cadastro feito com sucesso");
                                 valida.abrevia(nomeE);
                                 await teste.insertUD(valores);
                                 await teste.inserUL(
@@ -228,19 +237,46 @@ class _CadPageState extends State<CadPage> {
                                     cnpj: valores[1],
                                     name: valores[0],
                                     email: valores[2]);
+                                setState(() {
+                                  carrega = false;
+                                });
+                                mensagem("Cadastro feito com sucesso");
 
                                 clearText();
                               } else {
+                                await Future.delayed(
+                                    const Duration(seconds: 1));
+                                setState(() {
+                                  carrega = false;
+                                });
                                 mensagem(valida.getMensagem());
                               }
                             } else {
+                              await Future.delayed(const Duration(seconds: 1));
+                              setState(() {
+                                carrega = false;
+                              });
                               mensagem("CNPJ inválido");
                             }
                           } else {
+                            await Future.delayed(const Duration(seconds: 1));
+                            setState(() {
+                              carrega = false;
+                            });
                             mensagem(valida.getMensagem());
                           }
+
                           valores.clear();
+                          await Future.delayed(const Duration(seconds: 3));
+                          setState(() {
+                            carrega = false;
+                          });
                         },
+                        style: ElevatedButton.styleFrom(
+                          textStyle: const TextStyle(fontSize: 24),
+                          minimumSize: const Size.fromHeight(72),
+                          shape: const StadiumBorder(),
+                        ),
                         child: const Text('Cadastrar')),
                   )
                 ],
@@ -259,9 +295,20 @@ class _CadPageState extends State<CadPage> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
-        _body()
+        _body(),
+        if (carrega) telaCarrega()[0],
+        if (carrega) telaCarrega()[1]
       ],
     ));
+  }
+
+  List<Widget> telaCarrega() {
+    return [
+      Container(
+        color: Colors.white.withOpacity(0.7),
+      ),
+      const Center(child: (CircularProgressIndicator(color: Color(0xFF0080d9))))
+    ];
   }
 
   Widget alert(String mensagem) {
