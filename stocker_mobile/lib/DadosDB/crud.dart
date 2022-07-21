@@ -77,4 +77,29 @@ class CRUD {
     }
     return dados;
   }
+
+  selectPV(String de, String ate) async {
+    dynamic body;
+    print(de);
+    print(ate);
+    var url =
+        Uri.parse("http://192.168.3.9/ConexaoDBStocker/produto_venda.php");
+    http.Response response =
+        await http.post(url, body: {'dedata': de, 'atedata': ate});
+    body = jsonDecode(response.body);
+    print(body);
+
+    var dados = [];
+
+    for (var row in body) {
+      dados.add(row['id']);
+      dados.add(row['nome_produto']);
+      dados.add(row['quantidade']);
+      dados.add(row['preco_unitario']);
+      dados.add(row['total']);
+      dados.add(row['data_saida']);
+      dados.add(row['cliente']);
+    }
+    return dados;
+  }
 }
