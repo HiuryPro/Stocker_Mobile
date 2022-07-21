@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/gambiarra.dart';
 
-import '../DadosDB/crud.dart';
+import '../DadosDB/CRUD.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 
 class LoginPage extends StatefulWidget {

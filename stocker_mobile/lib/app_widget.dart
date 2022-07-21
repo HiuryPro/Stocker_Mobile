@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'Cria_PDF/teste_pdf.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
 import 'Login_e_Cadastro/cadastro_page.dart';
@@ -22,13 +23,15 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
+              initialRoute: '/pdf',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),
                 '/cadpage': (context) => const CadPage(),
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
-                '/atualizasenha': (context) => const AtualizaSenha()
+                '/atualizasenha': (context) => const AtualizaSenha(),
+                '/pdf': (context) => const Chart(),
               });
         });
   }
