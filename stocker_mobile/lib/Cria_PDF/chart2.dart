@@ -54,7 +54,7 @@ class _Chart2State extends State<Chart2> {
                 dataMap: dataMap,
                 legendLabels: legendLabels,
                 chartValuesOptions: const ChartValuesOptions(
-                    chartValueStyle: TextStyle(fontSize: 35)),
+                    decimalPlaces: 2, chartValueStyle: TextStyle(fontSize: 40)),
                 legendOptions: const LegendOptions(
                   legendShape: BoxShape.rectangle,
                   legendTextStyle: TextStyle(fontSize: 50),

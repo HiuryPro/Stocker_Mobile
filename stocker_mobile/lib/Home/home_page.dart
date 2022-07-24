@@ -1,15 +1,10 @@
-import 'dart:convert';
-
-import 'package:fl_chart/fl_chart.dart' as pie;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:typed_data';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
 import '../Cria_PDF/chart.dart';
@@ -33,13 +28,17 @@ class HomePageState extends State<HomePage> {
 
   String deData = "";
   String ateData = "";
+  bool carrega = false;
+  bool isDone = false;
 
   var dadosBD = CRUD();
   var dadosBD2 = CRUD2();
 
   Cores cor = Cores();
   final pdf = pw.Document();
+  // ignore: prefer_typing_uninitialized_variables
   var anchor;
+
   var dateMask = MaskTextInputFormatter(
       mask: '##/##/####',
       filter: {"#": RegExp(r'[0-9]')},
@@ -55,7 +54,6 @@ class HomePageState extends State<HomePage> {
 
     List<List<dynamic>> teste = [];
     teste.add([
-      'id',
       'produto',
       'quantidade',
       'preco',
@@ -65,7 +63,6 @@ class HomePageState extends State<HomePage> {
     ]);
     for (int i = 0; i < dados.length; i = i + 7) {
       teste.add([
-        '${dados[i]}',
         '${dados[i + 1]}',
         '${dados[i + 2]}',
         '${dados[i + 3]}',
@@ -97,48 +94,44 @@ class HomePageState extends State<HomePage> {
               pw.SizedBox(height: 20),
               pw.Center(
                   child: pw.Text("Relatório de Vendas",
+                      textAlign: pw.TextAlign.center,
                       style: const pw.TextStyle(fontSize: 30))),
               pw.SizedBox(height: 20),
               pw.Table.fromTextArray(data: valores),
-              pw.SizedBox(height: 20),
+              pw.NewPage(),
+              pw.Center(
+                  child: pw.Text("Gráfico de quantidade de produtos vendidos",
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(
+                        fontSize: 20,
+                      ))),
+              pw.SizedBox(height: 10),
               pw.Center(
                   child: pw.SizedBox(child: pw.Image(pw.MemoryImage(by)))),
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 30),
+              pw.Center(
+                  child: pw.Text(
+                      textAlign: pw.TextAlign.center,
+                      "Gráfico de total ganho na venda de cada produto",
+                      style: const pw.TextStyle(fontSize: 20))),
+              pw.SizedBox(height: 10),
               pw.Center(
                   child: pw.SizedBox(child: pw.Image(pw.MemoryImage(by2)))),
             ]));
     savePDF();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dandjaro'),
-        actions: [
-          Switch(
-            value: AppController.instance.isDarkTheme,
-            onChanged: (value) {
-              setState(() {
-                AppController.instance.changeTheme();
-              });
-            },
-          ),
-        ],
-      ),
-      body: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget body() {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  "Dandjaro $count",
-                  style: const TextStyle(fontSize: 20),
-                ),
                 Switch(
                   value: AppController.instance.isDarkTheme,
                   onChanged: (value) {
@@ -150,11 +143,6 @@ class HomePageState extends State<HomePage> {
                 const SizedBox(
                   height: 10,
                 ),
-                ElevatedButton(
-                    onPressed: () async {
-                      dynamic list = [];
-                    },
-                    child: Text("Update"))
               ],
             ),
             Text(
@@ -194,6 +182,9 @@ class HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+            const SizedBox(
+              height: 15,
+            ),
             Switch(
               value: AppController.instance.isDarkTheme,
               onChanged: (value) {
@@ -202,26 +193,95 @@ class HomePageState extends State<HomePage> {
                 });
               },
             ),
+            const SizedBox(
+              height: 15,
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    carrega = true;
+                  });
+                  await dadosBD2.updateRTS(deData, ateData);
+                  ScreenshotController screenshotController =
+                      ScreenshotController();
+                  final bytes = await screenshotController.captureFromWidget(
+                      const MediaQuery(data: MediaQueryData(), child: Chart()));
+                  final bytes2 = await screenshotController.captureFromWidget(
+                      const MediaQuery(
+                          data: MediaQueryData(), child: Chart2()));
+                  var image =
+                      (await rootBundle.load("images/Stocker_blue_transp.png"))
+                          .buffer
+                          .asUint8List();
+                  await createPDF(await relatoriaDados(), image, bytes, bytes2);
+                  anchor.click();
+                  setState(() {
+                    carrega = false;
+                  });
+                  mensagem("Cadastro feito com sucesso");
+                },
+                child: const Text("Cria PDF"))
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () async {
-            await dadosBD2.updateRTS(deData, ateData);
-            ScreenshotController screenshotController = ScreenshotController();
-            final bytes = await screenshotController.captureFromWidget(
-                const MediaQuery(data: MediaQueryData(), child: Chart()));
-            final bytes2 = await screenshotController.captureFromWidget(
-                const MediaQuery(data: MediaQueryData(), child: Chart2()));
-            var image =
-                (await rootBundle.load("images/Stocker_blue_transp.png"))
-                    .buffer
-                    .asUint8List();
-            await createPDF(await relatoriaDados(), image, bytes, bytes2);
-            anchor.click();
-            Navigator.pop(context);
-          }),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Stack(
+      children: [
+        body(),
+        if (carrega) telaCarrega()[0],
+        if (carrega) telaCarrega()[1],
+      ],
+    ));
+  }
+
+  List<Widget> telaCarrega() {
+    return [
+      Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Colors.white.withOpacity(0.7),
+      ),
+      SizedBox(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Center(
+                  child: CircularProgressIndicator(color: Color(0xFF0080d9))),
+              SizedBox(height: 10),
+              Center(
+                  child: Text("Espere! Seu relatório está sendo gerado!",
+                      style: TextStyle(fontSize: 25))),
+            ]),
+      ),
+    ];
+  }
+
+  Widget alert(String mensagem) {
+    return AlertDialog(
+      title: const Text("Cadastro"),
+      content: Text(mensagem),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Ok"))
+      ],
+    );
+  }
+
+  mensagem(String mensagem) {
+    return showDialog(
+      context: context,
+      builder: (_) => alert(mensagem),
+      barrierDismissible: true,
     );
   }
 }
