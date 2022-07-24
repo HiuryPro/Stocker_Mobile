@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 
+import '../DadosDB/crud2.dart';
+
 class Chart extends StatefulWidget {
   const Chart({Key? key}) : super(key: key);
 
@@ -9,19 +11,36 @@ class Chart extends StatefulWidget {
 }
 
 class _ChartState extends State<Chart> {
-  final dataMap = <String, double>{
-    "Flutter": 5,
-    "React": 3,
-    "Xamarin": 2,
-    "Ionic": 2,
-  };
+  List<dynamic> dados = [];
+  var teste = CRUD2();
+  List<String> nomes = [];
+  List<double> valores = [];
 
-  final legendLabels = <String, String>{
-    "Flutter": "Flutter legend",
-    "React": "React legend",
-    "Xamarin": "Xamarin legend",
-    "Ionic": "Ionic legend",
-  };
+  Map<String, double> dataMap = {"Flutter": 2, "Teste": 3};
+  Map<String, String> legendLabels = {"Flutter": "Flutter", "Teste": "Teste"};
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      var result = await teste.selectRT();
+
+      for (int i = 0; i < result.length; i = i + 4) {
+        setState(() {
+          nomes.add("${result[i + 1]} : ${result[i + 2]}");
+          valores.add(result[i + 2]);
+        });
+      }
+      setState(() {
+        dataMap = Map.fromIterables(nomes, valores);
+        legendLabels = Map.fromIterables(nomes, nomes);
+      });
+
+      print(nomes);
+      print(dataMap);
+    });
+
+    super.initState();
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(

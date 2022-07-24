@@ -5,7 +5,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access—Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
 
-$makeQuery = "SELECT * FROM produto_venda ";
+$makeQuery = "SELECT *  FROM relatoriototal ";
 $statement = $pdo->prepare($makeQuery);
 $statement->execute();
 $myarray = array();
@@ -15,12 +15,11 @@ while ($resultsFrom = $statement->fetch()) {
         $myarray,
         array(
             "id" => $resultsFrom['id'],
-
             "nome_produto" => $resultsFrom['nome_produto'],
-            "cliente" => $resultsFrom['cliente']
+            "qtd_total" => $resultsFrom['qtd_total'],
+            "preco_total" => $resultsFrom['preco_total'],
+
         )
     );
 }
-
-
 echo json_encode($myarray);

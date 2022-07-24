@@ -12,7 +12,8 @@ import 'package:screenshot/screenshot.dart';
 import 'dart:typed_data';
 import 'dart:html' as html;
 
-import '../Cria_PDF/teste_pdf.dart';
+import '../Cria_PDF/chart.dart';
+import '../Cria_PDF/chart2.dart';
 import '../DadosDB/CRUD.dart';
 import '../DadosDB/crud2.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
@@ -88,7 +89,7 @@ class HomePageState extends State<HomePage> {
     html.document.body?.children.add(anchor);
   }
 
-  createPDF(List<List<dynamic>> valores, var image, var by) async {
+  createPDF(List<List<dynamic>> valores, var image, var by, var by2) async {
     pdf.addPage(pw.MultiPage(
         build: (context) => [
               pw.Center(
@@ -102,6 +103,9 @@ class HomePageState extends State<HomePage> {
               pw.SizedBox(height: 20),
               pw.Center(
                   child: pw.SizedBox(child: pw.Image(pw.MemoryImage(by)))),
+              pw.SizedBox(height: 20),
+              pw.Center(
+                  child: pw.SizedBox(child: pw.Image(pw.MemoryImage(by2)))),
             ]));
     savePDF();
   }
@@ -148,7 +152,7 @@ class HomePageState extends State<HomePage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      await dadosBD2.updateRTS(deData, ateData);
+                      dynamic list = [];
                     },
                     child: Text("Update"))
               ],
@@ -204,15 +208,17 @@ class HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () async {
+            await dadosBD2.updateRTS(deData, ateData);
             ScreenshotController screenshotController = ScreenshotController();
             final bytes = await screenshotController.captureFromWidget(
                 const MediaQuery(data: MediaQueryData(), child: Chart()));
-
+            final bytes2 = await screenshotController.captureFromWidget(
+                const MediaQuery(data: MediaQueryData(), child: Chart2()));
             var image =
                 (await rootBundle.load("images/Stocker_blue_transp.png"))
                     .buffer
                     .asUint8List();
-            await createPDF(await relatoriaDados(), image, bytes);
+            await createPDF(await relatoriaDados(), image, bytes, bytes2);
             anchor.click();
             Navigator.pop(context);
           }),
