@@ -34,9 +34,6 @@ class _Chart2State extends State<Chart2> {
         dataMap = Map.fromIterables(nomes, valores);
         legendLabels = Map.fromIterables(nomes, nomes);
       });
-
-      print(nomes);
-      print(dataMap);
     });
 
     super.initState();
@@ -54,11 +51,13 @@ class _Chart2State extends State<Chart2> {
                 dataMap: dataMap,
                 legendLabels: legendLabels,
                 chartValuesOptions: const ChartValuesOptions(
-                    decimalPlaces: 2, chartValueStyle: TextStyle(fontSize: 40)),
+                    showChartValueBackground: false,
+                    decimalPlaces: 0,
+                    chartValueStyle: TextStyle(fontSize: 35)),
                 legendOptions: const LegendOptions(
-                  legendShape: BoxShape.rectangle,
-                  legendTextStyle: TextStyle(fontSize: 50),
-                ),
+                    legendShape: BoxShape.rectangle,
+                    legendTextStyle: TextStyle(fontSize: 34),
+                    legendPosition: LegendPosition.bottom),
               )),
             ],
           ),

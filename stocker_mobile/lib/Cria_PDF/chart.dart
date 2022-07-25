@@ -34,9 +34,6 @@ class _ChartState extends State<Chart> {
         dataMap = Map.fromIterables(nomes, valores);
         legendLabels = Map.fromIterables(nomes, nomes);
       });
-
-      print(nomes);
-      print(dataMap);
     });
 
     super.initState();
@@ -47,22 +44,18 @@ class _ChartState extends State<Chart> {
         body: Column(
       children: [
         Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                  child: PieChart(
-                dataMap: dataMap,
-                legendLabels: legendLabels,
-                chartValuesOptions: const ChartValuesOptions(
-                    decimalPlaces: 0, chartValueStyle: TextStyle(fontSize: 40)),
-                legendOptions: const LegendOptions(
-                  legendShape: BoxShape.rectangle,
-                  legendTextStyle: TextStyle(fontSize: 50),
-                ),
-              )),
-            ],
-          ),
-        )
+            child: PieChart(
+          dataMap: dataMap,
+          legendLabels: legendLabels,
+          chartValuesOptions: const ChartValuesOptions(
+              showChartValueBackground: false,
+              decimalPlaces: 0,
+              chartValueStyle: TextStyle(fontSize: 35)),
+          legendOptions: const LegendOptions(
+              legendShape: BoxShape.rectangle,
+              legendTextStyle: TextStyle(fontSize: 34),
+              legendPosition: LegendPosition.bottom),
+        )),
       ],
     ));
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:screenshot/screenshot.dart';
 import 'dart:typed_data';
@@ -35,7 +36,7 @@ class HomePageState extends State<HomePage> {
   var dadosBD2 = CRUD2();
 
   Cores cor = Cores();
-  final pdf = pw.Document();
+
   // ignore: prefer_typing_uninitialized_variables
   var anchor;
 
@@ -75,7 +76,7 @@ class HomePageState extends State<HomePage> {
     return teste;
   }
 
-  savePDF() async {
+  savePDF(var pdf) async {
     Uint8List pdfInBytes = await pdf.save();
     final blob = html.Blob([pdfInBytes], 'application/pdf');
     final url = html.Url.createObjectUrlFromBlob(blob);
@@ -86,8 +87,19 @@ class HomePageState extends State<HomePage> {
     html.document.body?.children.add(anchor);
   }
 
-  createPDF(List<List<dynamic>> valores, var image, var by, var by2) async {
+  createPDF(
+      var pdf, List<List<dynamic>> valores, var image, var by, var by2) async {
     pdf.addPage(pw.MultiPage(
+        footer: (pw.Context context) {
+          return pw.Container(
+              alignment: pw.Alignment.centerRight,
+              margin: const pw.EdgeInsets.only(top: 1.0 * PdfPageFormat.cm),
+              child: pw.Text(
+                  'Page ${context.pageNumber} of ${context.pagesCount}',
+                  style: pw.Theme.of(context)
+                      .defaultTextStyle
+                      .copyWith(color: PdfColors.grey)));
+        },
         build: (context) => [
               pw.Center(
                   child: pw.SizedBox(child: pw.Image(pw.MemoryImage(image)))),
@@ -103,22 +115,25 @@ class HomePageState extends State<HomePage> {
                   child: pw.Text("Gráfico de quantidade de produtos vendidos",
                       textAlign: pw.TextAlign.center,
                       style: const pw.TextStyle(
-                        fontSize: 20,
+                        fontSize: 14,
                       ))),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 3),
               pw.Center(
-                  child: pw.SizedBox(child: pw.Image(pw.MemoryImage(by)))),
-              pw.SizedBox(height: 30),
+                  child: pw.SizedBox(
+                      height: 320, child: pw.Image(pw.MemoryImage(by)))),
+              pw.SizedBox(height: 3),
               pw.Center(
                   child: pw.Text(
                       textAlign: pw.TextAlign.center,
                       "Gráfico de total ganho na venda de cada produto",
-                      style: const pw.TextStyle(fontSize: 20))),
-              pw.SizedBox(height: 10),
+                      style: const pw.TextStyle(fontSize: 14))),
+              pw.SizedBox(height: 3),
               pw.Center(
-                  child: pw.SizedBox(child: pw.Image(pw.MemoryImage(by2)))),
+                  child: pw.SizedBox(
+                      height: 320, child: pw.Image(pw.MemoryImage(by2)))),
             ]));
-    savePDF();
+
+    savePDF(pdf);
   }
 
   Widget body() {
@@ -198,27 +213,43 @@ class HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
                 onPressed: () async {
+                  var pdf = pw.Document();
+                  var lista;
                   setState(() {
                     carrega = true;
                   });
                   await dadosBD2.updateRTS(deData, ateData);
                   ScreenshotController screenshotController =
                       ScreenshotController();
-                  final bytes = await screenshotController.captureFromWidget(
-                      const MediaQuery(data: MediaQueryData(), child: Chart()));
-                  final bytes2 = await screenshotController.captureFromWidget(
-                      const MediaQuery(
-                          data: MediaQueryData(), child: Chart2()));
-                  var image =
-                      (await rootBundle.load("images/Stocker_blue_transp.png"))
-                          .buffer
-                          .asUint8List();
-                  await createPDF(await relatoriaDados(), image, bytes, bytes2);
-                  anchor.click();
-                  setState(() {
-                    carrega = false;
-                  });
-                  mensagem("Cadastro feito com sucesso");
+                  lista = await dadosBD.selectPV(deData, ateData);
+                  if (lista.length > 0) {
+                    final bytes = await screenshotController.captureFromWidget(
+                        const MediaQuery(
+                            data: MediaQueryData(), child: Chart()),
+                        delay: Duration(milliseconds: 500));
+                    final bytes2 = await screenshotController.captureFromWidget(
+                        const MediaQuery(
+                          data: MediaQueryData(),
+                          child: Chart2(),
+                        ),
+                        delay: Duration(milliseconds: 500));
+                    var image = (await rootBundle
+                            .load("images/Stocker_blue_transp.png"))
+                        .buffer
+                        .asUint8List();
+                    await createPDF(
+                        pdf, await relatoriaDados(), image, bytes, bytes2);
+                    anchor.click();
+                    setState(() {
+                      carrega = false;
+                    });
+                    mensagem("Relatório gerado com sucesso!");
+                  } else {
+                    setState(() {
+                      carrega = false;
+                    });
+                    mensagem("Não há registros neste período");
+                  }
                 },
                 child: const Text("Cria PDF"))
           ],
@@ -256,7 +287,14 @@ class HomePageState extends State<HomePage> {
                   child: CircularProgressIndicator(color: Color(0xFF0080d9))),
               SizedBox(height: 10),
               Center(
-                  child: Text("Espere! Seu relatório está sendo gerado!",
+                  child: Text(
+                      textAlign: TextAlign.center,
+                      "Espere! Seu relatório está sendo gerado!",
+                      style: TextStyle(fontSize: 25))),
+              Center(
+                  child: Text(
+                      textAlign: TextAlign.center,
+                      "OBS: Caso os gráficos apresentem algum erro repita a geração do relatório",
                       style: TextStyle(fontSize: 25))),
             ]),
       ),
@@ -265,7 +303,7 @@ class HomePageState extends State<HomePage> {
 
   Widget alert(String mensagem) {
     return AlertDialog(
-      title: const Text("Cadastro"),
+      title: const Text("Relatório"),
       content: Text(mensagem),
       actions: [
         TextButton(
