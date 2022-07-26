@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'Cria_PDF/chart.dart';
-import 'Cria_PDF/chart2.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
 import 'Login_e_Cadastro/cadastro_page.dart';
@@ -19,6 +18,12 @@ class AppWidget extends StatelessWidget {
         animation: AppController.instance,
         builder: (context, child) {
           return MaterialApp(
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate
+              ],
+              supportedLocales: const [Locale('pt', 'BR')],
               theme: ThemeData(
                   primarySwatch: Colors.blue,
                   brightness: AppController.instance.isDarkTheme

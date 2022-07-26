@@ -39,6 +39,7 @@ class _ChartState extends State<Chart> {
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
@@ -46,6 +47,7 @@ class _ChartState extends State<Chart> {
         Expanded(
             child: PieChart(
           dataMap: dataMap,
+          animationDuration: const Duration(seconds: 0),
           legendLabels: legendLabels,
           chartValuesOptions: const ChartValuesOptions(
               showChartValueBackground: false,

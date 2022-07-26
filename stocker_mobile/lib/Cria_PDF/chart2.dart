@@ -49,6 +49,7 @@ class _Chart2State extends State<Chart2> {
               Expanded(
                   child: PieChart(
                 dataMap: dataMap,
+                animationDuration: const Duration(seconds: 0),
                 legendLabels: legendLabels,
                 chartValuesOptions: const ChartValuesOptions(
                     showChartValueBackground: false,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -24,6 +25,10 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   int count = 0;
+
+  final fieldText = TextEditingController();
+  final fieldText2 = TextEditingController();
+
   List<String> venda = ["Suco", "Cerveja", "Puta", "Caralho"];
   List<double> preco = [10, 20, 30, 40];
 
@@ -83,7 +88,7 @@ class HomePageState extends State<HomePage> {
     anchor = html.document.createElement('a') as html.AnchorElement
       ..href = url
       ..style.display = 'none'
-      ..download = 'relatorio.pdf';
+      ..download = 'relatorio_${deData}_$ateData.pdf';
     html.document.body?.children.add(anchor);
   }
 
@@ -171,10 +176,22 @@ class HomePageState extends State<HomePage> {
                   flex: 3,
                   fit: FlexFit.tight,
                   child: TextField(
-                      onChanged: (text) {
-                        deData = dateMask.getMaskedText();
+                      onTap: () {
+                        showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1980),
+                                lastDate: DateTime(3000))
+                            .then((date) {
+                          if (date != null) {
+                            fieldText.text =
+                                DateFormat('dd/MM/yyyy').format(date);
+                            deData = fieldText.text;
+                          }
+                        });
                       },
-                      inputFormatters: [dateMask],
+                      controller: fieldText,
+                      //inputFormatters: [dateMask],
                       decoration: const InputDecoration(
                         labelText: 'Dé',
                         border: OutlineInputBorder(
@@ -185,8 +202,20 @@ class HomePageState extends State<HomePage> {
                   flex: 3,
                   fit: FlexFit.tight,
                   child: TextField(
-                      onChanged: (text) {
-                        ateData = dateMask2.getMaskedText();
+                      controller: fieldText2,
+                      onTap: () {
+                        showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1980),
+                                lastDate: DateTime(3000))
+                            .then((date) {
+                          if (date != null) {
+                            fieldText2.text =
+                                DateFormat('dd/MM/yyyy').format(date);
+                            ateData = fieldText2.text;
+                          }
+                        });
                       },
                       inputFormatters: [dateMask2],
                       decoration: const InputDecoration(
@@ -226,13 +255,13 @@ class HomePageState extends State<HomePage> {
                     final bytes = await screenshotController.captureFromWidget(
                         const MediaQuery(
                             data: MediaQueryData(), child: Chart()),
-                        delay: Duration(milliseconds: 500));
+                        delay: const Duration(milliseconds: 750));
                     final bytes2 = await screenshotController.captureFromWidget(
                         const MediaQuery(
                           data: MediaQueryData(),
                           child: Chart2(),
                         ),
-                        delay: Duration(milliseconds: 500));
+                        delay: const Duration(milliseconds: 750));
                     var image = (await rootBundle
                             .load("images/Stocker_blue_transp.png"))
                         .buffer
