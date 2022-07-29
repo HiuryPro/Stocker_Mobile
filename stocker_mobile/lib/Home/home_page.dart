@@ -9,8 +9,6 @@ import 'dart:typed_data';
 // ignore: avoid_web_libraries_in_flutter
 import 'package:universal_html/html.dart' as html;
 
-import '../Cria_PDF/bar_chart.dart';
-import '../Cria_PDF/bar_chart2.dart';
 import '../Cria_PDF/chart.dart';
 import '../Cria_PDF/chart2.dart';
 import '../DadosDB/CRUD.dart';
@@ -94,8 +92,8 @@ class HomePageState extends State<HomePage> {
     html.document.body?.children.add(anchor);
   }
 
-  createPDF(var pdf, List<List<dynamic>> valores, var image, var by, var by2,
-      var by3, var by4) async {
+  createPDF(
+      var pdf, List<List<dynamic>> valores, var image, var by, var by2) async {
     pdf.addPage(
       pw.MultiPage(
           footer: (pw.Context context) {
@@ -139,27 +137,6 @@ class HomePageState extends State<HomePage> {
                 pw.Center(
                     child: pw.SizedBox(
                         height: 320, child: pw.Image(pw.MemoryImage(by2)))),
-                pw.NewPage(),
-                pw.Center(
-                    child: pw.Text("Gráfico de quantidade de produtos vendidos",
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(
-                          fontSize: 14,
-                        ))),
-                pw.SizedBox(height: 3),
-                pw.Center(
-                    child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(by3)))),
-                pw.SizedBox(height: 3),
-                pw.Center(
-                    child: pw.Text(
-                        textAlign: pw.TextAlign.center,
-                        "Gráfico de total ganho na venda de cada produto",
-                        style: const pw.TextStyle(fontSize: 14))),
-                pw.SizedBox(height: 3),
-                pw.Center(
-                    child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(by4)))),
               ]),
     );
 
@@ -286,22 +263,13 @@ class HomePageState extends State<HomePage> {
                         child: Chart2(),
                       ),
                     );
-                    final bytes3 = await screenshotController.captureFromWidget(
-                      const MediaQuery(
-                          data: MediaQueryData(), child: BarChart()),
-                    );
-                    final bytes4 = await screenshotController.captureFromWidget(
-                      const MediaQuery(
-                        data: MediaQueryData(),
-                        child: BarChart2(),
-                      ),
-                    );
+
                     var image = (await rootBundle
                             .load("images/Stocker_blue_transp.png"))
                         .buffer
                         .asUint8List();
-                    await createPDF(pdf, await relatoriaDados(), image, bytes,
-                        bytes2, bytes3, bytes4);
+                    await createPDF(
+                        pdf, await relatoriaDados(), image, bytes, bytes2);
                     anchor.click();
                     setState(() {
                       carrega = false;

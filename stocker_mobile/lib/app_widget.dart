@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:stocker_mobile/Cria_PDF/bar_chart.dart';
-import 'Cria_PDF/bar_chart2.dart';
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
@@ -40,7 +38,6 @@ class AppWidget extends StatelessWidget {
                 '/novasenhapage': (context) => const NovaSenhaPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pdf': (context) => const Chart(),
-                '/bar': (context) => const BarChart(),
               });
         });
   }
