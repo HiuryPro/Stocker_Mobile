@@ -45,6 +45,7 @@ dependencies:
   pie_chart: ^5.3.2
   intl: ^0.17.0
   universal_html: ^2.0.8
+  open_file: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -69,23 +70,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/Stocker_blue_transp.png
-    - assets/images/boxtramp.png
-    - assets/images/Clientes.png
-    - assets/images/entrega.png
-    - assets/images/entregador.png
-    - assets/images/estoque.jpg
-    - assets/images/estoque2.png
-    - assets/images/estoques.png
-    - assets/images/pedidos.png
-    - assets/images/Stocker_blue_transparente.png
-    - assets/images/Stocker.jpg
-    - assets/images/trash-aberto.png
-    - assets/images/trash.png
-    - assets/images/vendas.png
-    - assets/images/vendas.png
-    - assets/images/backstocker.jpg
-    - assets/images/back2.jpg
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

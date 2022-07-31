@@ -36,62 +36,70 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                 primaryColor: Colors.black,
                 primaryColorDark: Colors.black,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                      width: 400,
-                      child: Image.asset('images/Stocker_blue_transp.png')),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  const Text(
-                      "Informe o email que está vinculado a seu cadastrado \n que iremos envia-ló uma nova senha"),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                    onChanged: (text) {
-                      email = text;
-                    },
-                    controller: fieldText,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+              child: Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    SizedBox(
+                        width: 400,
+                        child: Image.asset(
+                            'assets/images/Stocker_blue_transp.png')),
+                    const SizedBox(
+                      height: 15,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        String random = "";
-                        dynamic lista = [];
-                        bool enviou = false;
-                        lista = await teste.selectUD();
-                        for (int i = 0; i < lista.length; i = i + 9) {
-                          if (email == lista[i + 3]) {
-                            random = geraStringAleatoria();
-                            await teste.updateSenha(lista[i], random, 0);
-                            await sendMail.sendEmailChangePass(
-                                email: email, password: random, name: lista[1]);
-                            enviou = true;
-                          }
-                        }
-                        if (enviou) {
-                          mensagem("Senha enviada",
-                              "Sua nova senha foi enviada ao seu email");
-                        } else {
-                          mensagem("Email incorreto", "Esse email é invalido");
-                        }
-
-                        clearText();
+                    const Center(
+                      child: Text(
+                          "Informe o email que está vinculado a seu cadastrado \n que iremos envia-ló uma nova senha"),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    TextField(
+                      onChanged: (text) {
+                        email = text;
                       },
-                      child: const Text('Entrar')),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
+                      controller: fieldText,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          String random = "";
+                          dynamic lista = [];
+                          bool enviou = false;
+                          lista = await teste.selectUD();
+                          for (int i = 0; i < lista.length; i = i + 9) {
+                            if (email == lista[i + 3]) {
+                              random = geraStringAleatoria();
+                              await teste.updateSenha(lista[i], random, 0);
+                              await sendMail.sendEmailChangePass(
+                                  email: email,
+                                  password: random,
+                                  name: lista[1]);
+                              enviou = true;
+                            }
+                          }
+                          if (enviou) {
+                            mensagem("Senha enviada",
+                                "Sua nova senha foi enviada ao seu email");
+                          } else {
+                            mensagem(
+                                "Email incorreto", "Esse email é invalido");
+                          }
+
+                          clearText();
+                        },
+                        child: const Text('Entrar')),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
               ),
             )));
   }
@@ -103,7 +111,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
       SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
+          child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
       _body()
     ]));
   }

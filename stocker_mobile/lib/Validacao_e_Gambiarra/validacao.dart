@@ -182,15 +182,15 @@ class Validacao {
 
   String abrevia(String nome) {
     String nomeA;
+    String nomes = nome.trimRight();
     nomeA = "";
-    int i;
 
-    for ((i = 0); i < nome.length; i++) {
+    for (int i = 0; i < nomes.length; i++) {
       if (i == 0) {
-        nomeA = (nomeA + nome[i]);
+        nomeA = (nomeA + nomes[i]);
       }
-      if (nome[i].compareTo(' ') == 0) {
-        nomeA = (nomeA + nome[i + 1]);
+      if (nomes[i].compareTo(' ') == 0) {
+        nomeA = (nomeA + nomes[i + 1]);
       }
     }
 

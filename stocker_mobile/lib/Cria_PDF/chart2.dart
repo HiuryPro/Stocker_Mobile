@@ -27,7 +27,7 @@ class _Chart2State extends State<Chart2> {
       for (int i = 0; i < result.length; i = i + 4) {
         setState(() {
           nomes.add("${result[i + 1]} : ${result[i + 3]}");
-          valores.add(result[i + 3]);
+          valores.add(double.parse('${result[i + 3]}'));
         });
       }
       setState(() {
@@ -39,6 +39,7 @@ class _Chart2State extends State<Chart2> {
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(

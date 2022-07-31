@@ -82,7 +82,8 @@ class _CadPageState extends State<CadPage> {
                   SizedBox(
                       width: 100,
                       height: 100,
-                      child: Image.asset('images/Stocker_blue_transp.png')),
+                      child:
+                          Image.asset('assets/images/Stocker_blue_transp.png')),
                   const SizedBox(
                     height: 15,
                   ),
@@ -294,7 +295,7 @@ class _CadPageState extends State<CadPage> {
         SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
+            child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
         _body(),
         if (carrega) telaCarrega()[0],
         if (carrega) telaCarrega()[1]
@@ -318,7 +319,7 @@ class _CadPageState extends State<CadPage> {
       actions: [
         TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed('/');
             },
             child: const Text("Ok"))
       ],

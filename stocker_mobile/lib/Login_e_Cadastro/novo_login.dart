@@ -39,7 +39,8 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
                 children: [
                   SizedBox(
                       width: 400,
-                      child: Image.asset('images/Stocker_blue_transp.png')),
+                      child:
+                          Image.asset('assets/images/Stocker_blue_transp.png')),
                   const SizedBox(
                     height: 15,
                   ),
@@ -121,7 +122,7 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
       SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Image.asset('images/back2.jpg', fit: BoxFit.cover)),
+          child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
       _body()
     ]));
   }

@@ -27,7 +27,7 @@ class _ChartState extends State<Chart> {
       for (int i = 0; i < result.length; i = i + 4) {
         setState(() {
           nomes.add("${result[i + 1]} : ${result[i + 2]}");
-          valores.add(result[i + 2]);
+          valores.add(double.parse('${result[i + 2]}'));
         });
       }
       setState(() {

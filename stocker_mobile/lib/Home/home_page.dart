@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:typed_data';
 // ignore: avoid_web_libraries_in_flutter
@@ -81,6 +87,18 @@ class HomePageState extends State<HomePage> {
     return teste;
   }
 
+  savePDFMob(var pdf) async {
+    var bytes = await pdf.save();
+
+    String path =
+        '/storage/emulated/0/Download/relatorio_${deData.replaceAll(RegExp(r'/'), '-')}_${ateData.replaceAll(RegExp(r'/'), '-')}.pdf';
+    final File file = File(path);
+    file.writeAsBytesSync(bytes);
+
+    var url = file.path;
+    await OpenFile.open(url);
+  }
+
   savePDF(var pdf) async {
     Uint8List pdfInBytes = await pdf.save();
     final blob = html.Blob([pdfInBytes], 'application/pdf');
@@ -140,7 +158,11 @@ class HomePageState extends State<HomePage> {
               ]),
     );
 
-    savePDF(pdf);
+    if (kIsWeb) {
+      savePDF(pdf);
+    } else {
+      savePDFMob(pdf);
+    }
   }
 
   Widget body() {
@@ -246,40 +268,132 @@ class HomePageState extends State<HomePage> {
                 onPressed: () async {
                   var pdf = pw.Document();
                   var lista;
+
                   setState(() {
                     carrega = true;
                   });
-                  await dadosBD2.updateRTS(deData, ateData);
-                  ScreenshotController screenshotController =
-                      ScreenshotController();
-                  lista = await dadosBD.selectPV(deData, ateData);
-                  if (lista.length > 0) {
-                    final bytes = await screenshotController.captureFromWidget(
-                      const MediaQuery(data: MediaQueryData(), child: Chart()),
-                    );
-                    final bytes2 = await screenshotController.captureFromWidget(
-                      const MediaQuery(
-                        data: MediaQueryData(),
-                        child: Chart2(),
-                      ),
-                    );
 
-                    var image = (await rootBundle
-                            .load("images/Stocker_blue_transp.png"))
-                        .buffer
-                        .asUint8List();
-                    await createPDF(
-                        pdf, await relatoriaDados(), image, bytes, bytes2);
-                    anchor.click();
-                    setState(() {
-                      carrega = false;
-                    });
-                    mensagem("Relatório gerado com sucesso!");
+                  if (kIsWeb) {
+                    await dadosBD2.updateRTS(deData, ateData);
+                    ScreenshotController screenshotController =
+                        ScreenshotController();
+                    lista = await dadosBD.selectPV(deData, ateData);
+                    if (lista.length > 0) {
+                      final bytes =
+                          await screenshotController.captureFromWidget(
+                        const MediaQuery(
+                            data: MediaQueryData(), child: Chart()),
+                      );
+                      final bytes2 =
+                          await screenshotController.captureFromWidget(
+                        const MediaQuery(
+                          data: MediaQueryData(),
+                          child: Chart2(),
+                        ),
+                      );
+
+                      var image = (await rootBundle
+                              .load("assets/images/Stocker_blue_transp.png"))
+                          .buffer
+                          .asUint8List();
+                      await createPDF(
+                          pdf, await relatoriaDados(), image, bytes, bytes2);
+                      anchor.click();
+                      setState(() {
+                        carrega = false;
+                      });
+                      mensagem(
+                          "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
+                    } else {
+                      setState(() {
+                        carrega = false;
+                      });
+                      mensagem("Não há registros neste período");
+                    }
                   } else {
-                    setState(() {
-                      carrega = false;
-                    });
-                    mensagem("Não há registros neste período");
+                    if (await Permission.storage.isGranted) {
+                      await dadosBD2.updateRTS(deData, ateData);
+                      ScreenshotController screenshotController =
+                          ScreenshotController();
+                      lista = await dadosBD.selectPV(deData, ateData);
+                      if (lista.length > 0) {
+                        final bytes =
+                            await screenshotController.captureFromWidget(
+                          const MediaQuery(
+                              data: MediaQueryData(), child: Chart()),
+                        );
+                        final bytes2 =
+                            await screenshotController.captureFromWidget(
+                          const MediaQuery(
+                            data: MediaQueryData(),
+                            child: Chart2(),
+                          ),
+                        );
+
+                        var image = (await rootBundle
+                                .load("assets/images/Stocker_blue_transp.png"))
+                            .buffer
+                            .asUint8List();
+                        await createPDF(
+                            pdf, await relatoriaDados(), image, bytes, bytes2);
+
+                        setState(() {
+                          carrega = false;
+                        });
+                        mensagem(
+                            "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
+                      } else {
+                        setState(() {
+                          carrega = false;
+                        });
+                        mensagem("Não há registros neste período");
+                      }
+                    } else {
+                      await [Permission.storage].request();
+
+                      if (await Permission.storage.isGranted) {
+                        await dadosBD2.updateRTS(deData, ateData);
+                        ScreenshotController screenshotController =
+                            ScreenshotController();
+                        lista = await dadosBD.selectPV(deData, ateData);
+                        if (lista.length > 0) {
+                          final bytes =
+                              await screenshotController.captureFromWidget(
+                            const MediaQuery(
+                                data: MediaQueryData(), child: Chart()),
+                          );
+                          final bytes2 =
+                              await screenshotController.captureFromWidget(
+                            const MediaQuery(
+                              data: MediaQueryData(),
+                              child: Chart2(),
+                            ),
+                          );
+
+                          var image = (await rootBundle.load(
+                                  "assets/images/Stocker_blue_transp.png"))
+                              .buffer
+                              .asUint8List();
+                          await createPDF(pdf, await relatoriaDados(), image,
+                              bytes, bytes2);
+                          setState(() {
+                            carrega = false;
+                          });
+                          mensagem(
+                              "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
+                        } else {
+                          setState(() {
+                            carrega = false;
+                          });
+                          mensagem("Não há registros neste período");
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text("Need permissions"),
+                        ));
+                      }
+                    }
                   }
                 },
                 child: const Text("Cria PDF"))
