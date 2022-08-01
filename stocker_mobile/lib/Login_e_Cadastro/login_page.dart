@@ -89,10 +89,12 @@ class _LoginPageState extends State<LoginPage> {
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    SizedBox(
-                        width: 400,
-                        child: Image.asset(
-                            'assets/images/Stocker_blue_transp.png')),
+                    Center(
+                      child: SizedBox(
+                          width: 400,
+                          child: Image.asset(
+                              'assets/images/Stocker_blue_transp.png')),
+                    ),
                     const SizedBox(
                       height: 15,
                     ),

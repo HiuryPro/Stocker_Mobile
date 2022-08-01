@@ -34,61 +34,64 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
                 primaryColor: Colors.black,
                 primaryColorDark: Colors.black,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                      width: 400,
-                      child:
-                          Image.asset('assets/images/Stocker_blue_transp.png')),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                    onChanged: (text) {
-                      usuario = text;
-                    },
-                    controller: fieldText,
-                    decoration: const InputDecoration(
-                      labelText: 'Usuário',
-                      border: OutlineInputBorder(),
+              child: Center(
+                child: ListView(
+                  children: [
+                    Center(
+                      child: SizedBox(
+                          width: 400,
+                          child: Image.asset(
+                              'assets/images/Stocker_blue_transp.png')),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    TextField(
                       onChanged: (text) {
-                        senha = text;
+                        usuario = text;
                       },
-                      controller: fieldText2,
+                      controller: fieldText,
                       decoration: const InputDecoration(
-                        labelText: 'Senha',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        await teste.updateUL(
-                            usuario, senha, Gambiarra.gambiarra.loginAntigo);
+                        labelText: 'Usuário',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    TextField(
+                        onChanged: (text) {
+                          senha = text;
+                        },
+                        controller: fieldText2,
+                        decoration: const InputDecoration(
+                          labelText: 'Senha',
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.red)),
+                        )),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          await teste.updateUL(
+                              usuario, senha, Gambiarra.gambiarra.loginAntigo);
 
-                        showDialog(
-                          context: context,
-                          builder: (_) => alert("Atualização de Login",
-                              "Atualizalção feita com sucesso"),
-                          barrierDismissible: true,
-                        );
+                          showDialog(
+                            context: context,
+                            builder: (_) => alert("Atualização de Login",
+                                "Atualizalção feita com sucesso"),
+                            barrierDismissible: true,
+                          );
 
-                        clearText();
-                      },
-                      child: const Text('Entrar')),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
+                          clearText();
+                        },
+                        child: const Text('Entrar')),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
               ),
             )));
   }

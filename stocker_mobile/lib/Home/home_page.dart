@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -17,6 +16,7 @@ import 'package:universal_html/html.dart' as html;
 
 import '../Cria_PDF/chart.dart';
 import '../Cria_PDF/chart2.dart';
+import '../Cria_PDF/cria_pdf.dart';
 import '../DadosDB/CRUD.dart';
 import '../DadosDB/crud2.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
@@ -45,6 +45,7 @@ class HomePageState extends State<HomePage> {
 
   var dadosBD = CRUD();
   var dadosBD2 = CRUD2();
+  var criaPdf = CriaPDF();
 
   Cores cor = Cores();
 
@@ -91,12 +92,11 @@ class HomePageState extends State<HomePage> {
     var bytes = await pdf.save();
 
     String path =
-        '/storage/emulated/0/Download/relatorio_${deData.replaceAll(RegExp(r'/'), '-')}_${ateData.replaceAll(RegExp(r'/'), '-')}.pdf';
+        '/storage/emulated/0/Download/Stocker/relatorio_${deData.replaceAll(RegExp(r'/'), '-')}_${ateData.replaceAll(RegExp(r'/'), '-')}.pdf';
     final File file = File(path);
     file.writeAsBytesSync(bytes);
 
     var url = file.path;
-    await OpenFile.open(url);
   }
 
   savePDF(var pdf) async {
@@ -189,10 +189,6 @@ class HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            Text(
-              "Dandjaro $count",
-              style: const TextStyle(fontSize: 20),
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -200,6 +196,8 @@ class HomePageState extends State<HomePage> {
                   flex: 3,
                   fit: FlexFit.tight,
                   child: TextField(
+                      readOnly: true,
+                      controller: fieldText,
                       onTap: () {
                         showDatePicker(
                                 context: context,
@@ -214,7 +212,7 @@ class HomePageState extends State<HomePage> {
                           }
                         });
                       },
-                      controller: fieldText,
+
                       //inputFormatters: [dateMask],
                       decoration: const InputDecoration(
                         labelText: 'Dé',
@@ -226,6 +224,7 @@ class HomePageState extends State<HomePage> {
                   flex: 3,
                   fit: FlexFit.tight,
                   child: TextField(
+                      readOnly: true,
                       controller: fieldText2,
                       onTap: () {
                         showDatePicker(
@@ -252,14 +251,6 @@ class HomePageState extends State<HomePage> {
             ),
             const SizedBox(
               height: 15,
-            ),
-            Switch(
-              value: AppController.instance.isDarkTheme,
-              onChanged: (value) {
-                setState(() {
-                  AppController.instance.changeTheme();
-                });
-              },
             ),
             const SizedBox(
               height: 15,
@@ -303,7 +294,7 @@ class HomePageState extends State<HomePage> {
                         carrega = false;
                       });
                       mensagem(
-                          "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
+                          "Relatório gerado com sucesso! Arquivo baixado na pasta dowloads");
                     } else {
                       setState(() {
                         carrega = false;
@@ -312,31 +303,19 @@ class HomePageState extends State<HomePage> {
                     }
                   } else {
                     if (await Permission.storage.isGranted) {
-                      await dadosBD2.updateRTS(deData, ateData);
-                      ScreenshotController screenshotController =
-                          ScreenshotController();
+                      await criaPdf.criaDiretorio();
+
                       lista = await dadosBD.selectPV(deData, ateData);
                       if (lista.length > 0) {
-                        final bytes =
-                            await screenshotController.captureFromWidget(
-                          const MediaQuery(
-                              data: MediaQueryData(), child: Chart()),
-                        );
-                        final bytes2 =
-                            await screenshotController.captureFromWidget(
-                          const MediaQuery(
-                            data: MediaQueryData(),
-                            child: Chart2(),
-                          ),
-                        );
-
                         var image = (await rootBundle
                                 .load("assets/images/Stocker_blue_transp.png"))
                             .buffer
                             .asUint8List();
-                        await createPDF(
-                            pdf, await relatoriaDados(), image, bytes, bytes2);
-
+                        await dadosBD2.updateRTS(deData, ateData);
+                        criaPdf.deData = deData;
+                        criaPdf.ateData = ateData;
+                        await criaPdf.relatoriaDados();
+                        await criaPdf.createPDF();
                         setState(() {
                           carrega = false;
                         });
@@ -352,30 +331,15 @@ class HomePageState extends State<HomePage> {
                       await [Permission.storage].request();
 
                       if (await Permission.storage.isGranted) {
-                        await dadosBD2.updateRTS(deData, ateData);
-                        ScreenshotController screenshotController =
-                            ScreenshotController();
+                        await criaPdf.criaDiretorio();
+
                         lista = await dadosBD.selectPV(deData, ateData);
                         if (lista.length > 0) {
-                          final bytes =
-                              await screenshotController.captureFromWidget(
-                            const MediaQuery(
-                                data: MediaQueryData(), child: Chart()),
-                          );
-                          final bytes2 =
-                              await screenshotController.captureFromWidget(
-                            const MediaQuery(
-                              data: MediaQueryData(),
-                              child: Chart2(),
-                            ),
-                          );
-
-                          var image = (await rootBundle.load(
-                                  "assets/images/Stocker_blue_transp.png"))
-                              .buffer
-                              .asUint8List();
-                          await createPDF(pdf, await relatoriaDados(), image,
-                              bytes, bytes2);
+                          await dadosBD2.updateRTS(deData, ateData);
+                          criaPdf.deData = deData;
+                          criaPdf.ateData = ateData;
+                          await criaPdf.relatoriaDados();
+                          await criaPdf.createPDF();
                           setState(() {
                             carrega = false;
                           });
@@ -396,7 +360,7 @@ class HomePageState extends State<HomePage> {
                     }
                   }
                 },
-                child: const Text("Cria PDF"))
+                child: const Text("Cria PDF")),
           ],
         ),
       ),
@@ -436,11 +400,6 @@ class HomePageState extends State<HomePage> {
                       textAlign: TextAlign.center,
                       "Espere! Seu relatório está sendo gerado!",
                       style: TextStyle(fontSize: 25))),
-              Center(
-                  child: Text(
-                      textAlign: TextAlign.center,
-                      "OBS: Caso os gráficos apresentem algum erro repita a geração do relatório",
-                      style: TextStyle(fontSize: 25))),
             ]),
       ),
     ];
@@ -449,7 +408,10 @@ class HomePageState extends State<HomePage> {
   Widget alert(String mensagem) {
     return AlertDialog(
       title: const Text("Relatório"),
-      content: Text(mensagem),
+      content: Text(
+        mensagem,
+        textAlign: TextAlign.center,
+      ),
       actions: [
         TextButton(
             onPressed: () {
