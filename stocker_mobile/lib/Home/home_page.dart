@@ -2,21 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:screenshot/screenshot.dart';
 import 'dart:typed_data';
 // ignore: avoid_web_libraries_in_flutter
 import 'package:universal_html/html.dart' as html;
 
-import '../Cria_PDF/chart.dart';
-import '../Cria_PDF/chart2.dart';
 import '../Cria_PDF/cria_pdf.dart';
+import '../Cria_PDF/uint.dart';
 import '../DadosDB/CRUD.dart';
 import '../DadosDB/crud2.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
@@ -95,8 +91,6 @@ class HomePageState extends State<HomePage> {
         '/storage/emulated/0/Download/Stocker/relatorio_${deData.replaceAll(RegExp(r'/'), '-')}_${ateData.replaceAll(RegExp(r'/'), '-')}.pdf';
     final File file = File(path);
     file.writeAsBytesSync(bytes);
-
-    var url = file.path;
   }
 
   savePDF(var pdf) async {
@@ -257,8 +251,7 @@ class HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  var pdf = pw.Document();
-                  var lista;
+                  var lista = [];
 
                   setState(() {
                     carrega = true;
@@ -266,33 +259,22 @@ class HomePageState extends State<HomePage> {
 
                   if (kIsWeb) {
                     await dadosBD2.updateRTS(deData, ateData);
-                    ScreenshotController screenshotController =
-                        ScreenshotController();
                     lista = await dadosBD.selectPV(deData, ateData);
-                    if (lista.length > 0) {
-                      final bytes =
-                          await screenshotController.captureFromWidget(
-                        const MediaQuery(
-                            data: MediaQueryData(), child: Chart()),
-                      );
-                      final bytes2 =
-                          await screenshotController.captureFromWidget(
-                        const MediaQuery(
-                          data: MediaQueryData(),
-                          child: Chart2(),
-                        ),
-                      );
 
-                      var image = (await rootBundle
-                              .load("assets/images/Stocker_blue_transp.png"))
-                          .buffer
-                          .asUint8List();
-                      await createPDF(
-                          pdf, await relatoriaDados(), image, bytes, bytes2);
-                      anchor.click();
+                    if (lista.isNotEmpty) {
+                      criaPdf.deData = deData;
+                      criaPdf.ateData = ateData;
+                      var teste2 = Uint();
+                      await teste2.pegaImagem();
+                      await criaPdf.relatoriaDados();
+                      await criaPdf.createPDF(
+                          teste2.image, teste2.bytes, teste2.bytes2);
+                      criaPdf.anchor.click();
+
                       setState(() {
                         carrega = false;
                       });
+
                       mensagem(
                           "Relatório gerado com sucesso! Arquivo baixado na pasta dowloads");
                     } else {
@@ -306,16 +288,15 @@ class HomePageState extends State<HomePage> {
                       await criaPdf.criaDiretorio();
 
                       lista = await dadosBD.selectPV(deData, ateData);
-                      if (lista.length > 0) {
-                        var image = (await rootBundle
-                                .load("assets/images/Stocker_blue_transp.png"))
-                            .buffer
-                            .asUint8List();
+                      if (lista.isNotEmpty) {
                         await dadosBD2.updateRTS(deData, ateData);
                         criaPdf.deData = deData;
                         criaPdf.ateData = ateData;
+                        var teste2 = Uint();
+                        await teste2.pegaImagem();
                         await criaPdf.relatoriaDados();
-                        await criaPdf.createPDF();
+                        await criaPdf.createPDF(
+                            teste2.image, teste2.bytes, teste2.bytes2);
                         setState(() {
                           carrega = false;
                         });
@@ -334,12 +315,15 @@ class HomePageState extends State<HomePage> {
                         await criaPdf.criaDiretorio();
 
                         lista = await dadosBD.selectPV(deData, ateData);
-                        if (lista.length > 0) {
+                        if (lista.isNotEmpty) {
                           await dadosBD2.updateRTS(deData, ateData);
                           criaPdf.deData = deData;
                           criaPdf.ateData = ateData;
+                          var teste2 = Uint();
+                          await teste2.pegaImagem();
                           await criaPdf.relatoriaDados();
-                          await criaPdf.createPDF();
+                          await criaPdf.createPDF(
+                              teste2.image, teste2.bytes, teste2.bytes2);
                           setState(() {
                             carrega = false;
                           });
@@ -352,6 +336,7 @@ class HomePageState extends State<HomePage> {
                           mensagem("Não há registros neste período");
                         }
                       } else {
+                        // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context)
                             .showSnackBar(const SnackBar(
                           content: Text("Need permissions"),

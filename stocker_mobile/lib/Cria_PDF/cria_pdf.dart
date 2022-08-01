@@ -2,14 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:stocker_mobile/Cria_PDF/chart.dart';
-import 'package:stocker_mobile/Cria_PDF/chart2.dart';
 
 import '../DadosDB/CRUD.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
@@ -50,7 +44,7 @@ class CriaPDF {
     var bytes = await pdf.save();
 
     String path =
-        '/storage/emulated/0/Download/Stocker/relatorio_${deData.replaceAll(RegExp(r'/'), '-')}_${ateData.replaceAll(RegExp(r'/'), '-')}.pdf';
+        '/storage/emulated/0/Download/Stocker/relatorio_${deData.replaceAll(RegExp(r'/'), '_')}_${ateData.replaceAll(RegExp(r'/'), '_')}.pdf';
     final File file = File(path);
     file.writeAsBytesSync(bytes);
   }
@@ -66,22 +60,8 @@ class CriaPDF {
     html.document.body?.children.add(anchor);
   }
 
-  createPDF() async {
+  createPDF(var image, var by, var by2) async {
     var pdf = pw.Document();
-    ScreenshotController screenshotController = ScreenshotController();
-    final bytes = await screenshotController.captureFromWidget(
-      const MediaQuery(data: MediaQueryData(), child: Chart()),
-    );
-    final bytes2 = await screenshotController.captureFromWidget(
-      const MediaQuery(
-        data: MediaQueryData(),
-        child: Chart2(),
-      ),
-    );
-
-    var image = (await rootBundle.load("assets/images/Stocker_blue_transp.png"))
-        .buffer
-        .asUint8List();
     pdf.addPage(
       pw.MultiPage(
           footer: (pw.Context context) {
@@ -114,7 +94,7 @@ class CriaPDF {
                 pw.SizedBox(height: 3),
                 pw.Center(
                     child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(bytes)))),
+                        height: 320, child: pw.Image(pw.MemoryImage(by)))),
                 pw.SizedBox(height: 3),
                 pw.Center(
                     child: pw.Text(
@@ -124,7 +104,7 @@ class CriaPDF {
                 pw.SizedBox(height: 3),
                 pw.Center(
                     child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(bytes2)))),
+                        height: 320, child: pw.Image(pw.MemoryImage(by2)))),
               ]),
     );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/gambiarra.dart';
 
+import '../Cria_PDF/uint.dart';
 import '../DadosDB/CRUD.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 
@@ -16,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final fieldText2 = TextEditingController();
 
   var teste = CRUD();
+  var teste2 = Uint();
 
   String usuario = '';
   String senha = '';
@@ -180,6 +182,14 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     }),
+                    ElevatedButton(
+                        onPressed: () async {
+                          await teste2.pegaImagem();
+                          print(teste2.bytes);
+                          print(teste2.bytes2);
+                          print(teste2.image);
+                        },
+                        child: const Text("Imagem"))
                   ],
                 ),
               ),
