@@ -2,8 +2,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CRUD {
+  final String ip = "192.168.3.9";
+
   insertUD(List<String> lista) async {
-    var url = Uri.parse("http://192.168.3.9/ConexaoDBStocker/cadastro.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/cadastro.php");
     await http.post(url, body: {
       "nome_empresa": lista[0],
       "cnpj": lista[1],
@@ -17,8 +19,7 @@ class CRUD {
   }
 
   inserUL(String login, String senha) async {
-    var url =
-        Uri.parse("http://192.168.3.9/ConexaoDBStocker/cadastro_login.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/cadastro_login.php");
     await http.post(url, body: {
       "login": login,
       "senha": senha,
@@ -26,20 +27,18 @@ class CRUD {
   }
 
   updateUL(String login, String senha, int id) async {
-    var url =
-        Uri.parse("http://192.168.3.9/ConexaoDBStocker/atualiza_login.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/atualiza_login.php");
     await http.post(url, body: {"login": login, "senha": senha, "id": "$id"});
   }
 
   updateSenha(int id, String random, int ns) async {
-    var url =
-        Uri.parse("http://192.168.3.9/ConexaoDBStocker/atualiza_senha.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/atualiza_senha.php");
     await http.post(url, body: {"senha": random, "ns": "$ns", "id": "$id"});
   }
 
   selectUL() async {
     dynamic body;
-    var url = Uri.parse("http://192.168.3.9/ConexaoDBStocker/login.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/login.php");
     http.Response response = await http.get(url);
     body = jsonDecode(response.body);
     var usuarios = [];
@@ -57,8 +56,7 @@ class CRUD {
 
   selectUD() async {
     dynamic body;
-    var url =
-        Uri.parse("http://192.168.3.9/ConexaoDBStocker/usuario_dados.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/usuario_dados.php");
     http.Response response = await http.get(url);
     body = jsonDecode(response.body);
 
@@ -82,8 +80,7 @@ class CRUD {
     dynamic body;
     print(de);
     print(ate);
-    var url =
-        Uri.parse("http://192.168.3.9/ConexaoDBStocker/produto_venda.php");
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/produto_venda.php");
     http.Response response =
         await http.post(url, body: {'dedata': de, 'atedata': ate});
     body = jsonDecode(response.body);

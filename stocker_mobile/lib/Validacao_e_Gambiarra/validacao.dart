@@ -133,21 +133,28 @@ class Validacao {
     if (itens.length == 0) {
       valida = Future<bool>.value(true);
     } else {
-      if (itens[0] == nomeE) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse nome de empresa já está em uso';
-      } else if (itens[1] == cnpj) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse cnpj já está em uso';
-      } else if (itens[2] == email) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse email já está em uso';
-      } else if (itens[3] == telefone) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse telefone já está em uso';
-      } else if (itens[4] == endereco) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse endereço já está em uso';
+      for (int i = 0; i < itens.length; i = i + 9) {
+        if (itens[i + 1] == nomeE) {
+          valida = Future<bool>.value(false);
+          mensagem = 'Esse nome de empresa já está em uso';
+          break;
+        } else if (itens[i + 2] == cnpj) {
+          valida = Future<bool>.value(false);
+          mensagem = 'Esse cnpj já está em uso';
+          break;
+        } else if (itens[i + 3] == email) {
+          valida = Future<bool>.value(false);
+          mensagem = 'Esse email já está em uso';
+          break;
+        } else if (itens[i + 4] == telefone) {
+          valida = Future<bool>.value(false);
+          mensagem = 'Esse telefone já está em uso';
+          break;
+        } else if (itens[i + 6] == endereco) {
+          valida = Future<bool>.value(false);
+          mensagem = 'Esse endereço já está em uso';
+          break;
+        }
       }
     }
 
