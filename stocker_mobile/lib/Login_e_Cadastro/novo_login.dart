@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 
 import '../DadosDB/crud.dart';
 import '../Validacao_e_Gambiarra/gambiarra.dart';
@@ -35,8 +36,7 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
                 Center(
                   child: SizedBox(
                       width: 400,
-                      child:
-                          Image.asset('assets/images/Stocker_blue_transp.png')),
+                      child: Image.asset(AppController.instance.img2)),
                 ),
                 const SizedBox(
                   height: 15,
@@ -81,6 +81,12 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
 
                       clearText();
                     },
+                    style: ElevatedButton.styleFrom(
+                      primary: AppController.instance.theme2,
+                      textStyle: const TextStyle(fontSize: 24),
+                      minimumSize: const Size.fromHeight(72),
+                      shape: const StadiumBorder(),
+                    ),
                     child: const Text('Entrar')),
                 const SizedBox(
                   height: 20,
@@ -116,12 +122,35 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      style: TextStyle(color: AppController.instance.theme1),
+                      "BlackTheme"),
+                  Switch(
+                    value: AppController.instance.isDarkTheme,
+                    onChanged: (value) {
+                      setState(() {
+                        AppController.instance.changeTheme();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ]),
         body: Stack(children: [
-      SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
-      _body()
-    ]));
+          SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child:
+                  Image.asset(AppController.instance.img, fit: BoxFit.cover)),
+          _body()
+        ]));
   }
 }
