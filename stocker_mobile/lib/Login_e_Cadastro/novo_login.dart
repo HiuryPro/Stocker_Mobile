@@ -28,72 +28,67 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
         width: double.infinity,
         height: double.infinity,
         child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Theme(
-              data: ThemeData(
-                primaryColor: Colors.black,
-                primaryColorDark: Colors.black,
-              ),
-              child: Center(
-                child: ListView(
-                  children: [
-                    Center(
-                      child: SizedBox(
-                          width: 400,
-                          child: Image.asset(
-                              'assets/images/Stocker_blue_transp.png')),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                      onChanged: (text) {
-                        usuario = text;
-                      },
-                      controller: fieldText,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuário',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        onChanged: (text) {
-                          senha = text;
-                        },
-                        controller: fieldText2,
-                        decoration: const InputDecoration(
-                          labelText: 'Senha',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          await teste.updateUL(
-                              usuario, senha, Gambiarra.gambiarra.loginAntigo);
-
-                          showDialog(
-                            context: context,
-                            builder: (_) => alert("Atualização de Login",
-                                "Atualizalção feita com sucesso"),
-                            barrierDismissible: true,
-                          );
-
-                          clearText();
-                        },
-                        child: const Text('Entrar')),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                  ],
+          padding: const EdgeInsets.all(10.0),
+          child: Center(
+            child: ListView(
+              children: [
+                Center(
+                  child: SizedBox(
+                      width: 400,
+                      child:
+                          Image.asset('assets/images/Stocker_blue_transp.png')),
                 ),
-              ),
-            )));
+                const SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                  onChanged: (text) {
+                    usuario = text;
+                  },
+                  controller: fieldText,
+                  decoration: const InputDecoration(
+                    labelText: 'Usuário',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                    onChanged: (text) {
+                      senha = text;
+                    },
+                    controller: fieldText2,
+                    decoration: const InputDecoration(
+                      labelText: 'Senha',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red)),
+                    )),
+                const SizedBox(
+                  height: 15,
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      await teste.updateUL(
+                          usuario, senha, Gambiarra.gambiarra.loginAntigo);
+
+                      showDialog(
+                        context: context,
+                        builder: (_) => alert("Atualização de Login",
+                            "Atualizalção feita com sucesso"),
+                        barrierDismissible: true,
+                      );
+
+                      clearText();
+                    },
+                    child: const Text('Entrar')),
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget alert(String mensagem1, String mensagem2) {
