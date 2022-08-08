@@ -3,6 +3,8 @@ import 'package:stocker_mobile/Validacao_e_Gambiarra/gambiarra.dart';
 
 import '../Cria_PDF/uint.dart';
 import '../DadosDB/CRUD.dart';
+import '../Validacao_e_Gambiarra/app_controller.dart';
+import '../Validacao_e_Gambiarra/background.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,6 +20,8 @@ class _LoginPageState extends State<LoginPage> {
 
   var teste = CRUD();
   var teste2 = Uint();
+  var back = BackGround();
+  var theme = AppController();
 
   String usuario = '';
   String senha = '';
@@ -26,6 +30,13 @@ class _LoginPageState extends State<LoginPage> {
   void clearText() {
     fieldText.clear();
     fieldText2.clear();
+  }
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    print("teste");
   }
 
   Future<bool> autorizaLogin() async {
@@ -78,132 +89,141 @@ class _LoginPageState extends State<LoginPage> {
         width: double.infinity,
         height: double.infinity,
         child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Theme(
-              data: ThemeData(
-                  primaryColor: Colors.black,
-                  primaryColorDark: Colors.black,
-                  elevatedButtonTheme: ElevatedButtonThemeData(
-                      style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF0080d9),
-                  ))),
-              child: Center(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    Center(
-                      child: SizedBox(
+          padding: const EdgeInsets.all(10.0),
+          child: Center(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Center(
+                  child: AppController.instance.isDarkTheme
+                      ? SizedBox(
+                          width: 400,
+                          child: Image.asset(
+                              'assets/images/Stocker_blue_transpblack.png'))
+                      : SizedBox(
                           width: 400,
                           child: Image.asset(
                               'assets/images/Stocker_blue_transp.png')),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                      onChanged: (text) {
-                        usuario = text;
-                      },
-                      controller: fieldText,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuário',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        onChanged: (text) {
-                          senha = text;
-                        },
-                        controller: fieldText2,
-                        decoration: const InputDecoration(
-                          labelText: 'Senha',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          if (await mudaSenha()) {
-                            Navigator.of(context).pushNamed("/atualizasenha");
-                          } else if (await autorizaLogin()) {
-                            if (await novoLogin()) {
-                              Navigator.of(context).pushNamed("/novologinpage");
-                              Gambiarra.gambiarra.mudaLogin(id);
-                            } else {
-                              Navigator.of(context).pushNamed("/homepage");
-                            }
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (_) => alert(),
-                              barrierDismissible: true,
-                            );
-                          }
-                          clearText();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 24),
-                          minimumSize: const Size.fromHeight(72),
-                          shape: const StadiumBorder(),
-                        ),
-                        child: const Text('Entrar')),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    OnHover(builder: (isHovered) {
-                      final color = isHovered ? Colors.blue : Colors.black;
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed("/novasenhapage");
-                        },
-                        child: Center(
-                          child: Text("Esqueci minha Senha ?",
-                              style: TextStyle(color: color, fontSize: 16)),
-                        ),
-                      );
-                    }),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    OnHover(builder: (isHovered) {
-                      final color = isHovered ? Colors.blue : Colors.black;
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed("/cadpage");
-                        },
-                        child: Center(
-                          child: Text("Ainda não é cadastrado ?",
-                              style: TextStyle(color: color, fontSize: 16)),
-                        ),
-                      );
-                    }),
-                    ElevatedButton(
-                        onPressed: () async {
-                          await teste2.pegaImagem();
-                          print(teste2.bytes);
-                          print(teste2.bytes2);
-                          print(teste2.image);
-                        },
-                        child: const Text("Imagem"))
-                  ],
                 ),
-              ),
-            )));
+                const SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                  onChanged: (text) {
+                    usuario = text;
+                  },
+                  controller: fieldText,
+                  decoration: const InputDecoration(
+                    labelText: 'Usuário',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                    onChanged: (text) {
+                      senha = text;
+                    },
+                    controller: fieldText2,
+                    decoration: const InputDecoration(
+                      labelText: 'Senha',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red)),
+                    )),
+                const SizedBox(
+                  height: 15,
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      if (await mudaSenha()) {
+                        Navigator.of(context).pushNamed("/atualizasenha");
+                      } else if (await autorizaLogin()) {
+                        if (await novoLogin()) {
+                          Navigator.of(context).pushNamed("/novologinpage");
+                          Gambiarra.gambiarra.mudaLogin(id);
+                        } else {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/homepage', (Route<dynamic> route) => false);
+                        }
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (_) => alert(),
+                          barrierDismissible: true,
+                        );
+                      }
+                      clearText();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: AppController.instance.isDarkTheme
+                          ? const Color(0xFFff7f26)
+                          : const Color(0xFF0080d9),
+                      textStyle: const TextStyle(fontSize: 24),
+                      minimumSize: const Size.fromHeight(72),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: const Text('Entrar')),
+                const SizedBox(
+                  height: 20,
+                ),
+                OnHover(builder: (isHovered) {
+                  final color = isHovered
+                      ? Colors.blue
+                      : AppController.instance.isDarkTheme
+                          ? Colors.white
+                          : Colors.black;
+                  Colors.black;
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushNamed("/novasenhapage");
+                    },
+                    child: Center(
+                      child: Text("Esqueci minha Senha ?",
+                          style: TextStyle(color: color, fontSize: 16)),
+                    ),
+                  );
+                }),
+                const SizedBox(
+                  height: 20,
+                ),
+                OnHover(builder: (isHovered) {
+                  final color = isHovered
+                      ? Colors.blue
+                      : AppController.instance.isDarkTheme
+                          ? Colors.white
+                          : Colors.black;
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushNamed("/cadpage");
+                    },
+                    child: Center(
+                      child: Text("Ainda não é cadastrado ?",
+                          style: TextStyle(color: color, fontSize: 16)),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(children: [
+      /*
       SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
+          child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover))
+          */
+
+      SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Image.asset(AppController.instance.img, fit: BoxFit.cover)),
       _body()
     ]));
   }

@@ -246,6 +246,11 @@ class HomePageState extends State<HomePage> {
             const SizedBox(
               height: 15,
             ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed("/");
+                },
+                child: const Text("Voltar")),
             const SizedBox(
               height: 15,
             ),
