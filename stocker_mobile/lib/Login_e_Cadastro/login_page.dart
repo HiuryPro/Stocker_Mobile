@@ -95,15 +95,9 @@ class _LoginPageState extends State<LoginPage> {
               shrinkWrap: true,
               children: [
                 Center(
-                  child: AppController.instance.isDarkTheme
-                      ? SizedBox(
-                          width: 400,
-                          child: Image.asset(
-                              'assets/images/Stocker_blue_transpblack.png'))
-                      : SizedBox(
-                          width: 400,
-                          child: Image.asset(
-                              'assets/images/Stocker_blue_transp.png')),
+                  child: SizedBox(
+                      width: 400,
+                      child: Image.asset(AppController.instance.img2)),
                 ),
                 const SizedBox(
                   height: 15,
@@ -137,10 +131,13 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                     onPressed: () async {
                       if (await mudaSenha()) {
-                        Navigator.of(context).pushNamed("/atualizasenha");
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/atualizasenha', (Route<dynamic> route) => false);
                       } else if (await autorizaLogin()) {
                         if (await novoLogin()) {
-                          Navigator.of(context).pushNamed("/novologinpage");
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/novologinpage',
+                              (Route<dynamic> route) => false);
                           Gambiarra.gambiarra.mudaLogin(id);
                         } else {
                           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -156,9 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                       clearText();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: AppController.instance.isDarkTheme
-                          ? const Color(0xFFff7f26)
-                          : const Color(0xFF0080d9),
+                      primary: AppController.instance.theme2,
                       textStyle: const TextStyle(fontSize: 24),
                       minimumSize: const Size.fromHeight(72),
                       shape: const StadiumBorder(),
@@ -169,14 +164,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 OnHover(builder: (isHovered) {
                   final color = isHovered
-                      ? Colors.blue
-                      : AppController.instance.isDarkTheme
-                          ? Colors.white
-                          : Colors.black;
+                      ? AppController.instance.theme2
+                      : AppController.instance.theme1;
                   Colors.black;
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushNamed("/novasenhapage");
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/novasenhapage', (Route<dynamic> route) => false);
                     },
                     child: Center(
                       child: Text("Esqueci minha Senha ?",
@@ -189,13 +183,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 OnHover(builder: (isHovered) {
                   final color = isHovered
-                      ? Colors.blue
-                      : AppController.instance.isDarkTheme
-                          ? Colors.white
-                          : Colors.black;
+                      ? AppController.instance.theme2
+                      : AppController.instance.theme1;
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushNamed("/cadpage");
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/cadpage', (Route<dynamic> route) => false);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",
@@ -212,20 +205,36 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      style: TextStyle(color: AppController.instance.theme1),
+                      "BlackTheme"),
+                  Switch(
+                    value: AppController.instance.isDarkTheme,
+                    onChanged: (value) {
+                      setState(() {
+                        AppController.instance.changeTheme();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ]),
         body: Stack(children: [
-      /*
-      SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover))
-          */
-
-      SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Image.asset(AppController.instance.img, fit: BoxFit.cover)),
-      _body()
-    ]));
+          SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child:
+                  Image.asset(AppController.instance.img, fit: BoxFit.cover)),
+          _body()
+        ]));
   }
 
   Widget alert() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../DadosDB/crud.dart';
+import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
 import '../sendEmail/send_email.dart';
 
@@ -75,8 +76,7 @@ class _CadPageState extends State<CadPage> {
                   SizedBox(
                       width: 100,
                       height: 100,
-                      child:
-                          Image.asset('assets/images/Stocker_blue_transp.png')),
+                      child: Image.asset(AppController.instance.img2)),
                   const SizedBox(
                     height: 15,
                   ),
@@ -267,6 +267,7 @@ class _CadPageState extends State<CadPage> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
+                          primary: AppController.instance.theme2,
                           textStyle: const TextStyle(fontSize: 24),
                           minimumSize: const Size.fromHeight(72),
                           shape: const StadiumBorder(),
@@ -283,17 +284,40 @@ class _CadPageState extends State<CadPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      style: TextStyle(color: AppController.instance.theme1),
+                      "BlackTheme"),
+                  Switch(
+                    value: AppController.instance.isDarkTheme,
+                    onChanged: (value) {
+                      setState(() {
+                        AppController.instance.changeTheme();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ]),
         body: Stack(
-      children: [
-        SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
-        _body(),
-        if (carrega) telaCarrega()[0],
-        if (carrega) telaCarrega()[1]
-      ],
-    ));
+          children: [
+            SizedBox(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child:
+                    Image.asset(AppController.instance.img, fit: BoxFit.cover)),
+            _body(),
+            if (carrega) telaCarrega()[0],
+            if (carrega) telaCarrega()[1]
+          ],
+        ));
   }
 
   List<Widget> telaCarrega() {
