@@ -111,12 +111,20 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+               Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/', (Route<dynamic> route) => false);
+            },
+          ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+               
                 children: [
+                  const Icon(Icons.arrow_left_sharp),
                   Text(
                       style: TextStyle(color: AppController.instance.theme1),
                       "BlackTheme"),

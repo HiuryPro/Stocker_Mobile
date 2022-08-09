@@ -124,6 +124,13 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+           leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+               Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/', (Route<dynamic> route) => false);
+            },
+          ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [
