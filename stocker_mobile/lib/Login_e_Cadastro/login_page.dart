@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/gambiarra.dart';
 
-import '../Cria_PDF/uint.dart';
-import '../DadosDB/CRUD.dart';
+import '../Metodos_das_Telas/login_metodos.dart';
+import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
-import '../Validacao_e_Gambiarra/background.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,70 +17,16 @@ class _LoginPageState extends State<LoginPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
-  var teste = CRUD();
-  var teste2 = Uint();
-  var back = BackGround();
   var theme = AppController();
+  var login = Login();
+  var navegar = Navegar();
 
   String usuario = '';
   String senha = '';
-  int id = 1;
 
   void clearText() {
     fieldText.clear();
     fieldText2.clear();
-  }
-
-  @override
-  @override
-  void initState() {
-    super.initState();
-    print("teste");
-  }
-
-  Future<bool> autorizaLogin() async {
-    Future<bool> autoriza = Future<bool>.value(false);
-    var listaU = [];
-    listaU = await teste.selectUL();
-
-    for (int i = 0; i < listaU.length; i = i + 5) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        autoriza = Future<bool>.value(true);
-      }
-    }
-    return autoriza;
-  }
-
-  Future<bool> novoLogin() async {
-    Future<bool> autoriza = Future<bool>.value(false);
-    var listaU = [];
-    listaU = await teste.selectUL();
-
-    for (int i = 0; i < listaU.length; i = i + 5) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        if (listaU[i + 3] == 0) {
-          autoriza = Future<bool>.value(true);
-          id = listaU[i];
-        }
-      }
-    }
-    return autoriza;
-  }
-
-  Future<bool> mudaSenha() async {
-    Future<bool> autoriza = Future<bool>.value(false);
-    var listaU = [];
-    listaU = await teste.selectUL();
-
-    for (int i = 0; i < listaU.length; i = i + 5) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        if (listaU[i + 4] == 0) {
-          autoriza = Future<bool>.value(true);
-          id = listaU[i];
-        }
-      }
-    }
-    return autoriza;
   }
 
   Widget _body() {
@@ -130,18 +75,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      if (await mudaSenha()) {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/atualizasenha', (Route<dynamic> route) => false);
-                      } else if (await autorizaLogin()) {
-                        if (await novoLogin()) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/novologinpage',
-                              (Route<dynamic> route) => false);
-                          Gambiarra.gambiarra.mudaLogin(id);
+                      if (await login.mudaSenha(usuario, senha)) {
+                        navegar.navegarEntreTela('/atualizasenha', context);
+                      } else if (await login.autorizaLogin(usuario, senha)) {
+                        if (await login.novoLogin(usuario, senha)) {
+                          navegar.navegarEntreTela('/novologinpage', context);
+                          Gambiarra.gambiarra
+                              .mudaLogin(login.getAlteraLoginID());
                         } else {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/homepage', (Route<dynamic> route) => false);
+                          navegar.navegarEntreTela('/homepage', context);
                         }
                       } else {
                         showDialog(
@@ -169,8 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                   Colors.black;
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/novasenhapage', (Route<dynamic> route) => false);
+                      navegar.navegarEntreTela('/novasenhapage', context);
                     },
                     child: Center(
                       child: Text("Esqueci minha Senha ?",
@@ -187,8 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                       : AppController.instance.theme1;
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/cadpage', (Route<dynamic> route) => false);
+                      navegar.navegarEntreTela('/cadpage', context);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",

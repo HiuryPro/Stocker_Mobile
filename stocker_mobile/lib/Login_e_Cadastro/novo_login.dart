@@ -32,6 +32,7 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
           padding: const EdgeInsets.all(10.0),
           child: Center(
             child: ListView(
+              shrinkWrap: true,
               children: [
                 Center(
                   child: SizedBox(
@@ -124,13 +125,13 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-               Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/', (Route<dynamic> route) => false);
-            },
-          ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              },
+            ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [
