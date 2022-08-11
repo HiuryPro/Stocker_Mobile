@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:stocker_mobile/pege_imagem/pega_imagem.dart';
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
@@ -29,7 +30,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/',
+              initialRoute: '/pegaimagem',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),
@@ -38,6 +39,8 @@ class AppWidget extends StatelessWidget {
                 '/novasenhapage': (context) => const NovaSenhaPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pdf': (context) => const Chart(),
+                '/pegaimagem': (context) => const TesteImagem(),
+                
               });
         });
   }
