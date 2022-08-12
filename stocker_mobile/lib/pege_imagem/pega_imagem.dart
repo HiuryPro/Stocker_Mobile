@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -16,14 +17,22 @@ class TesteImagem extends StatefulWidget {
 class _TesteImagemState extends State<TesteImagem> {
   bool isImageGetted = false;
   FilePickerResult? pickedFile;
-  var logoBase64;
+  Uint8List? logoBase64;
 
   chooseImage() async {
-    pickedFile = await FilePicker.platform.pickFiles();
+    Blob teste;
+
+    pickedFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ["jpg", "png", "jpeg"],
+    );
     if (pickedFile != null) {
       try {
         setState(() {
-          logoBase64 = pickedFile!.files.first.bytes;
+          logoBase64 = pickedFile!.files.first.bytes!;
+          teste = Blob(logoBase64!.toList());
+          logoBase64 = base64.decode(teste.toBytes());
+
           isImageGetted = true;
         });
       } catch (err) {
@@ -36,7 +45,6 @@ class _TesteImagemState extends State<TesteImagem> {
 
   @override
   Widget build(BuildContext context) {
-    Uint8List? logoBase64;
     return Scaffold(
         body: SizedBox(
             height: MediaQuery.of(context).size.height,
