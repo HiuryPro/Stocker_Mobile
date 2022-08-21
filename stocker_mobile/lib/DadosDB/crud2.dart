@@ -29,4 +29,21 @@ class CRUD2 {
     }
     return dados;
   }
+
+  selectP() async {
+    dynamic body;
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/produto.php");
+    http.Response response = await http.get(url);
+    body = jsonDecode(response.body);
+
+    var dados = [];
+
+    for (var row in body) {
+      dados.add(row['id']);
+      dados.add(row['nome']);
+      dados.add(row['preco']);
+      dados.add(row['descricao']);
+    }
+    return dados;
+  }
 }

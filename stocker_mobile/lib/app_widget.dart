@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/pege_imagem/pega_imagem.dart';
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
@@ -30,7 +31,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/pegaimagem',
+              initialRoute: '/telaCompra',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),
@@ -40,7 +41,7 @@ class AppWidget extends StatelessWidget {
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pdf': (context) => const Chart(),
                 '/pegaimagem': (context) => const TesteImagem(),
-                
+                '/telaCompra': (context) => const Compra(),
               });
         });
   }
