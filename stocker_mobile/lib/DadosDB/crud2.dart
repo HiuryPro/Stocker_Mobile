@@ -46,4 +46,24 @@ class CRUD2 {
     }
     return dados;
   }
+
+  selectFP(String? produto, String? fornecedor) async {
+    dynamic body;
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/fornecedorP.php");
+    http.Response response = await http
+        .post(url, body: {"produto": produto, "fornecedor": fornecedor});
+    body = jsonDecode(response.body);
+
+    var dados = [];
+
+    for (var row in body) {
+      dados.add(row['id']);
+      dados.add(row['fornecedor']);
+      dados.add(row['produto']);
+      dados.add(row['preco']);
+      dados.add(row['frete']);
+    }
+    print(dados);
+    return dados;
+  }
 }
