@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../DadosDB/crud2.dart';
 
@@ -11,21 +10,32 @@ class Compra extends StatefulWidget {
 }
 
 class _CompraState extends State<Compra> {
-  String produto = "";
-  final items = ["teste", "teste2"];
-  String? value;
+  final produtos = ["teste", "teste2"];
+  final fornecedores = [
+    "vai",
+    "come",
+    "vb",
+    "bbbc",
+    "vsbbj",
+    "sfhsuf",
+    "uahhsf",
+    "hfsjfsjkfhjks",
+    "shfshfsj"
+  ];
+  String? produto;
+  String? fornecedor;
   var db = CRUD2();
 
   @override
   void initState() {
     super.initState();
-    items.clear();
+    produtos.clear();
     Future.delayed(Duration.zero, () async {
       var result = await db.selectP();
 
       for (int i = 0; i < result.length; i = i + 4) {
         setState(() {
-          items.add(result[i + 1]);
+          produtos.add(result[i + 1]);
         });
       }
     });
@@ -39,14 +49,42 @@ class _CompraState extends State<Compra> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
                 child: ListView(shrinkWrap: true, children: [
-              TextField(
-                onChanged: (text) {
-                  setState(() {
-                    produto = text;
-                  });
-                },
-                decoration: const InputDecoration(
-                    labelText: "Produto", border: OutlineInputBorder()),
+              Container(
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(color: const Color(0xFF0080d9), width: 2),
+                    borderRadius: BorderRadius.circular(12)),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                      value: produto,
+                      menuMaxHeight: 200,
+                      hint: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("Produtos"),
+                      ),
+                      disabledHint: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("Produtos"),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      isExpanded: true,
+                      items: produtos.map(buildMenuItem).toList(),
+                      onChanged: (value) async {
+                        var lista;
+                        setState(() {
+                          produto = value;
+                          fornecedor = null;
+                        });
+
+                        lista = await db.selectFP(produto, "");
+                        setState(() {
+                          fornecedores.clear();
+                          for (int i = 0; i < lista.length; i = i + 5) {
+                            fornecedores.add(lista[i + 1]);
+                          }
+                        });
+                      }),
+                ),
               ),
               const SizedBox(
                 height: 15,
@@ -58,16 +96,56 @@ class _CompraState extends State<Compra> {
                     borderRadius: BorderRadius.circular(12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                      value: value,
+                      value: fornecedor,
+                      menuMaxHeight: 200,
+                      hint: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("Fornecedores"),
+                      ),
+                      disabledHint: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("Fornecedores"),
+                      ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
-                      items: items.map(buildMenuItem).toList(),
+                      items: fornecedores.map(buildMenuItem).toList(),
                       onChanged: (value) {
                         setState(() {
-                          this.value = value;
+                          fornecedor = value;
                         });
                       }),
                 ),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextField(
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                    labelText: "Produto",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF0080d9), width: 2))),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextField(
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                    labelText: "Produto",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF0080d9), width: 2))),
+              ),
+              const SizedBox(
+                height: 15,
               ),
             ]))));
   }
