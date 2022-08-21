@@ -31,7 +31,7 @@ class _TesteImagemState extends State<TesteImagem> {
         setState(() {
           logoBase64 = pickedFile!.files.first.bytes!;
           teste = Blob(logoBase64!.toList());
-          logoBase64 = base64.decode(teste.toBytes());
+        //  logoBase64 = base64.decode(teste.toBytes());
 
           isImageGetted = true;
         });
