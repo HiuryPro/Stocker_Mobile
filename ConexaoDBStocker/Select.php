@@ -3,23 +3,27 @@ require("conexao.php");
 
 header("Access-Control-Allow-Origin: *");
 header("Access—Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//(data_saida BETWEEN STR_TO_DATE('".$dedata." ', \"%d/%m/%Y\") AND STR_TO_DATE('" $atedata " ', \"%d/%m/%Y\")) ORDER BY data_saida";
 
 
-$makeQuery = "SELECT *  FROM relatoriototal ";
+
+$makeQuery = $_POST['query'];
 $statement = $pdo->prepare($makeQuery);
 $statement->execute();
 $myarray = array();
+$myarray2 = array();
+
+$statement->setFetchMode(PDO::FETCH_ASSOC);
+
 
 while ($resultsFrom = $statement->fetch()) {
+
     array_push(
         $myarray,
-        array(
-            "id" => $resultsFrom['id'],
-            "nome_produto" => $resultsFrom['nome_produto'],
-            "qtd_total" => $resultsFrom['qtd_total'],
-            "preco_total" => $resultsFrom['preco_total'],
+        $resultsFrom
 
-        )
     );
 }
+
+
 echo json_encode($myarray);

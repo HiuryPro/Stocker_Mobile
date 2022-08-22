@@ -7,7 +7,7 @@ class Login {
     var teste = CRUD();
     Future<bool> autoriza = Future<bool>.value(false);
     var listaU = [];
-    listaU = await teste.selectUL();
+    listaU = await teste.select("SELECT *  FROM usuario_login ");
 
     for (int i = 0; i < listaU.length; i = i + 5) {
       if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
@@ -21,7 +21,7 @@ class Login {
     var teste = CRUD();
     Future<bool> autoriza = Future<bool>.value(false);
     var listaU = [];
-    listaU = await teste.selectUL();
+    listaU = await teste.select("SELECT *  FROM usuario_login ");
 
     for (int i = 0; i < listaU.length; i = i + 5) {
       if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
@@ -38,16 +38,17 @@ class Login {
     var teste = CRUD();
     Future<bool> autoriza = Future<bool>.value(false);
     var listaU = [];
-    listaU = await teste.selectUL();
+    listaU = await teste.select("SELECT *  FROM usuario_login ");
 
-    for (int i = 0; i < listaU.length; i = i + 5) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        if (listaU[i + 4] == 0) {
+    for (var row in listaU) {
+      if (usuario == row['login'] && senha == row['senha']) {
+        if (row['nova_senha'] == 0) {
           autoriza = Future<bool>.value(true);
-          alteraloginID = listaU[i];
+          alteraloginID = row['id'];
         }
       }
     }
+
     return autoriza;
   }
 

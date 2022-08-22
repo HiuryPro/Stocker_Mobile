@@ -21,9 +21,9 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
     fieldText3.clear();
   }
 
-  String senhaA = '';
-  String senhaN = '';
-  String senhaNR = '';
+  String senhaAntiga = '';
+  String senhaNova = '';
+  String senhaNovaRepetida = '';
 
   var teste = CRUD();
 
@@ -46,7 +46,7 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
                 ),
                 TextField(
                   onChanged: (text) {
-                    senhaA = text;
+                    senhaAntiga = text;
                   },
                   controller: fieldText,
                   decoration: const InputDecoration(
@@ -59,7 +59,7 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
                 ),
                 TextField(
                     onChanged: (text) {
-                      senhaN = text;
+                      senhaNova = text;
                     },
                     controller: fieldText2,
                     decoration: const InputDecoration(
@@ -72,7 +72,7 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
                 ),
                 TextField(
                     onChanged: (text) {
-                      senhaNR = text;
+                      senhaNovaRepetida = text;
                     },
                     controller: fieldText3,
                     decoration: const InputDecoration(
@@ -85,19 +85,19 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      List<dynamic> lista = await teste.selectUL();
+                      var lista =
+                          await teste.select("SELECT *  FROM usuario_login");
                       int opcao = 1;
-                      print(lista[2]);
-
-                      for (int i = 0; i < lista.length; i = i + 5) {
-                        if (lista[2] == senhaA) {
-                          if (senhaN == senhaNR) {
-                            await teste.updateSenha(lista[i], senhaNR, 1);
+                      for (var row in lista) {
+                        if (row['senha'] == senhaAntiga) {
+                          if (senhaNova == senhaNovaRepetida) {
+                            await teste.updateSenha(
+                                row['login'], senhaNovaRepetida, 1);
                             mensagem(
                                 "A senha foi atualizada com sucesso", true);
                             opcao = -1;
-                            i = lista.length;
                             clearText();
+                            break;
                           } else {
                             opcao = 0;
                             fieldText2.clear();
@@ -162,16 +162,15 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-               Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/', (Route<dynamic> route) => false);
-            },
-          ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              },
+            ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [

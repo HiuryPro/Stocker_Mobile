@@ -2,8 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-
-import '../DadosDB/CRUD.dart';
+import '../DadosDB/crud.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
@@ -18,7 +17,8 @@ class CriaPDF {
   List<List<dynamic>> tabela = [];
 
   relatoriaDados() async {
-    var dados = await dadosBD.selectPV(deData, ateData);
+    var dados = await dadosBD.select(
+        "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
 
     tabela.add([
       'produto',
@@ -28,14 +28,15 @@ class CriaPDF {
       'data de saída',
       'cliente'
     ]);
-    for (int i = 0; i < dados.length; i = i + 7) {
+
+    for (var row in dados) {
       tabela.add([
-        '${dados[i + 1]}',
-        '${dados[i + 2]}',
-        '${dados[i + 3]}',
-        '${dados[i + 4]}',
-        '${dados[i + 5]}',
-        '${dados[i + 6]}'
+        row['nome_produto'],
+        row['quantidade'],
+        row['preco_unitario'],
+        row['total'],
+        row['datas'],
+        row['cliente']
       ]);
     }
   }

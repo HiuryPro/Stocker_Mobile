@@ -4,26 +4,18 @@ import 'dart:convert';
 class CRUD {
   final String ip = "192.168.3.9";
 
-  insertUD(List<String> lista) async {
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/cadastro.php");
-    await http.post(url, body: {
-      "nome_empresa": lista[0],
-      "cnpj": lista[1],
-      "email": lista[2],
-      "endereco": lista[3],
-      "cidade": lista[4],
-      "estado": lista[5],
-      "telefone": lista[6],
-      "ganho_mensal": lista[7],
-    });
+  select(String query) async {
+    dynamic body;
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/Select.php");
+    http.Response response = await http.post(url, body: {'query': query});
+    body = jsonDecode(response.body);
+
+    return body;
   }
 
-  inserUL(String login, String senha) async {
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/cadastro_login.php");
-    await http.post(url, body: {
-      "login": login,
-      "senha": senha,
-    });
+  insert(String query, List<String> lista) async {
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/Insert.php");
+    await http.post(url, body: {'query': query, 'lista': jsonEncode(lista)});
   }
 
   updateUL(String login, String senha, int id) async {
@@ -36,67 +28,11 @@ class CRUD {
     await http.post(url, body: {"senha": random, "ns": "$ns", "id": "$id"});
   }
 
-  selectUL() async {
-    dynamic body;
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/login.php");
-    http.Response response = await http.get(url);
-    body = jsonDecode(response.body);
-    var usuarios = [];
-
-    for (var row in body) {
-      usuarios.add(row['id']);
-      usuarios.add(row['login']);
-      usuarios.add(row['senha']);
-      usuarios.add(row['confirma_login']);
-      usuarios.add(row['nova_senha']);
-    }
-
-    return usuarios;
-  }
-
-  selectUD() async {
-    dynamic body;
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/usuario_dados.php");
-    http.Response response = await http.get(url);
-    body = jsonDecode(response.body);
-
-    var dados = [];
-
-    for (var row in body) {
-      dados.add(row['id']);
-      dados.add(row['nome_empresa']);
-      dados.add(row['cnpj']);
-      dados.add(row['email']);
-      dados.add(row['cidade']);
-      dados.add(row['estado']);
-      dados.add(row['endereco']);
-      dados.add(row['telefone']);
-      dados.add(row['ganho_mensal']);
-    }
-    return dados;
-  }
-
-  selectPV(String de, String ate) async {
-    dynamic body;
-    print(de);
-    print(ate);
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/produto_venda.php");
-    http.Response response =
-        await http.post(url, body: {'dedata': de, 'atedata': ate});
-    body = jsonDecode(response.body);
-    print(body);
-
-    var dados = [];
-
-    for (var row in body) {
-      dados.add(row['id']);
-      dados.add(row['nome_produto']);
-      dados.add(row['quantidade']);
-      dados.add(row['preco_unitario']);
-      dados.add(row['total']);
-      dados.add(row['data_saida']);
-      dados.add(row['cliente']);
-    }
-    return dados;
+  updateRTS(String de, String ate) async {
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/relatorio_total.php");
+    await http.post(url, body: {
+      "dedata": de,
+      "atedata": ate,
+    });
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../DadosDB/crud2.dart';
+import '../DadosDB/crud.dart';
 
 class Compra extends StatefulWidget {
   const Compra({Key? key}) : super(key: key);
@@ -24,18 +24,18 @@ class _CompraState extends State<Compra> {
   ];
   String? produto;
   String? fornecedor;
-  var db = CRUD2();
+  var db = CRUD();
 
   @override
   void initState() {
     super.initState();
     produtos.clear();
     Future.delayed(Duration.zero, () async {
-      var result = await db.selectP();
+      var result = await db.select("SELECT *  FROM produto");
 
-      for (int i = 0; i < result.length; i = i + 4) {
+      for (var row in result) {
         setState(() {
-          produtos.add(result[i + 1]);
+          produtos.add(row['nome']);
         });
       }
     });
@@ -76,11 +76,12 @@ class _CompraState extends State<Compra> {
                           fornecedor = null;
                         });
 
-                        lista = await db.selectFP(produto, "");
+                        lista = await db.select(
+                            "SELECT *  FROM fornecedor_produto where produto = '$produto'");
                         setState(() {
                           fornecedores.clear();
-                          for (int i = 0; i < lista.length; i = i + 5) {
-                            fornecedores.add(lista[i + 1]);
+                          for (var row in lista) {
+                            fornecedores.add(row['fornecedor']);
                           }
                         });
                       }),

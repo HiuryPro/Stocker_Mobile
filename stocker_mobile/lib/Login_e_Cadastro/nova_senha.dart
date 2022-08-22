@@ -71,16 +71,20 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       String random = "";
                       dynamic lista = [];
                       bool enviou = false;
-                      lista = await teste.selectUD();
-                      for (int i = 0; i < lista.length; i = i + 9) {
-                        if (email == lista[i + 3]) {
+                      lista =
+                          await teste.select("SELECT *  FROM usuario_dados ");
+                      for (var row in lista) {
+                        if (email == row['email']) {
                           random = geraStringAleatoria();
-                          await teste.updateSenha(lista[i], random, 0);
+                          await teste.updateSenha(row['id'], random, 0);
                           await sendMail.sendEmailChangePass(
-                              email: email, password: random, name: lista[1]);
+                              email: email,
+                              password: random,
+                              name: row['nome_empresa']);
                           enviou = true;
                         }
                       }
+
                       if (enviou) {
                         mensagem("Senha enviada",
                             "Sua nova senha foi enviada ao seu email");
@@ -111,18 +115,17 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-               Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/', (Route<dynamic> route) => false);
-            },
-          ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              },
+            ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [
               Row(
-               
                 children: [
                   const Icon(Icons.arrow_left_sharp),
                   Text(
