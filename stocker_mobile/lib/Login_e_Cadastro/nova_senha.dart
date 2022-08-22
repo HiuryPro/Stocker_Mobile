@@ -76,12 +76,15 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       for (var row in lista) {
                         if (email == row['email']) {
                           random = geraStringAleatoria();
-                          await teste.updateSenha(row['id'], random, 0);
+                          await teste.update(
+                              'Update usuario_login set senha = ?, nova_senha = ?  where id = ?',
+                              [random, 0, row['id']]);
                           await sendMail.sendEmailChangePass(
                               email: email,
                               password: random,
                               name: row['nome_empresa']);
                           enviou = true;
+                          break;
                         }
                       }
 

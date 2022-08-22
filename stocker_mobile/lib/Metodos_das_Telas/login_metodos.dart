@@ -9,11 +9,13 @@ class Login {
     var listaU = [];
     listaU = await teste.select("SELECT *  FROM usuario_login ");
 
-    for (int i = 0; i < listaU.length; i = i + 5) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
+    for (var row in listaU) {
+      if (usuario == row['login'] && senha == row['senha']) {
         autoriza = Future<bool>.value(true);
+        break;
       }
     }
+
     return autoriza;
   }
 
@@ -23,14 +25,16 @@ class Login {
     var listaU = [];
     listaU = await teste.select("SELECT *  FROM usuario_login ");
 
-    for (int i = 0; i < listaU.length; i = i + 5) {
-      if (usuario == listaU[i + 1] && senha == listaU[i + 2]) {
-        if (listaU[i + 3] == 0) {
+    for (var row in listaU) {
+      if (usuario == row['login'] && senha == row['senha']) {
+        if (row['confirma_login'] == 0) {
           autoriza = Future<bool>.value(true);
-          alteraloginID = listaU[i];
+          alteraloginID = row['id'];
+          break;
         }
       }
     }
+
     return autoriza;
   }
 
@@ -45,6 +49,7 @@ class Login {
         if (row['nova_senha'] == 0) {
           autoriza = Future<bool>.value(true);
           alteraloginID = row['id'];
+          break;
         }
       }
     }

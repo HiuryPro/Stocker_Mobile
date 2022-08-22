@@ -18,21 +18,14 @@ class CRUD {
     await http.post(url, body: {'query': query, 'lista': jsonEncode(lista)});
   }
 
-  updateUL(String login, String senha, int id) async {
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/atualiza_login.php");
-    await http.post(url, body: {"login": login, "senha": senha, "id": "$id"});
+  update(String query, List<dynamic> lista) async {
+    const String ip = "192.168.3.9";
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/Update.php");
+    await http.post(url, body: {'query': query, 'lista': jsonEncode(lista)});
   }
 
-  updateSenha(int id, String random, int ns) async {
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/atualiza_senha.php");
-    await http.post(url, body: {"senha": random, "ns": "$ns", "id": "$id"});
-  }
-
-  updateRTS(String de, String ate) async {
-    var url = Uri.parse("http://$ip/ConexaoDBStocker/relatorio_total.php");
-    await http.post(url, body: {
-      "dedata": de,
-      "atedata": ate,
-    });
+  delete(String query) async {
+    var url = Uri.parse("http://$ip/ConexaoDBStocker/Select.php");
+    await http.post(url, body: {'query': query});
   }
 }
