@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 
-import '../DadosDB/crud2.dart';
+import '../DadosDB/crud.dart';
 
 class Chart extends StatefulWidget {
   const Chart({Key? key}) : super(key: key);
@@ -12,7 +12,7 @@ class Chart extends StatefulWidget {
 
 class _ChartState extends State<Chart> {
   List<dynamic> dados = [];
-  var teste = CRUD2();
+  var teste = CRUD();
   List<String> nomes = [];
   List<double> valores = [];
 
@@ -22,12 +22,12 @@ class _ChartState extends State<Chart> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      var result = await teste.selectRT();
+      var result = await teste.select("SELECT *  FROM relatoriototal ");
 
-      for (int i = 0; i < result.length; i = i + 4) {
+      for (var row in result) {
         setState(() {
-          nomes.add("${result[i + 1]} : ${result[i + 2]}");
-          valores.add(double.parse('${result[i + 2]}'));
+          nomes.add("${row['nome_produto']} : ${row['qtd_total']}");
+          valores.add(double.parse("${row['qtd_total']}"));
         });
       }
       setState(() {

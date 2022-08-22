@@ -129,32 +129,29 @@ class Validacao {
   Future<bool> validaCad(String nomeE, String cnpj, String email,
       String telefone, String endereco) async {
     Future<bool> valida = Future<bool>.value(true);
-    var itens = await dados.selectUD();
-    if (itens.length == 0) {
-      valida = Future<bool>.value(true);
-    } else {
-      for (int i = 0; i < itens.length; i = i + 9) {
-        if (itens[i + 1] == nomeE) {
-          valida = Future<bool>.value(false);
-          mensagem = 'Esse nome de empresa já está em uso';
-          break;
-        } else if (itens[i + 2] == cnpj) {
-          valida = Future<bool>.value(false);
-          mensagem = 'Esse cnpj já está em uso';
-          break;
-        } else if (itens[i + 3] == email) {
-          valida = Future<bool>.value(false);
-          mensagem = 'Esse email já está em uso';
-          break;
-        } else if (itens[i + 4] == telefone) {
-          valida = Future<bool>.value(false);
-          mensagem = 'Esse telefone já está em uso';
-          break;
-        } else if (itens[i + 6] == endereco) {
-          valida = Future<bool>.value(false);
-          mensagem = 'Esse endereço já está em uso';
-          break;
-        }
+    var itens = await dados.select("SELECT * FROM usuario_dados");
+
+    for (var row in itens) {
+      if (row['nome_empresa'] == nomeE) {
+        valida = Future<bool>.value(false);
+        mensagem = 'Esse nome de empresa já está em uso';
+        break;
+      } else if (row['cnpj'] == cnpj) {
+        valida = Future<bool>.value(false);
+        mensagem = 'Esse cnpj já está em uso';
+        break;
+      } else if (row['email'] == email) {
+        valida = Future<bool>.value(false);
+        mensagem = 'Esse email já está em uso';
+        break;
+      } else if (row['telefone'] == telefone) {
+        valida = Future<bool>.value(false);
+        mensagem = 'Esse telefone já está em uso';
+        break;
+      } else if (row['endereco'] == endereco) {
+        valida = Future<bool>.value(false);
+        mensagem = 'Esse endereço já está em uso';
+        break;
       }
     }
 

@@ -31,7 +31,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/telaCompra',
+              initialRoute: '/',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),

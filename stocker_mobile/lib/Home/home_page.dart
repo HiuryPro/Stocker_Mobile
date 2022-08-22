@@ -13,8 +13,8 @@ import 'package:universal_html/html.dart' as html;
 
 import '../Cria_PDF/cria_pdf.dart';
 import '../Cria_PDF/uint.dart';
-import '../DadosDB/CRUD.dart';
-import '../DadosDB/crud2.dart';
+
+import '../DadosDB/crud.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/cores.dart';
 
@@ -40,7 +40,6 @@ class HomePageState extends State<HomePage> {
   bool isDone = false;
 
   var dadosBD = CRUD();
-  var dadosBD2 = CRUD2();
   var criaPdf = CriaPDF();
 
   Cores cor = Cores();
@@ -57,32 +56,6 @@ class HomePageState extends State<HomePage> {
       mask: '##/##/####',
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
-
-  Future<List<List<dynamic>>> relatoriaDados() async {
-    var dados = await dadosBD.selectPV(deData, ateData);
-
-    List<List<dynamic>> teste = [];
-    teste.add([
-      'produto',
-      'quantidade',
-      'preco',
-      'total',
-      'data de saída',
-      'cliente'
-    ]);
-    for (int i = 0; i < dados.length; i = i + 7) {
-      teste.add([
-        '${dados[i + 1]}',
-        '${dados[i + 2]}',
-        '${dados[i + 3]}',
-        '${dados[i + 4]}',
-        '${dados[i + 5]}',
-        '${dados[i + 6]}'
-      ]);
-    }
-
-    return teste;
-  }
 
   savePDFMob(var pdf) async {
     var bytes = await pdf.save();
@@ -263,8 +236,9 @@ class HomePageState extends State<HomePage> {
                   });
 
                   if (kIsWeb) {
-                    await dadosBD2.updateRTS(deData, ateData);
-                    lista = await dadosBD.selectPV(deData, ateData);
+                    await dadosBD.updateRTS(deData, ateData);
+                    lista = await dadosBD.select(
+                        "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
 
                     if (lista.isNotEmpty) {
                       criaPdf.deData = deData;
@@ -292,9 +266,10 @@ class HomePageState extends State<HomePage> {
                     if (await Permission.storage.isGranted) {
                       await criaPdf.criaDiretorio();
 
-                      lista = await dadosBD.selectPV(deData, ateData);
+                      lista = await dadosBD.select(
+                          "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
                       if (lista.isNotEmpty) {
-                        await dadosBD2.updateRTS(deData, ateData);
+                        await dadosBD.updateRTS(deData, ateData);
                         criaPdf.deData = deData;
                         criaPdf.ateData = ateData;
                         var teste2 = Uint();
@@ -319,9 +294,10 @@ class HomePageState extends State<HomePage> {
                       if (await Permission.storage.isGranted) {
                         await criaPdf.criaDiretorio();
 
-                        lista = await dadosBD.selectPV(deData, ateData);
+                        lista = await dadosBD.select(
+                            "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
                         if (lista.isNotEmpty) {
-                          await dadosBD2.updateRTS(deData, ateData);
+                          await dadosBD.updateRTS(deData, ateData);
                           criaPdf.deData = deData;
                           criaPdf.ateData = ateData;
                           var teste2 = Uint();

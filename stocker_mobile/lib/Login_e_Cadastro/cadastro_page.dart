@@ -223,9 +223,12 @@ class _CadPageState extends State<CadPage> {
                               if (await valida.validaCad(
                                   nomeE, cnpj, email, telefone, endereco)) {
                                 valida.abrevia(nomeE);
-                                await teste.insertUD(valores);
-                                await teste.inserUL(
-                                    valida.abrevia(nomeE), cnpj);
+                                await teste.insert(
+                                    "INSERT INTO usuario_dados (nome_empresa, cnpj, email, endereco, cidade, estado, telefone, ganho_mensal) VALUES(?,?,?,?,?,?,?,?)",
+                                    valores);
+                                await teste.insert(
+                                    "INSERT INTO usuario_login (login, senha, confirma_login) VALUES(?,?,'0')",
+                                    [valida.abrevia(nomeE), cnpj]);
                                 await enviaEmail.sendEmailWelcome(
                                     abrevia: valida.abrevia(valores[0]),
                                     cnpj: valores[1],
@@ -284,16 +287,15 @@ class _CadPageState extends State<CadPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-               Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/', (Route<dynamic> route) => false);
-            },
-          ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              },
+            ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [
