@@ -236,11 +236,24 @@ class HomePageState extends State<HomePage> {
                   });
 
                   if (kIsWeb) {
-                    await dadosBD.updateRTS(deData, ateData);
                     lista = await dadosBD.select(
                         "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
 
                     if (lista.isNotEmpty) {
+                      await dadosBD.update(
+                          "UPDATE relatoriototal set qtd_total = ?, preco_total = ?",
+                          [0, 0]);
+                      var dados = await dadosBD.select(
+                          "SELECT nome_produto  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\"))");
+                      for (var row in dados) {
+                        var dados2 = await dadosBD.select(
+                            "SELECT SUM(quantidade), SUM(total)  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) and nome_produto = '${row['nome_produto']}' ORDER BY data_saida ");
+                        for (var row2 in dados2) {
+                          await dadosBD.update(
+                              "UPDATE relatoriototal set qtd_total = ?, preco_total = ? where nome_produto = '${row['nome_produto']}'",
+                              [row2['SUM(quantidade)'], row['SUM(total)']]);
+                        }
+                      }
                       criaPdf.deData = deData;
                       criaPdf.ateData = ateData;
                       var teste2 = Uint();
@@ -269,7 +282,21 @@ class HomePageState extends State<HomePage> {
                       lista = await dadosBD.select(
                           "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
                       if (lista.isNotEmpty) {
-                        await dadosBD.updateRTS(deData, ateData);
+                        await dadosBD.update(
+                            "UPDATE relatoriototal set qtd_total = ?, preco_total = ?",
+                            [0, 0]);
+                        var dados = await dadosBD.select(
+                            "SELECT nome_produto  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\"))");
+                        for (var row in dados) {
+                          var dados2 = await dadosBD.select(
+                              "SELECT SUM(quantidade), SUM(total)  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) and nome_produto = '${row['nome_produto']}' ORDER BY data_saida ");
+                          for (var row2 in dados2) {
+                            await dadosBD.update(
+                                "UPDATE relatoriototal set qtd_total = ?, preco_total = ? where nome_produto = '${row['nome_produto']}'",
+                                [row2['SUM(quantidade)'], row['SUM(total)']]);
+                          }
+                        }
+
                         criaPdf.deData = deData;
                         criaPdf.ateData = ateData;
                         var teste2 = Uint();
@@ -297,7 +324,21 @@ class HomePageState extends State<HomePage> {
                         lista = await dadosBD.select(
                             "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
                         if (lista.isNotEmpty) {
-                          await dadosBD.updateRTS(deData, ateData);
+                          await dadosBD.update(
+                              "UPDATE relatoriototal set qtd_total = ?, preco_total = ?",
+                              [0, 0]);
+                          var dados = await dadosBD.select(
+                              "SELECT nome_produto  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\"))");
+                          for (var row in dados) {
+                            var dados2 = await dadosBD.select(
+                                "SELECT SUM(quantidade), SUM(total)  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) and nome_produto = '${row['nome_produto']}' ORDER BY data_saida ");
+                            for (var row2 in dados2) {
+                              await dadosBD.update(
+                                  "UPDATE relatoriototal set qtd_total = ?, preco_total = ? where nome_produto = '${row['nome_produto']}'",
+                                  [row2['SUM(quantidade)'], row['SUM(total)']]);
+                            }
+                          }
+
                           criaPdf.deData = deData;
                           criaPdf.ateData = ateData;
                           var teste2 = Uint();

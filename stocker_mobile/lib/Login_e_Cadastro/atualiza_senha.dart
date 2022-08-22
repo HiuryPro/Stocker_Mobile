@@ -91,8 +91,10 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
                       for (var row in lista) {
                         if (row['senha'] == senhaAntiga) {
                           if (senhaNova == senhaNovaRepetida) {
-                            await teste.updateSenha(
-                                row['login'], senhaNovaRepetida, 1);
+                            await teste.update(
+                                'Update usuario_login set senha = ?, nova_senha = ?  where id = ?',
+                                [senhaNovaRepetida, 1, row['id']]);
+
                             mensagem(
                                 "A senha foi atualizada com sucesso", true);
                             opcao = -1;

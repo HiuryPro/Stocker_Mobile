@@ -70,8 +70,9 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      await teste.updateUL(
-                          usuario, senha, Gambiarra.gambiarra.loginAntigo);
+                      await teste.update(
+                          'Update usuario_login set login = ?, senha = ?, confirma_login = 1 where id = ${Gambiarra.gambiarra.loginAntigo}',
+                          [usuario, senha]);
 
                       showDialog(
                         context: context,
