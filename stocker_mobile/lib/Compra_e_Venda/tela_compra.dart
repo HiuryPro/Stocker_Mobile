@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../DadosDB/crud.dart';
+import '../Validacao_e_Gambiarra/app_controller.dart';
 
 class Compra extends StatefulWidget {
   const Compra({Key? key}) : super(key: key);
@@ -10,28 +11,18 @@ class Compra extends StatefulWidget {
 }
 
 class _CompraState extends State<Compra> {
-  final produtos = ["teste", "teste2"];
-  final fornecedores = [
-    "vai",
-    "come",
-    "vb",
-    "bbbc",
-    "vsbbj",
-    "sfhsuf",
-    "uahhsf",
-    "hfsjfsjkfhjks",
-    "shfshfsj"
-  ];
+  final produtos = [""];
+  final fornecedores = [""];
   String? produto;
   String? fornecedor;
-  var db = CRUD();
+  var crud = CRUD();
 
   @override
   void initState() {
     super.initState();
     produtos.clear();
     Future.delayed(Duration.zero, () async {
-      var result = await db.select("SELECT *  FROM produto");
+      var result = await crud.select("SELECT *  FROM produto");
 
       for (var row in result) {
         setState(() {
@@ -76,7 +67,7 @@ class _CompraState extends State<Compra> {
                           fornecedor = null;
                         });
 
-                        lista = await db.select(
+                        lista = await crud.select(
                             "SELECT *  FROM fornecedor_produto where produto = '$produto'");
                         setState(() {
                           fornecedores.clear();
@@ -163,6 +154,35 @@ class _CompraState extends State<Compra> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: body());
+    return Scaffold(
+        appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/homepage', (Route<dynamic> route) => false);
+              },
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      style: TextStyle(color: AppController.instance.theme1),
+                      "BlackTheme"),
+                  Switch(
+                    value: AppController.instance.isDarkTheme,
+                    onChanged: (value) {
+                      setState(() {
+                        AppController.instance.changeTheme();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ]),
+        body: body());
   }
 }

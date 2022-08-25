@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stocker_mobile/Validacao_e_Gambiarra/gambiarra.dart';
 
 import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
@@ -80,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                       } else if (await login.autorizaLogin(usuario, senha)) {
                         if (await login.novoLogin(usuario, senha)) {
                           navegar.navegarEntreTela('/novologinpage', context);
-                          Gambiarra.gambiarra
+                          AppController.instance
                               .mudaLogin(login.getAlteraLoginID());
                         } else {
                           navegar.navegarEntreTela('/homepage', context);

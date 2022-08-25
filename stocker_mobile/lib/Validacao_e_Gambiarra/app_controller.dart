@@ -9,6 +9,10 @@ class AppController extends ChangeNotifier {
   Color theme1 = Colors.black;
   Color theme2 = const Color(0xFF0080d9);
 
+  int loginAntigo = 0;
+  String nomeNS = "";
+  bool alteraTela = true;
+
   changeTheme() {
     isDarkTheme = !isDarkTheme;
     if (isDarkTheme) {
@@ -23,5 +27,17 @@ class AppController extends ChangeNotifier {
       theme2 = const Color(0xFF0080d9);
     }
     notifyListeners();
+  }
+
+  mudaLogin(int loginN) {
+    loginAntigo = loginN;
+  }
+
+  pegaNome(String nome) {
+    nomeNS = nome;
+  }
+
+  setAlteraT(bool muda) {
+    alteraTela = muda;
   }
 }

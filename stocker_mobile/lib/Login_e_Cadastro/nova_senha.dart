@@ -16,7 +16,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
-  var teste = CRUD();
+  var crud = CRUD();
   var sendMail = SendMail();
 
   String email = '';
@@ -72,11 +72,11 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       dynamic lista = [];
                       bool enviou = false;
                       lista =
-                          await teste.select("SELECT *  FROM usuario_dados ");
+                          await crud.select("SELECT *  FROM usuario_dados ");
                       for (var row in lista) {
                         if (email == row['email']) {
                           random = geraStringAleatoria();
-                          await teste.update(
+                          await crud.update(
                               'Update usuario_login set senha = ?, nova_senha = ?  where id = ?',
                               [random, 0, row['id']]);
                           await sendMail.sendEmailChangePass(

@@ -39,7 +39,6 @@ class AppWidget extends StatelessWidget {
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
-                '/pdf': (context) => const Chart(),
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/telaCompra': (context) => const Compra(),
               });

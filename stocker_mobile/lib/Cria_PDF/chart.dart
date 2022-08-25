@@ -4,7 +4,8 @@ import 'package:pie_chart/pie_chart.dart';
 import '../DadosDB/crud.dart';
 
 class Chart extends StatefulWidget {
-  const Chart({Key? key}) : super(key: key);
+  final int? item;
+  const Chart({Key? key, this.item}) : super(key: key);
 
   @override
   State<Chart> createState() => _ChartState();
@@ -12,28 +13,43 @@ class Chart extends StatefulWidget {
 
 class _ChartState extends State<Chart> {
   List<dynamic> dados = [];
-  var teste = CRUD();
+  var crud = CRUD();
+  int? teste;
   List<String> nomes = [];
   List<double> valores = [];
 
-  Map<String, double> dataMap = {"Flutter": 2, "Teste": 3};
-  Map<String, String> legendLabels = {"Flutter": "Flutter", "Teste": "Teste"};
+  Map<String, double> dataMap = {"Flutter": 2, "crud": 3};
+  Map<String, String> legendLabels = {"Flutter": "Flutter"};
 
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      var result = await teste.select("SELECT *  FROM relatoriototal ");
+      var result = await crud.select("SELECT *  FROM relatoriototal ");
 
-      for (var row in result) {
+      if (widget.item == 1) {
+        for (var row in result) {
+          setState(() {
+            nomes.add("${row['nome_produto']} : ${row['qtd_total']}");
+            valores.add(double.parse("${row['qtd_total']}"));
+          });
+        }
         setState(() {
-          nomes.add("${row['nome_produto']} : ${row['qtd_total']}");
-          valores.add(double.parse("${row['qtd_total']}"));
+          dataMap = Map.fromIterables(nomes, valores);
+          legendLabels = Map.fromIterables(nomes, nomes);
+        });
+      } else {
+        for (var row in result) {
+          setState(() {
+            nomes.add("${row['nome_produto']} : ${row['preco_total']}");
+            valores.add(double.parse("${row['preco_total']}"));
+          });
+        }
+
+        setState(() {
+          dataMap = Map.fromIterables(nomes, valores);
+          legendLabels = Map.fromIterables(nomes, nomes);
         });
       }
-      setState(() {
-        dataMap = Map.fromIterables(nomes, valores);
-        legendLabels = Map.fromIterables(nomes, nomes);
-      });
     });
 
     super.initState();
