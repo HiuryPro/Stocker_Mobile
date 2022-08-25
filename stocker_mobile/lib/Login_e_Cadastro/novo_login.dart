@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 
 import '../DadosDB/crud.dart';
-import '../Validacao_e_Gambiarra/gambiarra.dart';
 
 class NovoLoginPage extends StatefulWidget {
   const NovoLoginPage({Key? key}) : super(key: key);
@@ -71,7 +70,7 @@ class _NovoLoginPageState extends State<NovoLoginPage> {
                 ElevatedButton(
                     onPressed: () async {
                       await teste.update(
-                          'Update usuario_login set login = ?, senha = ?, confirma_login = 1 where id = ${Gambiarra.gambiarra.loginAntigo}',
+                          'Update usuario_login set login = ?, senha = ?, confirma_login = 1 where id = ${AppController.instance.loginAntigo}',
                           [usuario, senha]);
 
                       showDialog(

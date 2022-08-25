@@ -8,7 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
 
 class CriaPDF {
-  var dadosBD = CRUD();
+  var crud = CRUD();
   // ignore: prefer_typing_uninitialized_variables
   var anchor;
 
@@ -17,7 +17,7 @@ class CriaPDF {
   List<List<dynamic>> tabela = [];
 
   relatoriaDados() async {
-    var dados = await dadosBD.select(
+    var dados = await crud.select(
         "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
 
     tabela.add([
@@ -41,7 +41,7 @@ class CriaPDF {
     }
   }
 
-  savePDFMob(var pdf) async {
+  savePDFMobile(var pdf) async {
     var bytes = await pdf.save();
 
     String path =
@@ -50,7 +50,7 @@ class CriaPDF {
     file.writeAsBytesSync(bytes);
   }
 
-  savePDF(var pdf) async {
+  savePDFWeb(var pdf) async {
     Uint8List pdfInBytes = await pdf.save();
     final blob = html.Blob([pdfInBytes], 'application/pdf');
     final url = html.Url.createObjectUrlFromBlob(blob);
@@ -61,7 +61,7 @@ class CriaPDF {
     html.document.body?.children.add(anchor);
   }
 
-  createPDF(var image, var by, var by2) async {
+  createPDF({var imageLogo, var bytesImage, var bytesImage2}) async {
     var pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
@@ -77,7 +77,8 @@ class CriaPDF {
           },
           build: (context) => [
                 pw.Center(
-                    child: pw.SizedBox(child: pw.Image(pw.MemoryImage(image)))),
+                    child: pw.SizedBox(
+                        child: pw.Image(pw.MemoryImage(imageLogo)))),
                 pw.SizedBox(height: 20),
                 pw.Center(
                     child: pw.Text("Relatório de Vendas",
@@ -95,7 +96,8 @@ class CriaPDF {
                 pw.SizedBox(height: 3),
                 pw.Center(
                     child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(by)))),
+                        height: 320,
+                        child: pw.Image(pw.MemoryImage(bytesImage)))),
                 pw.SizedBox(height: 3),
                 pw.Center(
                     child: pw.Text(
@@ -105,14 +107,15 @@ class CriaPDF {
                 pw.SizedBox(height: 3),
                 pw.Center(
                     child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(by2)))),
+                        height: 320,
+                        child: pw.Image(pw.MemoryImage(bytesImage2)))),
               ]),
     );
 
     if (kIsWeb) {
-      savePDF(pdf);
+      savePDFWeb(pdf);
     } else {
-      savePDFMob(pdf);
+      savePDFMobile(pdf);
     }
   }
 

@@ -14,7 +14,7 @@ class CadPage extends StatefulWidget {
 }
 
 class _CadPageState extends State<CadPage> {
-  var teste = CRUD();
+  var crud = CRUD();
   var valida = Validacao();
   var enviaEmail = SendMail();
 
@@ -223,10 +223,10 @@ class _CadPageState extends State<CadPage> {
                               if (await valida.validaCad(
                                   nomeE, cnpj, email, telefone, endereco)) {
                                 valida.abrevia(nomeE);
-                                await teste.insert(
+                                await crud.insert(
                                     "INSERT INTO usuario_dados (nome_empresa, cnpj, email, endereco, cidade, estado, telefone, ganho_mensal) VALUES(?,?,?,?,?,?,?,?)",
                                     valores);
-                                await teste.insert(
+                                await crud.insert(
                                     "INSERT INTO usuario_login (login, senha, confirma_login) VALUES(?,?,'0')",
                                     [valida.abrevia(nomeE), cnpj]);
                                 await enviaEmail.sendEmailWelcome(

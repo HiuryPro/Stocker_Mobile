@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:stocker_mobile/Cria_PDF/chart.dart';
-import 'package:stocker_mobile/Cria_PDF/chart2.dart';
 
 class Uint {
   // ignore: prefer_typing_uninitialized_variables
@@ -15,12 +14,12 @@ class Uint {
   pegaImagem() async {
     ScreenshotController screenshotController = ScreenshotController();
     bytes = await screenshotController.captureFromWidget(
-      const MediaQuery(data: MediaQueryData(), child: Chart()),
+      const MediaQuery(data: MediaQueryData(), child: Chart(item: 1)),
     );
     bytes2 = await screenshotController.captureFromWidget(
       const MediaQuery(
         data: MediaQueryData(),
-        child: Chart2(),
+        child: Chart(item: 2),
       ),
     );
 
