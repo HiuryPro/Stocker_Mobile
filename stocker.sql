@@ -354,8 +354,33 @@ CREATE TABLE `relatoriototal` (
 
 LOCK TABLES `relatoriototal` WRITE;
 /*!40000 ALTER TABLE `relatoriototal` DISABLE KEYS */;
-INSERT INTO `relatoriototal` VALUES (1,'Maçã',10,30),(2,'Coca-Cola',15,170),(3,'Laranja',10,70),(4,'Abacate',3,30);
+INSERT INTO `relatoriototal` VALUES (1,'Maçã',10,NULL),(2,'Coca-Cola',15,NULL),(3,'Laranja',10,NULL),(4,'Abacate',3,NULL);
 /*!40000 ALTER TABLE `relatoriototal` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `teste`
+--
+
+DROP TABLE IF EXISTS `teste`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `teste` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(30) CHARACTER SET utf8 DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `teste`
+--
+
+LOCK TABLES `teste` WRITE;
+/*!40000 ALTER TABLE `teste` DISABLE KEYS */;
+INSERT INTO `teste` VALUES (2,'Hiury',6),(3,'2',2),(4,'Hiury',2),(5,'Hiury',2),(6,'Hiury',2),(7,'Hiury',2),(8,'Hiury',2),(9,'teste',7),(10,'teste2',14),(11,'teste2',14),(12,'teste2',14);
+/*!40000 ALTER TABLE `teste` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -376,7 +401,7 @@ CREATE TABLE `usuario_dados` (
   `endereco` varchar(100) CHARACTER SET utf8 NOT NULL,
   `ganho_mensal` float NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -385,7 +410,7 @@ CREATE TABLE `usuario_dados` (
 
 LOCK TABLES `usuario_dados` WRITE;
 /*!40000 ALTER TABLE `usuario_dados` DISABLE KEYS */;
-INSERT INTO `usuario_dados` VALUES ('Stocker Group','32388582000111','grouppistockerpi@gmail.com','34988753210','Patos de Minas',1,'Minas Gerais','Avenida das flores nº 44',100000),('teste ','50829508000175','grouppistockerpi@gmail.com','22222222222','dgsgdh',2,'dhshsjs','hsjskd',222222000),('teste grou','48092562000139','grouppistockerpi@gmail.com','34837373838','dgshshs',3,'shshsjs','gsgshsh',121212);
+INSERT INTO `usuario_dados` VALUES ('Stocker Group','32388582000111','grouppistockerpi@gmail.com','34988753210','Patos de Minas',1,'Minas Gerais','Avenida das flores nº 44',100000),('teste ','50829508000175','grouppistockerpi@gmail.com','22222222222','dgsgdh',2,'dhshsjs','hsjskd',222222000),('teste grou','48092562000139','grouppistockerpi@gmail.com','34837373838','dgshshs',3,'shshsjs','gsgshsh',121212),('Hiury','90582337000147','hiurylucas@unipam.edu.br','3490875674','Tiros',4,'Minas Gerais','Avenida Presidente Antonio Carlons nº 12',1000000),('Hiury2','27333333000199','dandjarogaming@gmail.com','34988741034','Tiros',5,'Minas Gerais','Avenida alguma coisa',10000);
 /*!40000 ALTER TABLE `usuario_dados` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -403,7 +428,7 @@ CREATE TABLE `usuario_login` (
   `confirma_login` int(11) DEFAULT 0,
   `nova_senha` int(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -412,7 +437,7 @@ CREATE TABLE `usuario_login` (
 
 LOCK TABLES `usuario_login` WRITE;
 /*!40000 ALTER TABLE `usuario_login` DISABLE KEYS */;
-INSERT INTO `usuario_login` VALUES (1,'Sas','1234',1,1),(2,'t','putYgFkO',0,0),(3,'tg','48092562000139',0,1);
+INSERT INTO `usuario_login` VALUES (1,'Sas','1234',1,1),(2,'t','putYgFkO',0,0),(3,'TomaGay','12345',1,1),(4,'H','90582337000147',0,1),(5,'H','27333333000199',0,1);
 /*!40000 ALTER TABLE `usuario_login` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -451,4 +476,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-07-31 11:39:30
+-- Dump completed on 2022-08-22 13:42:24
