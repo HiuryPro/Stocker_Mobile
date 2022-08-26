@@ -19,7 +19,6 @@ class CRUD {
   }
 
   update(String query, List<dynamic> lista) async {
-    const String ip = "192.168.3.9";
     var url = Uri.parse("http://$ip/ConexaoDBStocker/Update.php");
     await http.post(url, body: {'query': query, 'lista': jsonEncode(lista)});
   }
