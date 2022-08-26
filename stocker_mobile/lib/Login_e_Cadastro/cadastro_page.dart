@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../DadosDB/crud.dart';
+import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
 import '../sendEmail/send_email.dart';
 
@@ -13,7 +14,7 @@ class CadPage extends StatefulWidget {
 }
 
 class _CadPageState extends State<CadPage> {
-  var teste = CRUD();
+  var crud = CRUD();
   var valida = Validacao();
   var enviaEmail = SendMail();
 
@@ -68,222 +69,215 @@ class _CadPageState extends State<CadPage> {
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Center(
-            child: Theme(
-              data: ThemeData(
-                  primaryColor: Colors.black,
-                  primaryColorDark: Colors.black,
-                  elevatedButtonTheme: ElevatedButtonThemeData(
-                      style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF0080d9),
-                  ))),
-              child: Center(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: Image.asset(
-                            'assets/images/Stocker_blue_transp.png')),
-                    const SizedBox(
-                      height: 15,
+            child: Center(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.asset(AppController.instance.img2)),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                    controller: fieldText,
+                    onChanged: (text) {
+                      setState(() {
+                        nomeE = text;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Nome da Empresa',
+                      border: OutlineInputBorder(),
                     ),
-                    TextField(
-                      controller: fieldText,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText2,
+                      inputFormatters: [maskFormatterCnpj],
                       onChanged: (text) {
                         setState(() {
-                          nomeE = text;
+                          cnpj = maskFormatterCnpj.getUnmaskedText();
                         });
                       },
                       decoration: const InputDecoration(
-                        labelText: 'Nome da Empresa',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText2,
-                        inputFormatters: [maskFormatterCnpj],
-                        onChanged: (text) {
+                        labelText: 'CNPJ',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText3,
+                      onChanged: (text) {
+                        setState(() {
+                          email = text;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText4,
+                      onChanged: (text) {
+                        setState(() {
+                          endereco = text;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Endereço',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText5,
+                      onChanged: (text) {
+                        setState(() {
+                          cidade = text;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Cidade',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText6,
+                      onChanged: (text) {
+                        setState(() {
+                          estado = text;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Estado',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText7,
+                      inputFormatters: [maskFormatterTelefone],
+                      onChanged: (text) {
+                        setState(() {
+                          telefone = maskFormatterTelefone.getUnmaskedText();
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Telefone',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextField(
+                      controller: fieldText8,
+                      onChanged: (text) {
+                        setState(() {
+                          ganho = text;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Ganho Mensal',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red)),
+                      )),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Center(
+                    child: ElevatedButton(
+                        onPressed: () async {
                           setState(() {
-                            cnpj = maskFormatterCnpj.getUnmaskedText();
+                            carrega = true;
                           });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'CNPJ',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText3,
-                        onChanged: (text) {
-                          setState(() {
-                            email = text;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText4,
-                        onChanged: (text) {
-                          setState(() {
-                            endereco = text;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Endereço',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText5,
-                        onChanged: (text) {
-                          setState(() {
-                            cidade = text;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Cidade',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText6,
-                        onChanged: (text) {
-                          setState(() {
-                            estado = text;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Estado',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText7,
-                        inputFormatters: [maskFormatterTelefone],
-                        onChanged: (text) {
-                          setState(() {
-                            telefone = maskFormatterTelefone.getUnmaskedText();
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Telefone',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                        controller: fieldText8,
-                        onChanged: (text) {
-                          setState(() {
-                            ganho = text;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Ganho Mensal',
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red)),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Center(
-                      child: ElevatedButton(
-                          onPressed: () async {
-                            setState(() {
-                              carrega = true;
-                            });
 
-                            valores.add(nomeE);
-                            valores.add(cnpj);
-                            valores.add(email);
-                            valores.add(endereco);
-                            valores.add(cidade);
-                            valores.add(estado);
-                            valores.add(telefone);
-                            valores.add(ganho);
+                          valores.add(nomeE);
+                          valores.add(cnpj);
+                          valores.add(email);
+                          valores.add(endereco);
+                          valores.add(cidade);
+                          valores.add(estado);
+                          valores.add(telefone);
+                          valores.add(ganho);
 
-                            if (await valida.isVazio(valores)) {
-                              if (valida.validacnpj(cnpj)) {
-                                if (await valida.validaCad(
-                                    nomeE, cnpj, email, telefone, endereco)) {
-                                  valida.abrevia(nomeE);
-                                  await teste.insertUD(valores);
-                                  await teste.inserUL(
-                                      valida.abrevia(nomeE), cnpj);
-                                  await enviaEmail.sendEmailWelcome(
-                                      abrevia: valida.abrevia(valores[0]),
-                                      cnpj: valores[1],
-                                      name: valores[0],
-                                      email: valores[2]);
-                                  setState(() {
-                                    carrega = false;
-                                  });
-                                  mensagem("Cadastro feito com sucesso");
+                          if (await valida.isVazio(valores)) {
+                            if (valida.validacnpj(cnpj)) {
+                              if (await valida.validaCad(
+                                  nomeE, cnpj, email, telefone, endereco)) {
+                                valida.abrevia(nomeE);
+                                await crud.insert(
+                                    "INSERT INTO usuario_dados (nome_empresa, cnpj, email, endereco, cidade, estado, telefone, ganho_mensal) VALUES(?,?,?,?,?,?,?,?)",
+                                    valores);
+                                await crud.insert(
+                                    "INSERT INTO usuario_login (login, senha, confirma_login) VALUES(?,?,'0')",
+                                    [valida.abrevia(nomeE), cnpj]);
+                                await enviaEmail.sendEmailWelcome(
+                                    abrevia: valida.abrevia(valores[0]),
+                                    cnpj: valores[1],
+                                    name: valores[0],
+                                    email: valores[2]);
+                                setState(() {
+                                  carrega = false;
+                                });
+                                mensagem("Cadastro feito com sucesso");
 
-                                  clearText();
-                                } else {
-                                  await Future.delayed(
-                                      const Duration(seconds: 1));
-                                  setState(() {
-                                    carrega = false;
-                                  });
-                                  mensagem(valida.getMensagem());
-                                }
+                                clearText();
                               } else {
                                 await Future.delayed(
                                     const Duration(seconds: 1));
                                 setState(() {
                                   carrega = false;
                                 });
-                                mensagem("CNPJ inválido");
+                                mensagem(valida.getMensagem());
                               }
                             } else {
                               await Future.delayed(const Duration(seconds: 1));
                               setState(() {
                                 carrega = false;
                               });
-                              mensagem(valida.getMensagem());
+                              mensagem("CNPJ inválido");
                             }
-
-                            valores.clear();
-                            await Future.delayed(const Duration(seconds: 3));
+                          } else {
+                            await Future.delayed(const Duration(seconds: 1));
                             setState(() {
                               carrega = false;
                             });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            textStyle: const TextStyle(fontSize: 24),
-                            minimumSize: const Size.fromHeight(72),
-                            shape: const StadiumBorder(),
-                          ),
-                          child: const Text('Cadastrar')),
-                    )
-                  ],
-                ),
+                            mensagem(valida.getMensagem());
+                          }
+
+                          valores.clear();
+                          await Future.delayed(const Duration(seconds: 3));
+                          setState(() {
+                            carrega = false;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: AppController.instance.theme2,
+                          textStyle: const TextStyle(fontSize: 24),
+                          minimumSize: const Size.fromHeight(72),
+                          shape: const StadiumBorder(),
+                        ),
+                        child: const Text('Cadastrar')),
+                  )
+                ],
               ),
             ),
           ),
@@ -293,17 +287,47 @@ class _CadPageState extends State<CadPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              },
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      style: TextStyle(color: AppController.instance.theme1),
+                      "BlackTheme"),
+                  Switch(
+                    value: AppController.instance.isDarkTheme,
+                    onChanged: (value) {
+                      setState(() {
+                        AppController.instance.changeTheme();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ]),
         body: Stack(
-      children: [
-        SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: Image.asset('assets/images/back2.jpg', fit: BoxFit.cover)),
-        _body(),
-        if (carrega) telaCarrega()[0],
-        if (carrega) telaCarrega()[1]
-      ],
-    ));
+          children: [
+            SizedBox(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child:
+                    Image.asset(AppController.instance.img, fit: BoxFit.cover)),
+            _body(),
+            if (carrega) telaCarrega()[0],
+            if (carrega) telaCarrega()[1]
+          ],
+        ));
   }
 
   List<Widget> telaCarrega() {

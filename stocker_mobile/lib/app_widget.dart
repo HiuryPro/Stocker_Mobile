@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
+import 'package:stocker_mobile/pege_imagem/pega_imagem.dart';
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
@@ -37,7 +39,8 @@ class AppWidget extends StatelessWidget {
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
-                '/pdf': (context) => const Chart(),
+                '/pegaimagem': (context) => const TesteImagem(),
+                '/telaCompra': (context) => const Compra(),
               });
         });
   }

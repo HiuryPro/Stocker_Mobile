@@ -13,8 +13,9 @@ import 'package:universal_html/html.dart' as html;
 
 import '../Cria_PDF/cria_pdf.dart';
 import '../Cria_PDF/uint.dart';
-import '../DadosDB/CRUD.dart';
-import '../DadosDB/crud2.dart';
+
+import '../DadosDB/crud.dart';
+import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/cores.dart';
 
@@ -40,8 +41,8 @@ class HomePageState extends State<HomePage> {
   bool isDone = false;
 
   var dadosBD = CRUD();
-  var dadosBD2 = CRUD2();
   var criaPdf = CriaPDF();
+  var navegar = Navegar();
 
   Cores cor = Cores();
 
@@ -58,104 +59,49 @@ class HomePageState extends State<HomePage> {
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
-  Future<List<List<dynamic>>> relatoriaDados() async {
-    var dados = await dadosBD.selectPV(deData, ateData);
-
-    List<List<dynamic>> teste = [];
-    teste.add([
-      'produto',
-      'quantidade',
-      'preco',
-      'total',
-      'data de saída',
-      'cliente'
-    ]);
-    for (int i = 0; i < dados.length; i = i + 7) {
-      teste.add([
-        '${dados[i + 1]}',
-        '${dados[i + 2]}',
-        '${dados[i + 3]}',
-        '${dados[i + 4]}',
-        '${dados[i + 5]}',
-        '${dados[i + 6]}'
-      ]);
+  atualizaRelatorio() async {
+    await dadosBD.update(
+        "UPDATE relatoriototal set qtd_total = ?, preco_total = ?", [0, 0]);
+    var dados = await dadosBD.select(
+        "SELECT nome_produto  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\"))");
+    for (var row in dados) {
+      var dados2 = await dadosBD.select(
+          "SELECT SUM(quantidade), SUM(total)  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) and nome_produto = '${row['nome_produto']}' ORDER BY data_saida ");
+      for (var row2 in dados2) {
+        await dadosBD.update(
+            "UPDATE relatoriototal set qtd_total = ?, preco_total = ? where nome_produto = '${row['nome_produto']}'",
+            [row2['SUM(quantidade)'], row2['SUM(total)']]);
+      }
     }
-
-    return teste;
   }
 
-  savePDFMob(var pdf) async {
-    var bytes = await pdf.save();
+  criandoPDF() async {
+    var lista = [];
 
-    String path =
-        '/storage/emulated/0/Download/Stocker/relatorio_${deData.replaceAll(RegExp(r'/'), '-')}_${ateData.replaceAll(RegExp(r'/'), '-')}.pdf';
-    final File file = File(path);
-    file.writeAsBytesSync(bytes);
-  }
+    lista = await dadosBD.select(
+        "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
+    if (lista.isNotEmpty) {
+      await atualizaRelatorio();
 
-  savePDF(var pdf) async {
-    Uint8List pdfInBytes = await pdf.save();
-    final blob = html.Blob([pdfInBytes], 'application/pdf');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    anchor = html.document.createElement('a') as html.AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download = 'relatorio_${deData}_$ateData.pdf';
-    html.document.body?.children.add(anchor);
-  }
-
-  createPDF(
-      var pdf, List<List<dynamic>> valores, var image, var by, var by2) async {
-    pdf.addPage(
-      pw.MultiPage(
-          footer: (pw.Context context) {
-            return pw.Container(
-                alignment: pw.Alignment.centerRight,
-                margin: const pw.EdgeInsets.only(top: 1.0 * PdfPageFormat.cm),
-                child: pw.Text(
-                    'Page ${context.pageNumber} of ${context.pagesCount}',
-                    style: pw.Theme.of(context)
-                        .defaultTextStyle
-                        .copyWith(color: PdfColors.grey)));
-          },
-          build: (context) => [
-                pw.Center(
-                    child: pw.SizedBox(child: pw.Image(pw.MemoryImage(image)))),
-                pw.SizedBox(height: 20),
-                pw.Center(
-                    child: pw.Text("Relatório de Vendas",
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(fontSize: 30))),
-                pw.SizedBox(height: 20),
-                pw.Table.fromTextArray(data: valores),
-                pw.NewPage(),
-                pw.Center(
-                    child: pw.Text("Gráfico de quantidade de produtos vendidos",
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(
-                          fontSize: 14,
-                        ))),
-                pw.SizedBox(height: 3),
-                pw.Center(
-                    child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(by)))),
-                pw.SizedBox(height: 3),
-                pw.Center(
-                    child: pw.Text(
-                        textAlign: pw.TextAlign.center,
-                        "Gráfico de total ganho na venda de cada produto",
-                        style: const pw.TextStyle(fontSize: 14))),
-                pw.SizedBox(height: 3),
-                pw.Center(
-                    child: pw.SizedBox(
-                        height: 320, child: pw.Image(pw.MemoryImage(by2)))),
-              ]),
-    );
-
-    if (kIsWeb) {
-      savePDF(pdf);
+      criaPdf.deData = deData;
+      criaPdf.ateData = ateData;
+      var imageToUint = Uint();
+      await imageToUint.pegaImagem();
+      await criaPdf.relatoriaDados();
+      await criaPdf.createPDF(
+          imageLogo: imageToUint.image,
+          bytesImage: imageToUint.bytes,
+          bytesImage2: imageToUint.bytes2);
+      setState(() {
+        carrega = false;
+      });
+      mensagem(
+          "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
     } else {
-      savePDFMob(pdf);
+      setState(() {
+        carrega = false;
+      });
+      mensagem("Não há registros neste período");
     }
   }
 
@@ -167,22 +113,6 @@ class HomePageState extends State<HomePage> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Switch(
-                  value: AppController.instance.isDarkTheme,
-                  onChanged: (value) {
-                    setState(() {
-                      AppController.instance.changeTheme();
-                    });
-                  },
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -246,95 +176,34 @@ class HomePageState extends State<HomePage> {
             const SizedBox(
               height: 15,
             ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed("/");
+                },
+                child: const Text("Voltar")),
             const SizedBox(
               height: 15,
             ),
             ElevatedButton(
                 onPressed: () async {
-                  var lista = [];
-
                   setState(() {
                     carrega = true;
                   });
 
                   if (kIsWeb) {
-                    await dadosBD2.updateRTS(deData, ateData);
-                    lista = await dadosBD.selectPV(deData, ateData);
-
-                    if (lista.isNotEmpty) {
-                      criaPdf.deData = deData;
-                      criaPdf.ateData = ateData;
-                      var teste2 = Uint();
-                      await teste2.pegaImagem();
-                      await criaPdf.relatoriaDados();
-                      await criaPdf.createPDF(
-                          teste2.image, teste2.bytes, teste2.bytes2);
-                      criaPdf.anchor.click();
-
-                      setState(() {
-                        carrega = false;
-                      });
-
-                      mensagem(
-                          "Relatório gerado com sucesso! Arquivo baixado na pasta dowloads");
-                    } else {
-                      setState(() {
-                        carrega = false;
-                      });
-                      mensagem("Não há registros neste período");
-                    }
+                    await criandoPDF();
+                    criaPdf.anchor.click();
                   } else {
                     if (await Permission.storage.isGranted) {
                       await criaPdf.criaDiretorio();
-
-                      lista = await dadosBD.selectPV(deData, ateData);
-                      if (lista.isNotEmpty) {
-                        await dadosBD2.updateRTS(deData, ateData);
-                        criaPdf.deData = deData;
-                        criaPdf.ateData = ateData;
-                        var teste2 = Uint();
-                        await teste2.pegaImagem();
-                        await criaPdf.relatoriaDados();
-                        await criaPdf.createPDF(
-                            teste2.image, teste2.bytes, teste2.bytes2);
-                        setState(() {
-                          carrega = false;
-                        });
-                        mensagem(
-                            "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
-                      } else {
-                        setState(() {
-                          carrega = false;
-                        });
-                        mensagem("Não há registros neste período");
-                      }
+                      await criandoPDF();
                     } else {
                       await [Permission.storage].request();
 
                       if (await Permission.storage.isGranted) {
                         await criaPdf.criaDiretorio();
 
-                        lista = await dadosBD.selectPV(deData, ateData);
-                        if (lista.isNotEmpty) {
-                          await dadosBD2.updateRTS(deData, ateData);
-                          criaPdf.deData = deData;
-                          criaPdf.ateData = ateData;
-                          var teste2 = Uint();
-                          await teste2.pegaImagem();
-                          await criaPdf.relatoriaDados();
-                          await criaPdf.createPDF(
-                              teste2.image, teste2.bytes, teste2.bytes2);
-                          setState(() {
-                            carrega = false;
-                          });
-                          mensagem(
-                              "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
-                        } else {
-                          setState(() {
-                            carrega = false;
-                          });
-                          mensagem("Não há registros neste período");
-                        }
+                        await criandoPDF();
                       } else {
                         // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context)
@@ -346,6 +215,14 @@ class HomePageState extends State<HomePage> {
                   }
                 },
                 child: const Text("Cria PDF")),
+            const SizedBox(
+              height: 15,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  navegar.navegarEntreTela("/telaCompra", context);
+                },
+                child: const Text("Tela de Compra")),
           ],
         ),
       ),
@@ -355,13 +232,44 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+            leading: IconButton(
+              color: AppController.instance.isDarkTheme
+                  ? Colors.white
+                  : Colors.black,
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              },
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      style: TextStyle(color: AppController.instance.theme1),
+                      "BlackTheme"),
+                  Switch(
+                    value: AppController.instance.isDarkTheme,
+                    onChanged: (value) {
+                      setState(() {
+                        AppController.instance.changeTheme();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ]),
         body: Stack(
-      children: [
-        body(),
-        if (carrega) telaCarrega()[0],
-        if (carrega) telaCarrega()[1],
-      ],
-    ));
+          children: [
+            body(),
+            if (carrega) telaCarrega()[0],
+            if (carrega) telaCarrega()[1],
+          ],
+        ));
   }
 
   List<Widget> telaCarrega() {
@@ -384,7 +292,7 @@ class HomePageState extends State<HomePage> {
                   child: Text(
                       textAlign: TextAlign.center,
                       "Espere! Seu relatório está sendo gerado!",
-                      style: TextStyle(fontSize: 25))),
+                      style: TextStyle(fontSize: 25, color: Colors.black))),
             ]),
       ),
     ];
