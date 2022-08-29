@@ -11,10 +11,16 @@ class Compra extends StatefulWidget {
 }
 
 class _CompraState extends State<Compra> {
+  var fieldControllerPreco = TextEditingController();
+  var fieldControllerTotal = TextEditingController();
   final produtos = [""];
   final fornecedores = [""];
   String? produto;
   String? fornecedor;
+  int? quantidade;
+  double? preco;
+  double? total;
+
   var crud = CRUD();
 
   @override
@@ -53,10 +59,6 @@ class _CompraState extends State<Compra> {
                         padding: EdgeInsets.all(8.0),
                         child: Text("Produtos"),
                       ),
-                      disabledHint: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("Produtos"),
-                      ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
                       items: produtos.map(buildMenuItem).toList(),
@@ -64,6 +66,7 @@ class _CompraState extends State<Compra> {
                         var lista;
                         setState(() {
                           produto = value;
+                          fieldControllerPreco.text = "";
                           fornecedor = null;
                         });
 
@@ -94,17 +97,25 @@ class _CompraState extends State<Compra> {
                         padding: EdgeInsets.all(8.0),
                         child: Text("Fornecedores"),
                       ),
-                      disabledHint: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("Fornecedores"),
-                      ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
                       items: fornecedores.map(buildMenuItem).toList(),
-                      onChanged: (value) {
+                      onChanged: (value) async {
                         setState(() {
                           fornecedor = value;
                         });
+                        print(
+                            "Select preco from fornecedor_produto where fornecedor = '$fornecedor' and produto = '$produto'");
+
+                        var lista = await crud.select(
+                            "SELECT preco FROM fornecedor_produto where fornecedor = '$fornecedor' and produto = '$produto'");
+                        for (var row in lista) {
+                          print(row['preco']);
+                          setState(() {
+                            fieldControllerPreco.text = row['preco'].toString();
+                            preco = double.parse(fieldControllerPreco.text);
+                          });
+                        }
                       }),
                 ),
               ),
@@ -112,11 +123,20 @@ class _CompraState extends State<Compra> {
                 height: 15,
               ),
               TextField(
-                onChanged: (text) {
-                  setState(() {});
+                onChanged: (qtd) {
+                  setState(() {
+                    
+                    if (qtd != "") {
+                      quantidade = int.parse(qtd);
+                      fieldControllerTotal.text =
+                          (quantidade! * preco!).toString();
+                    } else {
+                      fieldControllerTotal.text = "";
+                    }
+                  });
                 },
                 decoration: InputDecoration(
-                    labelText: "Produto",
+                    labelText: "Quantidade",
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
@@ -126,11 +146,13 @@ class _CompraState extends State<Compra> {
                 height: 15,
               ),
               TextField(
+                enabled: false,
+                controller: fieldControllerPreco,
                 onChanged: (text) {
                   setState(() {});
                 },
                 decoration: InputDecoration(
-                    labelText: "Produto",
+                    labelText: "Preço",
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
@@ -138,6 +160,19 @@ class _CompraState extends State<Compra> {
               ),
               const SizedBox(
                 height: 15,
+              ),
+              TextField(
+                enabled: false,
+                controller: fieldControllerTotal,
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                    labelText: "Total",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF0080d9), width: 2))),
               ),
             ]))));
   }

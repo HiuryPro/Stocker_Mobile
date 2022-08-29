@@ -12,7 +12,7 @@ import 'package:stocker_mobile/app_widget.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const AppWidget());
+    await tester.pumpWidget(const Core());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
