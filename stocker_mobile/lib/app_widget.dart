@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/pege_imagem/pega_imagem.dart';
+
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
@@ -12,6 +13,7 @@ import 'Home/home_page.dart';
 import 'Login_e_Cadastro/login_page.dart';
 import 'Login_e_Cadastro/nova_senha.dart';
 import 'Login_e_Cadastro/novo_login.dart';
+import 'teste.dart';
 
 class Core extends StatelessWidget {
   const Core({Key? key}) : super(key: key);
@@ -43,7 +45,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/',
+              initialRoute: '/telaTeste',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/homepage': (context) => const HomePage(),
@@ -53,6 +55,7 @@ class AppWidget extends StatelessWidget {
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/telaCompra': (context) => const Compra(),
+                '/telaTeste': (context) => const Teste(),
               });
         });
   }

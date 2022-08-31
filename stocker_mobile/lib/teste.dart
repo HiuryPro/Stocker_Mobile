@@ -1,42 +1,92 @@
-import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:stocker_mobile/app/providers/app.dbnotifier.dart';
 
-import 'package:http/http.dart' as http;
+class Teste extends StatefulWidget {
+  const Teste({Key? key}) : super(key: key);
 
-select(String query) async {
-  const String ip = "192.168.3.9";
-  dynamic body;
-  var url = Uri.parse("http://$ip/ConexaoDBStocker/Select.php");
-  http.Response response = await http.post(url, body: {'query': query});
-  body = jsonDecode(response.body);
-
-  return body;
+  @override
+  State<Teste> createState() => _TesteState();
 }
 
-insert(String query, List<String> lista) async {
-  const String ip = "192.168.3.9";
-  var url = Uri.parse("http://$ip/ConexaoDBStocker/Insert.php");
-  await http.post(url, body: {'query': query, 'lista': jsonEncode(lista)});
-}
+// ; : "" []
+class _TesteState extends State<Teste> {
+  String nome = "Hiury";
 
-update(String query, List<dynamic> lista) async {
-  const String ip = "192.168.3.9";
-  var url = Uri.parse("http://$ip/ConexaoDBStocker/Update.php");
-  await http.post(url, body: {'query': query, 'lista': jsonEncode(lista)});
-}
+  @override
+  Widget build(BuildContext context) {
+    final DataBaseNotifier authNotifier =
+        Provider.of<DataBaseNotifier>(context, listen: false);
 
-delete(String query) async {
-  const String ip = "192.168.3.9";
-  var url = Uri.parse("http://$ip/ConexaoDBStocker/Select.php");
-  await http.post(url, body: {'query': query});
-}
+    return Scaffold(
+        body: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Center(
+                child: ListView(shrinkWrap: true, children: [
+              const Center(child: Text("Funfa")),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                  onPressed: () async {
+                    Map<String, dynamic> dataMap = {};
 
-main() async {
-  var deData = "01/06/2022";
-  var ateData = "14/06/2022";
-  await insert(
-      "Insert into teste (nome, numero) VALUES (?,?)", ["teste2", "14"]);
-  await update(
-      "Update teste set nome = ? , numero = ? where id = 1", ['Gay', 24]);
-  await delete("Delete from teste where id = 1");
-  print(await select("SELECT * FROM teste"));
+                    List<String> colunas = ["nome", "numero"];
+                    List<dynamic> valores = ["Mito (contem ironia)", 13];
+
+                    dataMap = Map.fromIterables(colunas, valores);
+                    print(dataMap);
+
+                    authNotifier.insert(tabela: "Teste", map: dataMap);
+                  },
+                  child: const Text("Manda pro banco")),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                  onPressed: () async {
+                    var lista = [];
+                    Map<String, dynamic> query = {};
+
+                    List<String> colunas = ["nome", "numero"];
+                    List<dynamic> valores = ["Mito (contem ironia)", 13];
+
+                    query = Map.fromIterables(colunas, valores);
+                    print(query);
+                    lista = await authNotifier.select(
+                        tabela: "Teste", query: query);
+
+                    print(lista);
+
+                    for (var row in lista) {
+                      setState(() {
+                        nome = row['nome'];
+                      });
+                    }
+                  },
+                  child: const Text("pega do Banco")),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                  onPressed: () async {
+                    var lista = [];
+                    Map<String, dynamic> query = {};
+                    Map<String, dynamic> alteracoes = {};
+
+                    List<String> colunas = ["nome", "numero"];
+                    List<dynamic> valores = ["Mito (contem ironia)", 13];
+
+                    query = Map.fromIterables(colunas, valores);
+
+                    List<String> colunasAlterar = ["nome", "numero"];
+                    List<dynamic> valorAlterar = ["Hiury Foda", 21];
+
+                    alteracoes =
+                        Map.fromIterables(colunasAlterar, valorAlterar);
+
+                    print(query);
+                    await authNotifier.update(
+                        tabela: "Teste", query: query, alteracoes: alteracoes);
+                  },
+                  child: const Text("pega do Banco")),
+              const SizedBox(height: 15),
+              Text("$nome"),
+            ]))));
+  }
 }

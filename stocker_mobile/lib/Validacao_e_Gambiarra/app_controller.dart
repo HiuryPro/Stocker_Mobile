@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppController extends ChangeNotifier {
   static AppController instance = AppController();
-
+  
   bool isDarkTheme = false;
   String img = "assets/images/back2.jpg";
   String img2 = "assets/images/Stocker_blue_transp.png";
