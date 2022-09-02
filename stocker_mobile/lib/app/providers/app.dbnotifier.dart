@@ -13,16 +13,21 @@ class DataBaseNotifier extends ChangeNotifier {
 
   dynamic select({
     required String tabela,
-    required Map<String, dynamic> query,
+    required String select,
+    required Map<String, dynamic> where,
   }) async {
-    return await dataBService.select(tabela: tabela, query: query);
+    return await dataBService.select(tabela: tabela, select: select, where: where);
   }
 
   update(
       {required String tabela,
-      required Map<String, dynamic> query,
-      required Map<String, dynamic> alteracoes}) async {
+      required Map<String, dynamic> where,
+      required Map<String, dynamic> setValue}) async {
     await dataBService.update(
-        tabela: tabela, query: query, alteracoes: alteracoes);
+        tabela: tabela, where: where, setValue: setValue);
+  }
+
+   delete({required String tabela, required Map<String, dynamic> where}) async{
+   await dataBService.delete(tabela: tabela, where: where);
   }
 }
