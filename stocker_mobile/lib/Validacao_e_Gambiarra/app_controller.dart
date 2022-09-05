@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:supabase/supabase.dart';
 
 class AppController extends ChangeNotifier {
   static AppController instance = AppController();
-  
+
   bool isDarkTheme = false;
   String img = "assets/images/back2.jpg";
   String img2 = "assets/images/Stocker_blue_transp.png";
   Color theme1 = Colors.black;
   Color theme2 = const Color(0xFF0080d9);
+
+  GotrueSessionResponse? response;
 
   int loginAntigo = 0;
   String nomeNS = "";

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/pege_imagem/pega_imagem.dart';
 
@@ -48,14 +49,14 @@ class AppWidget extends StatelessWidget {
               initialRoute: '/telaTeste',
               routes: {
                 '/': (context) => const LoginPage(),
-                '/homepage': (context) => const HomePage(),
-                '/cadpage': (context) => const CadPage(),
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
+                '/cadpage': (context) => CadPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/telaCompra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
+                '/caduser': (context) => const CadUser(),
               });
         });
   }

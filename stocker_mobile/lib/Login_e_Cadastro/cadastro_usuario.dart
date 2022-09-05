@@ -5,14 +5,14 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class CadUser extends StatefulWidget {
+  const CadUser({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<CadUser> createState() => _CadUserState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _CadUserState extends State<CadUser> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                         navegar.navegarEntreTela('/atualizasenha', context);
                       } else if (await login.autorizaLogin(usuario, senha)) {
                         if (await login.novoLogin(usuario, senha)) {
-                          navegar.navegarEntreTela('/novologinpage', context);
+                          navegar.navegarEntreTela('/novoCadUser', context);
                           AppController.instance
                               .mudaLogin(login.getAlteraLoginID());
                         } else {
@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                       : AppController.instance.theme1;
                   return GestureDetector(
                     onTap: () {
-                      navegar.navegarEntreTela('/caduser', context);
+                      navegar.navegarEntreTela('/cadpage', context);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",

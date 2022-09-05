@@ -10,9 +10,11 @@ class AuthenticationService {
       required String senha}) async {
     GotrueSessionResponse response =
         await SupaBaseCredentials.supaBaseClient.auth.signUp(email, senha);
-    mensagem(context, response);
-    var user = SupaBaseCredentials.supaBaseClient.auth.user()!.email;
-    print(user);
+    if (response.error == null) {
+      mensagem(context, response);
+    } else {
+      mensagem(context, response);
+    }
   }
 
   ScaffoldFeatureController mensagem(var context, var response) {
@@ -23,5 +25,14 @@ class AuthenticationService {
         : ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
                 "Erro no Cadastro: ${response.error!.message.toString()}")));
+  }
+
+  Future<GotrueSessionResponse> signIn(
+      {required String email, required String senha}) async {
+    GotrueSessionResponse response = await SupaBaseCredentials
+        .supaBaseClient.auth
+        .signIn(email: email, password: senha);
+
+    return response;
   }
 }
