@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
-import 'package:stocker_mobile/pege_imagem/pega_imagem.dart';
+import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
 import 'package:stocker_mobile/teste2.dart';
 
 import 'Cria_PDF/chart.dart';

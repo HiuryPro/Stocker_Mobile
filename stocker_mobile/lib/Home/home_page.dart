@@ -17,7 +17,7 @@ import '../Cria_PDF/uint.dart';
 import '../DadosDB/crud.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
-import '../Validacao_e_Gambiarra/cores.dart';
+import '../Cria_PDF/cores.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
