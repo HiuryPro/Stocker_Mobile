@@ -6,6 +6,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'Validacao_e_Gambiarra/app_controller.dart';
+import 'Validacao_e_Gambiarra/inscricaoestadual.dart';
 import 'Validacao_e_Gambiarra/validacao.dart';
 
 class CarouTeste extends StatefulWidget {
@@ -17,6 +18,7 @@ class CarouTeste extends StatefulWidget {
 
 class _CarouTesteState extends State<CarouTeste> {
   var valida = Validacao();
+  var inscE = InscE();
 
   var maskFormatterCnpj = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
@@ -28,7 +30,15 @@ class _CarouTesteState extends State<CarouTeste> {
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
+  MaskTextInputFormatter maskara(String mask) {
+    return MaskTextInputFormatter(
+        mask: mask,
+        filter: {"#": RegExp(r'[0-9]')},
+        type: MaskAutoCompletionType.lazy);
+  }
+
   List<TextEditingController> textControllers = [
+    TextEditingController(),
     TextEditingController(),
     TextEditingController(),
     TextEditingController(),
@@ -41,6 +51,7 @@ class _CarouTesteState extends State<CarouTeste> {
   ];
 
   List<String?> mensagemDeErro = [
+    null,
     null,
     null,
     null,
@@ -170,9 +181,10 @@ class _CarouTesteState extends State<CarouTeste> {
             const SizedBox(height: 15),
             TextField(
               controller: textControllers[2],
-              inputFormatters: [maskFormatterTelefone],
+              inputFormatters: [maskFormatterCnpj],
               decoration: InputDecoration(
-                  label: Text("Telefone"), errorText: mensagemDeErro[2]),
+                  label: Text("Inscrição estadual"),
+                  errorText: mensagemDeErro[1]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[2] = null;
@@ -182,11 +194,23 @@ class _CarouTesteState extends State<CarouTeste> {
             const SizedBox(height: 15),
             TextField(
               controller: textControllers[3],
+              inputFormatters: [maskFormatterTelefone],
+              decoration: InputDecoration(
+                  label: Text("Telefone"), errorText: mensagemDeErro[2]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[3] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[4],
               decoration: InputDecoration(
                   label: Text("Ganho Mensal"), errorText: mensagemDeErro[3]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[3] = null;
+                  mensagemDeErro[4] = null;
                 });
               },
             ),
@@ -213,20 +237,9 @@ class _CarouTesteState extends State<CarouTeste> {
               height: 15,
             ),
             TextField(
-              controller: textControllers[4],
-              decoration: InputDecoration(
-                  label: Text("Logradouro"), errorText: mensagemDeErro[4]),
-              onChanged: (text) {
-                setState(() {
-                  mensagemDeErro[4] = null;
-                });
-              },
-            ),
-            const SizedBox(height: 15),
-            TextField(
               controller: textControllers[5],
               decoration: InputDecoration(
-                  label: Text("Numero"), errorText: mensagemDeErro[5]),
+                  label: Text("Logradouro"), errorText: mensagemDeErro[4]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[5] = null;
@@ -237,7 +250,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[6],
               decoration: InputDecoration(
-                  label: Text("Bairro"), errorText: mensagemDeErro[6]),
+                  label: Text("Numero"), errorText: mensagemDeErro[5]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[6] = null;
@@ -248,7 +261,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[7],
               decoration: InputDecoration(
-                  label: Text("Cidade"), errorText: mensagemDeErro[7]),
+                  label: Text("Bairro"), errorText: mensagemDeErro[6]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[7] = null;
@@ -259,10 +272,21 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[8],
               decoration: InputDecoration(
-                  label: Text("Estado"), errorText: mensagemDeErro[8]),
+                  label: Text("Cidade"), errorText: mensagemDeErro[7]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[8] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[9],
+              decoration: InputDecoration(
+                  label: Text("Estado"), errorText: mensagemDeErro[8]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[9] = null;
                 });
               },
             ),
