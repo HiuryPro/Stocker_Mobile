@@ -1,107 +1,99 @@
 class InscE {
-  static String removeMascara(String ie) {
-    String strIE = "";
-    for (int i = 0; i < ie.length; i++) {
-      if (!ie.codeUnitAt(i).isNaN) {
-        strIE += ie.codeUnitAt(i).toString();
-      }
-    }
-    return strIE;
-  }
-
-  static void valida(String inscricaoEstadual, String siglaUf) {
-    String strIE = removeMascara(inscricaoEstadual);
+  bool valida(String inscricaoEstadual, String siglaUf) {
+    String strIE = inscricaoEstadual;
     siglaUf = siglaUf.toUpperCase();
     if (siglaUf == "AC") {
-      validaIEAcre(strIE);
+      return validaIEAcre(strIE);
     } else {
       if (siglaUf == "AL") {
-        validaIEAlagoas(strIE);
+        return validaIEAlagoas(strIE);
       } else {
         if (siglaUf == "AP") {
-          validaIEAmapa(strIE);
+          return validaIEAmapa(strIE);
         } else {
           if (siglaUf == "AM") {
-            validaIEAmazonas(strIE);
+            return validaIEAmazonas(strIE);
           } else {
             if (siglaUf == "BA") {
-              validaIEBahia(strIE);
+              return validaIEBahia(strIE);
             } else {
               if (siglaUf == "CE") {
-                validaIECeara(strIE);
+                return validaIECeara(strIE);
               } else {
                 if (siglaUf == "ES") {
-                  validaIEEspiritoSanto(strIE);
+                  return validaIEEspiritoSanto(strIE);
                 } else {
                   if (siglaUf == "GO") {
-                    validaIEGoias(strIE);
+                    return validaIEGoias(strIE);
                   } else {
                     if (siglaUf == "MA") {
-                      validaIEMaranhao(strIE);
+                      return validaIEMaranhao(strIE);
                     } else {
                       if (siglaUf == "MT") {
-                        validaIEMatoGrosso(strIE);
+                        return validaIEMatoGrosso(strIE);
                       } else {
                         if (siglaUf == "MS") {
-                          validaIEMatoGrossoSul(strIE);
+                          return validaIEMatoGrossoSul(strIE);
                         } else {
                           if (siglaUf == "MG") {
-                            validaIEMinasGerais(strIE);
+                            return validaIEMinasGerais(strIE);
                           } else {
                             if (siglaUf == "PA") {
-                              validaIEPara(strIE);
+                              return validaIEPara(strIE);
                             } else {
                               if (siglaUf == "PB") {
-                                validaIEParaiba(strIE);
+                                return validaIEParaiba(strIE);
                               } else {
                                 if (siglaUf == "PR") {
-                                  validaIEParana(strIE);
+                                  return validaIEParana(strIE);
                                 } else {
                                   if (siglaUf == "PE") {
-                                    validaIEPernambuco(strIE);
+                                    return validaIEPernambuco(strIE);
                                   } else {
                                     if (siglaUf == "PI") {
-                                      validaIEPiaui(strIE);
+                                      return validaIEPiaui(strIE);
                                     } else {
                                       if (siglaUf == "RJ") {
-                                        validaIERioJaneiro(strIE);
+                                        return validaIERioJaneiro(strIE);
                                       } else {
                                         if (siglaUf == "RN") {
-                                          validaIERioGrandeNorte(strIE);
+                                          return validaIERioGrandeNorte(strIE);
                                         } else {
                                           if (siglaUf == "RS") {
-                                            validaIERioGrandeSul(strIE);
+                                            return validaIERioGrandeSul(strIE);
                                           } else {
                                             if (siglaUf == "RO") {
-                                              validaIERondonia(strIE);
+                                              return validaIERondonia(strIE);
                                             } else {
                                               if (siglaUf == "RR") {
-                                                validaIERoraima(strIE);
+                                                return validaIERoraima(strIE);
                                               } else {
                                                 if (siglaUf == "SC") {
-                                                  validaIESantaCatarina(strIE);
+                                                  return validaIESantaCatarina(
+                                                      strIE);
                                                 } else {
                                                   if (siglaUf == "SP") {
                                                     if (inscricaoEstadual
                                                             .codeUnitAt(0) ==
                                                         'P'.codeUnitAt(0)) {
-                                                      strIE = ("P$strIE");
+                                                      strIE = ("P" + strIE);
                                                     }
-                                                    validaIESaoPaulo(strIE);
+                                                    return validaIESaoPaulo(
+                                                        strIE);
                                                   } else {
                                                     if (siglaUf == "SE") {
-                                                      validaIESergipe(strIE);
+                                                      return validaIESergipe(
+                                                          strIE);
                                                     } else {
                                                       if (siglaUf == "TO") {
-                                                        validaIETocantins(
+                                                        return validaIETocantins(
                                                             strIE);
                                                       } else {
                                                         if (siglaUf == "DF") {
-                                                          validaIEDistritoFederal(
+                                                          return validaIEDistritoFederal(
                                                               strIE);
                                                         } else {
-                                                          throw Exception(
-                                                              "Estado não encontrado : $siglaUf");
+                                                          return false;
                                                         }
                                                       }
                                                     }
@@ -131,13 +123,13 @@ class InscE {
     }
   }
 
-  static void validaIEAcre(String ie) {
+  bool validaIEAcre(String ie) {
     if (ie.length != 13) {
-      throw Exception("Quantidade de digitos inválida.");
+      return false;
     }
     for (int i = 0; i < 2; i++) {
-      if (int.parse("${ie.codeUnitAt(i)}") != i) {
-        throw Exception("Inscrição Estadual inválida");
+      if (int.parse(ie[i]) != i) {
+        return false;
       }
     }
     int soma = 0;
@@ -147,10 +139,10 @@ class InscE {
     int d2 = 0;
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 3) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicial);
+        soma += (int.parse(ie[i]) * pesoInicial);
         pesoInicial--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFinal);
+        soma += (int.parse(ie[i]) * pesoFinal);
         pesoFinal--;
       }
     }
@@ -163,10 +155,10 @@ class InscE {
     pesoFinal = 9;
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 4) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicial);
+        soma += (int.parse(ie[i]) * pesoInicial);
         pesoInicial--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFinal);
+        soma += (int.parse(ie[i]) * pesoFinal);
         pesoFinal--;
       }
     }
@@ -174,53 +166,55 @@ class InscE {
     if ((d2 == 10) || (d2 == 11)) {
       d2 = 0;
     }
-    String dv = (("$d1") + d2.toString());
+    String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEAlagoas(String ie) {
+  bool validaIEAlagoas(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de d&#65533;gitos inv&#65533;lida.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "24")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     List<int> digits = [0, 3, 5, 7, 8];
     bool check = false;
     for (int i = 0; i < digits.length; i++) {
-      if (int.parse("${ie.codeUnitAt(2)}") == digits[i]) {
+      if (int.parse(ie[2]) == digits[i]) {
         check = true;
         break;
       }
     }
     if (!check) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = 0;
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = ((soma * 10) % 11);
     if (d == 10) {
       d = 0;
     }
-    String dv = ("$d");
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEAmapa(String ie) {
+  bool validaIEAmapa(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "03")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     int d1 = (-1);
     int soma = (-1);
@@ -241,7 +235,7 @@ class InscE {
       }
     }
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     int d = (11 - (soma % 11));
@@ -252,21 +246,22 @@ class InscE {
         d = d1;
       }
     }
-    String dv = ("$d");
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEAmazonas(String ie) {
+  bool validaIEAmazonas(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     if (soma < 11) {
@@ -278,18 +273,19 @@ class InscE {
         d = (11 - (soma % 11));
       }
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEBahia(String ie) {
+  bool validaIEBahia(String ie) {
     if ((ie.length != 8) && (ie.length != 9)) {
-      throw Exception("Quantidade de digitos inválidas.$ie");
+      return false;
     }
     int modulo = 10;
-    int firstDigit = int.parse("${ie.codeUnitAt((ie.length == 8) ? 0 : 1)}");
+    int firstDigit = int.parse(ie[(ie.length == 8) ? 0 : 1]);
     if (((firstDigit == 6) || (firstDigit == 7)) || (firstDigit == 9)) {
       modulo = 11;
     }
@@ -297,7 +293,7 @@ class InscE {
     int soma = 0;
     int peso = ((ie.length == 8) ? 7 : 8);
     for (int i = 0; i < (ie.length - 2); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     int resto = (soma % modulo);
@@ -310,7 +306,7 @@ class InscE {
     soma = (d2 * 2);
     peso = ((ie.length == 8) ? 8 : 9);
     for (int i = 0; i < (ie.length - 2); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     resto = (soma % modulo);
@@ -321,40 +317,42 @@ class InscE {
     }
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
-      throw Exception("Digito verificador inválido.$ie");
+      return false;
     }
+    return true;
   }
 
-  static void validaIECeara(String ie) {
+  bool validaIECeara(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if ((d == 10) || (d == 11)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEEspiritoSanto(String ie) {
+  bool validaIEEspiritoSanto(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     int resto = (soma % 11);
@@ -365,27 +363,28 @@ class InscE {
         d = (11 - resto);
       }
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEGoias(String ie) {
+  bool validaIEGoias(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!("10" == ie.substring(0, 2))) {
       if (!("11" == ie.substring(0, 2))) {
         if (!("15" == ie.substring(0, 2))) {
-          throw Exception("Inscrição estadual inválida");
+          return false;
         }
       }
     }
     if (ie.substring(0, ie.length - 1) == "11094402") {
       if (!(ie.substring(ie.length - 1, ie.length) == "0")) {
         if (!(ie.substring(ie.length - 1, ie.length) == "1")) {
-          throw Exception("Inscrição estadual inválida.");
+          return false;
         }
       }
     } else {
@@ -393,7 +392,7 @@ class InscE {
       int peso = 9;
       int d = (-1);
       for (int i = 0; i < (ie.length - 1); i++) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+        soma += (int.parse(ie[i]) * peso);
         peso--;
       }
       int resto = (soma % 11);
@@ -415,40 +414,42 @@ class InscE {
           }
         }
       }
-      String dv = (d.toString());
+      String dv = d.toString();
       if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-        throw Exception("Digito verificador inválido.");
+        return false;
       }
     }
+    return true;
   }
 
-  static void validaIEMaranhao(String ie) {
+  bool validaIEMaranhao(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "12")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if (((soma % 11) == 0) || ((soma % 11) == 1)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEMatoGrosso(String ie) {
+  bool validaIEMatoGrosso(String ie) {
     if (ie.length != 11) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int pesoInicial = 3;
@@ -456,10 +457,10 @@ class InscE {
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
       if (i < 2) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicial);
+        soma += (int.parse(ie[i]) * pesoInicial);
         pesoInicial--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFinal);
+        soma += (int.parse(ie[i]) * pesoFinal);
         pesoFinal--;
       }
     }
@@ -467,24 +468,25 @@ class InscE {
     if (((soma % 11) == 0) || ((soma % 11) == 1)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEMatoGrossoSul(String ie) {
+  bool validaIEMatoGrossoSul(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "28")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     int resto = (soma % 11);
@@ -502,24 +504,28 @@ class InscE {
         }
       }
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEMinasGerais(String ie) {
+  bool validaIEMinasGerais(String ie) {
+    RegExp digitRegExp = new RegExp(r'\d');
+    bool isDigit(String s, int idx) => s[idx].contains(digitRegExp);
+
     if (ie.length != 13) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     String str = "";
     for (int i = 0; i < (ie.length - 2); i++) {
-      if (!ie.codeUnitAt(i).isNaN) {
+      if (isDigit(ie, i)) {
         if (i == 3) {
           str += "0";
-          str += ie.codeUnitAt(i).toString();
+          str += ie[i];
         } else {
-          str += ie.codeUnitAt(i).toString();
+          str += ie[i];
         }
       }
     }
@@ -529,16 +535,16 @@ class InscE {
     int d1 = (-1);
     for (int i = 0; i < str.length; i++) {
       if ((i % 2) == 0) {
-        int x = (int.parse("${str.codeUnitAt(i)}") * pesoInicio);
+        int x = (int.parse(str[i]) * pesoInicio);
         String strX = x.toString();
         for (int j = 0; j < strX.length; j++) {
-          soma += int.parse("${strX.codeUnitAt(j)}");
+          soma += int.parse(strX[j]);
         }
       } else {
-        int y = (int.parse("${str.codeUnitAt(i)}") * pesoFim);
+        int y = (int.parse(str[i]) * pesoFim);
         String strY = y.toString();
         for (int j = 0; j < strY.length; j++) {
-          soma += int.parse("${strY.codeUnitAt(j)}");
+          soma += int.parse(strY[j]);
         }
       }
     }
@@ -553,10 +559,10 @@ class InscE {
     int d2 = (-1);
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 2) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+        soma += (int.parse(ie[i]) * pesoInicio);
         pesoInicio--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
         pesoFim--;
       }
     }
@@ -566,58 +572,61 @@ class InscE {
     }
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEPara(String ie) {
+  bool validaIEPara(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "15")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if (((soma % 11) == 0) || ((soma % 11) == 1)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEParaiba(String ie) {
+  bool validaIEParaiba(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if ((d == 10) || (d == 11)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEParana(String ie) {
+  bool validaIEParana(String ie) {
     if (ie.length != 10) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int pesoInicio = 3;
@@ -625,10 +634,10 @@ class InscE {
     int d1 = (-1);
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 2) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+        soma += (int.parse(ie[i]) * pesoInicio);
         pesoInicio--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
         pesoFim--;
       }
     }
@@ -642,10 +651,10 @@ class InscE {
     int d2 = (-1);
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 3) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+        soma += (int.parse(ie[i]) * pesoInicio);
         pesoInicio--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
         pesoFim--;
       }
     }
@@ -655,73 +664,95 @@ class InscE {
     }
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEPernambuco(String ie) {
-    if (ie.length != 14) {
-      throw Exception("Quantidade de digitos inválidas.");
+  bool validaIEPernambuco(String ie) {
+    if (ie.length != 9) {
+      return false;
     }
+
     int soma = 0;
-    int pesoInicio = 5;
-    int pesoFim = 9;
+    int pesoFim = 8;
     int d = (-1);
-    for (int i = 0; i < (ie.length - 1); i++) {
-      if (i < 5) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
-        pesoInicio--;
-      } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
-        pesoFim--;
-      }
-    }
-    d = (11 - (soma % 11));
-    if (d > 9) {
-      d -= 10;
+    int d2 = -1;
+
+    for (int i = 0; i < (ie.length - 2); i++) {
+      print(pesoFim);
+      soma += (int.parse(ie[i]) * pesoFim);
+      pesoFim--;
     }
     print(soma);
-    print(11 - (soma % 11));
-    print(d);
-    String dv = (d.toString());
-    if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+
+    if ((soma % 11) == 1 || (soma % 11) == 0) {
+      d = 0;
+    } else {
+      d = 11 - (soma % 11);
+      print(d);
+    }
+
+    if (int.parse(ie[8 - 1]) == d) {
+      soma = 0;
+      pesoFim = 9;
+      for (int i = 0; i < (ie.length - 1); i++) {
+        print(pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
+        pesoFim--;
+      }
+
+      if ((soma % 11) == 1 || (soma % 11) == 0) {
+        d2 = 0;
+      } else {
+        d2 = 11 - (soma % 11);
+      }
+
+      if (int.parse(ie[8]) == d2) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      print("deu pau ${ie[8 - 1]}");
+      return false;
     }
   }
 
-  static void validaIEPiaui(String ie) {
+  bool validaIEPiaui(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if ((d == 11) || (d == 10)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIERioJaneiro(String ie) {
+  bool validaIERioJaneiro(String ie) {
     if (ie.length != 8) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 7;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
       if (i == 0) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * 2);
+        soma += (int.parse(ie[i]) * 2);
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+        soma += (int.parse(ie[i]) * peso);
         peso--;
       }
     }
@@ -729,78 +760,81 @@ class InscE {
     if ((soma % 11) <= 1) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIERioGrandeNorte(String ie) {
+  bool validaIERioGrandeNorte(String ie) {
     if ((ie.length != 10) && (ie.length != 9)) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "20")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     if (ie.length == 9) {
       int soma = 0;
       int peso = 9;
       int d = (-1);
       for (int i = 0; i < (ie.length - 1); i++) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+        soma += (int.parse(ie[i]) * peso);
         peso--;
       }
       d = ((soma * 10) % 11);
       if (d == 10) {
         d = 0;
       }
-      String dv = (d.toString());
+      String dv = d.toString();
       if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-        throw Exception("Digito verificador inválido.");
+        return false;
       }
     } else {
       int soma = 0;
       int peso = 10;
       int d = (-1);
       for (int i = 0; i < (ie.length - 1); i++) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+        soma += (int.parse(ie[i]) * peso);
         peso--;
       }
       d = ((soma * 10) % 11);
       if (d == 10) {
         d = 0;
       }
-      String dv = (d.toString());
+      String dv = d.toString();
       if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-        throw Exception("Digito verificador inválido.");
+        return false;
       }
     }
+    return true;
   }
 
-  static void validaIERioGrandeSul(String ie) {
+  bool validaIERioGrandeSul(String ie) {
     if (ie.length != 10) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
-    int soma = (int.parse("${ie.codeUnitAt(0)}") * 2);
+    int soma = (int.parse(ie[0]) * 2);
     int peso = 9;
     int d = (-1);
     for (int i = 1; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if ((d == 10) || (d == 11)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIERondonia(String ie) {
+  bool validaIERondonia(String ie) {
     if (ie.length != 14) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int pesoInicio = 6;
@@ -808,10 +842,10 @@ class InscE {
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
       if (i < 5) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+        soma += (int.parse(ie[i]) * pesoInicio);
         pesoInicio--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
         pesoFim--;
       }
     }
@@ -819,57 +853,60 @@ class InscE {
     if ((d == 11) || (d == 10)) {
       d -= 10;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIERoraima(String ie) {
+  bool validaIERoraima(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (!(ie.substring(0, 2) == "24")) {
-      throw Exception("Inscrição estadual inválida.");
+      return false;
     }
     int soma = 0;
     int peso = 1;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso++;
     }
     d = (soma % 9);
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIESantaCatarina(String ie) {
+  bool validaIESantaCatarina(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if (((soma % 11) == 0) || ((soma % 11) == 1)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIESaoPaulo(String ie) {
+  bool validaIESaoPaulo(String ie) {
     if ((ie.length != 12) && (ie.length != 13)) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     if (ie.length == 12) {
       int soma = 0;
@@ -877,41 +914,41 @@ class InscE {
       int d1 = (-1);
       for (int i = 0; i < (ie.length - 4); i++) {
         if ((i == 1) || (i == 7)) {
-          soma += (int.parse("${ie.codeUnitAt(i)}") * (++peso));
+          soma += (int.parse(ie[i]) * (++peso));
           peso++;
         } else {
-          soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+          soma += (int.parse(ie[i]) * peso);
           peso++;
         }
       }
       d1 = (soma % 11);
       String strD1 = d1.toString();
-      d1 = int.parse("${strD1.codeUnitAt(strD1.length - 1)}");
+      d1 = int.parse(strD1[strD1.length - 1]);
       soma = 0;
       int pesoInicio = 3;
       int pesoFim = 10;
       int d2 = (-1);
       for (int i = 0; i < (ie.length - 1); i++) {
         if (i < 2) {
-          soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+          soma += (int.parse(ie[i]) * pesoInicio);
           pesoInicio--;
         } else {
-          soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+          soma += (int.parse(ie[i]) * pesoFim);
           pesoFim--;
         }
       }
       d2 = (soma % 11);
       String strD2 = d2.toString();
-      d2 = int.parse("${strD2.codeUnitAt(strD2.length - 1)}");
-      if (!(ie.substring(8, 9) == (d1.toString()))) {
-        throw Exception("Inscrição estadual inválida.");
+      d2 = int.parse(strD2[strD2.length - 1]);
+      if (!(ie.substring(8, 9) == d1.toString())) {
+        return false;
       }
-      if (!(ie.substring(11, 12) == (d2.toString()))) {
-        throw Exception("Inscrição estadual inválida.");
+      if (!(ie.substring(11, 12) == d2.toString())) {
+        return false;
       }
     } else {
       if (ie.codeUnitAt(0) != 'P'.codeUnitAt(0)) {
-        throw Exception("Inscrição estadual inválida.");
+        return false;
       }
       String strIE = ie.substring(1, 10);
       int soma = 0;
@@ -919,49 +956,51 @@ class InscE {
       int d1 = (-1);
       for (int i = 0; i < (strIE.length - 1); i++) {
         if ((i == 1) || (i == 7)) {
-          soma += (int.parse("${strIE.codeUnitAt(i)}") * (++peso));
+          soma += (int.parse(strIE[i]) * (++peso));
           peso++;
         } else {
-          soma += (int.parse("${strIE.codeUnitAt(i)}") * peso);
+          soma += (int.parse(strIE[i]) * peso);
           peso++;
         }
       }
       d1 = (soma % 11);
       String strD1 = d1.toString();
-      d1 = int.parse("${strD1.codeUnitAt(strD1.length - 1)}");
-      if (!(ie.substring(9, 10) == (d1.toString()))) {
-        throw Exception("Inscrição estadual inválida.");
+      d1 = int.parse(strD1[strD1.length - 1]);
+      if (!(ie.substring(9, 10) == d1.toString())) {
+        return false;
       }
     }
+    return true;
   }
 
-  static void validaIESergipe(String ie) {
+  bool validaIESergipe(String ie) {
     if (ie.length != 9) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+      soma += (int.parse(ie[i]) * peso);
       peso--;
     }
     d = (11 - (soma % 11));
     if (((d == 11) || (d == 11)) || (d == 10)) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIETocantins(String ie) {
+  bool validaIETocantins(String ie) {
     if ((ie.length != 9) && (ie.length != 11)) {
-      throw Exception("Quantidade de d&#65533;gitos inv&#65533;lida.");
+      return false;
     } else {
       if (ie.length == 9) {
-        ie = (("${ie.substring(0, 2)}02") + ie.substring(2));
+        ie = ((ie.substring(0, 2) + "02") + ie.substring(2));
       }
     }
     int soma = 0;
@@ -969,7 +1008,7 @@ class InscE {
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
       if ((i != 2) && (i != 3)) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * peso);
+        soma += (int.parse(ie[i]) * peso);
         peso--;
       }
     }
@@ -977,15 +1016,16 @@ class InscE {
     if ((soma % 11) < 2) {
       d = 0;
     }
-    String dv = (d.toString());
+    String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 
-  static void validaIEDistritoFederal(String ie) {
+  bool validaIEDistritoFederal(String ie) {
     if (ie.length != 13) {
-      throw Exception("Quantidade de digitos inválidas.");
+      return false;
     }
     int soma = 0;
     int pesoInicio = 4;
@@ -993,10 +1033,10 @@ class InscE {
     int d1 = (-1);
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 3) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+        soma += (int.parse(ie[i]) * pesoInicio);
         pesoInicio--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
         pesoFim--;
       }
     }
@@ -1010,10 +1050,10 @@ class InscE {
     int d2 = (-1);
     for (int i = 0; i < (ie.length - 2); i++) {
       if (i < 4) {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoInicio);
+        soma += (int.parse(ie[i]) * pesoInicio);
         pesoInicio--;
       } else {
-        soma += (int.parse("${ie.codeUnitAt(i)}") * pesoFim);
+        soma += (int.parse(ie[i]) * pesoFim);
         pesoFim--;
       }
     }
@@ -1021,9 +1061,10 @@ class InscE {
     if ((d2 == 11) || (d2 == 10)) {
       d2 = 0;
     }
-    String dv = ((d1.toString()) + d2.toString());
+    String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
-      throw Exception("Digito verificador inválido.");
+      return false;
     }
+    return true;
   }
 }
