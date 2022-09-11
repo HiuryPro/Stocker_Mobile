@@ -519,7 +519,7 @@ class InscE {
   }
 
   bool validaIEMinasGerais(String ie) {
-    RegExp digitRegExp = new RegExp(r'\d');
+    RegExp digitRegExp = RegExp(r'\d');
     bool isDigit(String s, int idx) => s[idx].contains(digitRegExp);
 
     if (ie.length != 13) {

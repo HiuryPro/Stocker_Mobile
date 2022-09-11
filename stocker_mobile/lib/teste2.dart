@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +20,7 @@ class _CarouTesteState extends State<CarouTeste> {
   var valida = Validacao();
   var inscE = InscE();
   var maskaraIE = MaskaraInscE();
+  var count = 0;
 
   String? estado;
   List<String> estados = [
@@ -132,7 +131,7 @@ class _CarouTesteState extends State<CarouTeste> {
                 setState(() {
                   indexAtivo = index;
                   carouselController.animateToPage(indexAtivo,
-                      duration: Duration(milliseconds: 500));
+                      duration: const Duration(milliseconds: 500));
                 });
               },
             )),
@@ -189,7 +188,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[0],
               decoration: InputDecoration(
-                  label: Text("Nome"), errorText: mensagemDeErro[0]),
+                  label: const Text("Nome"), errorText: mensagemDeErro[0]),
               onChanged: (text) {
                 setState(() {
                   enabled = true;
@@ -203,7 +202,7 @@ class _CarouTesteState extends State<CarouTeste> {
               controller: textControllers[1],
               inputFormatters: [maskFormatterCnpj],
               decoration: InputDecoration(
-                  label: Text("Cnpj"), errorText: mensagemDeErro[1]),
+                  label: const Text("Cnpj"), errorText: mensagemDeErro[1]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[1] = null;
@@ -229,30 +228,84 @@ class _CarouTesteState extends State<CarouTeste> {
                     onChanged: (value) async {
                       setState(() {
                         estado = value;
+                        textControllers[2].text = "";
+                        count = 0;
+                        if (!(estado!.substring(0, 2) == "BA" ||
+                            estado!.substring(0, 2) == "TO")) {
+                          maskFormatterInscE = maskaraIE.estadoMascara(
+                              uf: estado!.substring(0, 2));
+                        }
                       });
-                      maskFormatterInscE =
-                          maskaraIE.estadoMascara((estado![0] + estado![1]));
                     }),
               ),
             ),
-            TextField(
-              controller: textControllers[2],
-              inputFormatters: [maskFormatterInscE],
-              decoration: InputDecoration(
-                  label: Text("Inscrição estadual"),
-                  errorText: mensagemDeErro[1]),
-              onChanged: (text) {
-                setState(() {
-                  mensagemDeErro[2] = null;
-                });
-              },
+            RawKeyboardListener(
+              focusNode: FocusNode(),
+              onKey: estado == null
+                  ? null
+                  : (estado!.substring(0, 2) == "BA" ||
+                          estado!.substring(0, 2) == "TO")
+                      ? (value) {
+                          if (value is RawKeyDownEvent) {
+                            RegExp digitRegExp = RegExp(r'\d');
+                            bool isDigit(String s) => s.contains(digitRegExp);
+                            if (value.logicalKey.keyLabel.toString() ==
+                                "Backspace") {
+                              if (count != 0) {
+                                count--;
+                              }
+                            } else if (isDigit(
+                                value.logicalKey.keyLabel.toString())) {
+                              if (estado!.substring(0, 2) == "BA"
+                                  ? count < 9
+                                  : count < 11) {
+                                count++;
+                              }
+                            }
+                          }
+                          if (estado!.substring(0, 2) == "BA") {
+                            if (count != 9) {
+                              maskFormatterInscE.updateMask(
+                                  mask: "######-###",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            } else {
+                              maskFormatterInscE.updateMask(
+                                  mask: "#######-##",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            }
+                          } else {
+                            if (count != 11) {
+                              maskFormatterInscE.updateMask(
+                                  mask: "########-###",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            } else {
+                              maskFormatterInscE.updateMask(
+                                  mask: "##########-#",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            }
+                          }
+                        }
+                      : null,
+              child: TextField(
+                controller: textControllers[2],
+                inputFormatters: [maskFormatterInscE],
+                decoration: InputDecoration(
+                    label: const Text("Inscrição estadual"),
+                    errorText: mensagemDeErro[1]),
+                onChanged: (text) {
+                  setState(() {
+                    mensagemDeErro[2] = null;
+                    print(count);
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 15),
             TextField(
               controller: textControllers[3],
               inputFormatters: [maskFormatterTelefone],
               decoration: InputDecoration(
-                  label: Text("Telefone"), errorText: mensagemDeErro[2]),
+                  label: const Text("Telefone"), errorText: mensagemDeErro[2]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[3] = null;
@@ -263,7 +316,8 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[4],
               decoration: InputDecoration(
-                  label: Text("Ganho Mensal"), errorText: mensagemDeErro[3]),
+                  label: const Text("Ganho Mensal"),
+                  errorText: mensagemDeErro[3]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[4] = null;
@@ -305,7 +359,8 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[5],
               decoration: InputDecoration(
-                  label: Text("Logradouro"), errorText: mensagemDeErro[4]),
+                  label: const Text("Logradouro"),
+                  errorText: mensagemDeErro[4]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[5] = null;
@@ -316,7 +371,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[6],
               decoration: InputDecoration(
-                  label: Text("Numero"), errorText: mensagemDeErro[5]),
+                  label: const Text("Numero"), errorText: mensagemDeErro[5]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[6] = null;
@@ -327,7 +382,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[7],
               decoration: InputDecoration(
-                  label: Text("Bairro"), errorText: mensagemDeErro[6]),
+                  label: const Text("Bairro"), errorText: mensagemDeErro[6]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[7] = null;
@@ -338,7 +393,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[8],
               decoration: InputDecoration(
-                  label: Text("Cidade"), errorText: mensagemDeErro[7]),
+                  label: const Text("Cidade"), errorText: mensagemDeErro[7]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[8] = null;
@@ -349,7 +404,7 @@ class _CarouTesteState extends State<CarouTeste> {
             TextField(
               controller: textControllers[9],
               decoration: InputDecoration(
-                  label: Text("Estado"), errorText: mensagemDeErro[8]),
+                  label: const Text("Estado"), errorText: mensagemDeErro[8]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[9] = null;
