@@ -126,51 +126,53 @@ class InscE {
   bool validaIEAcre(String ie) {
     if (ie.length != 13) {
       return false;
-    }
-    for (int i = 0; i < 2; i++) {
-      if (int.parse(ie[i]) != i) {
+    } else {
+      for (int i = 0; i < 2; i++) {
+        if (int.parse(ie[i]) != i) {
+          return false;
+        }
+      }
+      int soma = 0;
+      int pesoInicial = 4;
+      int pesoFinal = 9;
+      int d1 = 0;
+      int d2 = 0;
+      for (int i = 0; i < (ie.length - 2); i++) {
+        if (i < 3) {
+          soma += (int.parse(ie[i]) * pesoInicial);
+          pesoInicial--;
+        } else {
+          soma += (int.parse(ie[i]) * pesoFinal);
+          pesoFinal--;
+        }
+      }
+      d1 = (11 - (soma % 11));
+      if ((d1 == 10) || (d1 == 11)) {
+        d1 = 0;
+      }
+      soma = (d1 * 2);
+      pesoInicial = 5;
+      pesoFinal = 9;
+      for (int i = 0; i < (ie.length - 2); i++) {
+        if (i < 4) {
+          soma += (int.parse(ie[i]) * pesoInicial);
+          pesoInicial--;
+        } else {
+          soma += (int.parse(ie[i]) * pesoFinal);
+          pesoFinal--;
+        }
+      }
+      d2 = (11 - (soma % 11));
+      if ((d2 == 10) || (d2 == 11)) {
+        d2 = 0;
+      }
+      String dv = (d1.toString() + d2.toString());
+      if (!(dv == ie.substring(ie.length - 2, ie.length))) {
         return false;
-      }
-    }
-    int soma = 0;
-    int pesoInicial = 4;
-    int pesoFinal = 9;
-    int d1 = 0;
-    int d2 = 0;
-    for (int i = 0; i < (ie.length - 2); i++) {
-      if (i < 3) {
-        soma += (int.parse(ie[i]) * pesoInicial);
-        pesoInicial--;
       } else {
-        soma += (int.parse(ie[i]) * pesoFinal);
-        pesoFinal--;
+        return true;
       }
     }
-    d1 = (11 - (soma % 11));
-    if ((d1 == 10) || (d1 == 11)) {
-      d1 = 0;
-    }
-    soma = (d1 * 2);
-    pesoInicial = 5;
-    pesoFinal = 9;
-    for (int i = 0; i < (ie.length - 2); i++) {
-      if (i < 4) {
-        soma += (int.parse(ie[i]) * pesoInicial);
-        pesoInicial--;
-      } else {
-        soma += (int.parse(ie[i]) * pesoFinal);
-        pesoFinal--;
-      }
-    }
-    d2 = (11 - (soma % 11));
-    if ((d2 == 10) || (d2 == 11)) {
-      d2 = 0;
-    }
-    String dv = (d1.toString() + d2.toString());
-    if (!(dv == ie.substring(ie.length - 2, ie.length))) {
-      return false;
-    }
-    return true;
   }
 
   bool validaIEAlagoas(String ie) {
@@ -205,8 +207,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEAmapa(String ie) {
@@ -249,8 +252,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEAmazonas(String ie) {
@@ -276,8 +280,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEBahia(String ie) {
@@ -318,8 +323,9 @@ class InscE {
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIECeara(String ie) {
@@ -507,8 +513,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEMinasGerais(String ie) {
@@ -598,8 +605,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEParaiba(String ie) {
@@ -620,8 +628,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEParana(String ie) {
@@ -665,8 +674,9 @@ class InscE {
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEPernambuco(String ie) {
@@ -714,7 +724,6 @@ class InscE {
         return false;
       }
     } else {
-      print("deu pau ${ie[8 - 1]}");
       return false;
     }
   }
@@ -737,8 +746,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIERioJaneiro(String ie) {
@@ -763,8 +773,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIERioGrandeNorte(String ie) {
@@ -789,6 +800,8 @@ class InscE {
       String dv = d.toString();
       if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
         return false;
+      } else {
+        return true;
       }
     } else {
       int soma = 0;
@@ -805,9 +818,10 @@ class InscE {
       String dv = d.toString();
       if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
         return false;
+      } else {
+        return true;
       }
     }
-    return true;
   }
 
   bool validaIERioGrandeSul(String ie) {
@@ -828,8 +842,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIERondonia(String ie) {
@@ -856,8 +871,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIERoraima(String ie) {
@@ -878,8 +894,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIESantaCatarina(String ie) {
@@ -900,8 +917,9 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIESaoPaulo(String ie) {
@@ -947,7 +965,7 @@ class InscE {
         return false;
       }
     } else {
-      if (ie.codeUnitAt(0) != 'P'.codeUnitAt(0)) {
+      if (ie[0] != 'P') {
         return false;
       }
       String strIE = ie.substring(1, 10);
@@ -991,26 +1009,25 @@ class InscE {
     String dv = d.toString();
     if (!(ie.substring(ie.length - 1, ie.length) == dv)) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIETocantins(String ie) {
     if ((ie.length != 9) && (ie.length != 11)) {
       return false;
     } else {
-      if (ie.length == 9) {
-        ie = ((ie.substring(0, 2) + "02") + ie.substring(2));
+      if (ie.length == 11) {
+        ie = (ie.substring(0, 2) + ie.substring(4));
       }
     }
     int soma = 0;
     int peso = 9;
     int d = (-1);
     for (int i = 0; i < (ie.length - 1); i++) {
-      if ((i != 2) && (i != 3)) {
-        soma += (int.parse(ie[i]) * peso);
-        peso--;
-      }
+      soma += (int.parse(ie[i]) * peso);
+      peso--;
     }
     d = (11 - (soma % 11));
     if ((soma % 11) < 2) {
@@ -1064,7 +1081,8 @@ class InscE {
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 }

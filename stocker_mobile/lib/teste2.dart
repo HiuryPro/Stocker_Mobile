@@ -2,8 +2,10 @@ import 'dart:collection';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/maskara.dart';
 
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Validacao_e_Gambiarra/inscricaoestadual.dart';
@@ -19,6 +21,43 @@ class CarouTeste extends StatefulWidget {
 class _CarouTesteState extends State<CarouTeste> {
   var valida = Validacao();
   var inscE = InscE();
+  var maskaraIE = MaskaraInscE();
+
+  String? estado;
+  List<String> estados = [
+    "AC Acre",
+    "AL Alagoas",
+    "AP Amapá",
+    "AM Amazonas",
+    "BA Bahia",
+    "CE Ceará",
+    "DF Distrito Federal",
+    "ES Espírito Santo",
+    "GO Goiás",
+    "MA Maranhão",
+    "MT Mato Grosso",
+    "MS Mato Grosso do Sul",
+    "MG Minas Gerais",
+    "PA Pará",
+    "PB Paraíba",
+    "PR Paraná",
+    "PE Pernambuco",
+    "PI Piauí",
+    "Rio de Janeiro - RJ",
+    "RN Rio Grande do Norte",
+    "RS Rio Grande do Sul",
+    "RO Rondônia",
+    "RR Roraima",
+    "SC Santa Catarina",
+    "SP São Paulo",
+    "SE Sergipe",
+    "TO Tocantins"
+  ];
+
+  MaskTextInputFormatter maskFormatterInscE = MaskTextInputFormatter(
+      mask: '#',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
 
   var maskFormatterCnpj = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
@@ -29,13 +68,6 @@ class _CarouTesteState extends State<CarouTeste> {
       mask: '(##) #####-####',
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
-
-  MaskTextInputFormatter maskara(String mask) {
-    return MaskTextInputFormatter(
-        mask: mask,
-        filter: {"#": RegExp(r'[0-9]')},
-        type: MaskAutoCompletionType.lazy);
-  }
 
   List<TextEditingController> textControllers = [
     TextEditingController(),
@@ -179,9 +211,33 @@ class _CarouTesteState extends State<CarouTeste> {
               },
             ),
             const SizedBox(height: 15),
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFF0080d9), width: 2),
+                  borderRadius: BorderRadius.circular(12)),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                    value: estado,
+                    menuMaxHeight: 200,
+                    hint: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("Estados"),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    isExpanded: true,
+                    items: estados.map(buildMenuItem).toList(),
+                    onChanged: (value) async {
+                      setState(() {
+                        estado = value;
+                      });
+                      maskFormatterInscE =
+                          maskaraIE.estadoMascara((estado![0] + estado![1]));
+                    }),
+              ),
+            ),
             TextField(
               controller: textControllers[2],
-              inputFormatters: [maskFormatterCnpj],
+              inputFormatters: [maskFormatterInscE],
               decoration: InputDecoration(
                   label: Text("Inscrição estadual"),
                   errorText: mensagemDeErro[1]),
@@ -219,6 +275,16 @@ class _CarouTesteState extends State<CarouTeste> {
       ),
     );
   }
+
+  DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
+      value: item,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(item,
+            style: const TextStyle(
+              fontSize: 20,
+            )),
+      ));
 
   Widget endereco() {
     return Padding(
