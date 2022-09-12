@@ -2,7 +2,7 @@ import 'package:stocker_mobile/credentials/supabase.credentials.dart';
 import 'package:supabase/supabase.dart';
 
 class DataBaseService {
-  insert({
+  Future<dynamic> insert({
     required String tabela,
     required Map<String, dynamic> map,
   }) async {
@@ -11,7 +11,8 @@ class DataBaseService {
           .from(tabela)
           .insert(map)
           .execute();
-      print(response.data);
+      print(response.error);
+      return response.data;
     } catch (e) {
       print(e);
     }
@@ -50,10 +51,15 @@ class DataBaseService {
       print(e.toString());
     }
   }
-  delete({required String tabela, required Map<String, dynamic> where}) async{
-    try{
-      await SupaBaseCredentials.supaBaseClient.from(tabela).delete().match(where).execute();
-    }catch(e){
+
+  delete({required String tabela, required Map<String, dynamic> where}) async {
+    try {
+      await SupaBaseCredentials.supaBaseClient
+          .from(tabela)
+          .delete()
+          .match(where)
+          .execute();
+    } catch (e) {
       print(e.toString());
     }
   }

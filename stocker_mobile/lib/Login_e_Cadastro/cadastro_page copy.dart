@@ -1,11 +1,18 @@
+import 'package:carousel_slider/carousel_controller.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:supabase/supabase.dart';
-
+import 'package:provider/provider.dart' as provider;
 import '../DadosDB/crud.dart';
 import '../SendEmail/send_email.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
+import '../Validacao_e_Gambiarra/inscricaoestadual.dart';
+import '../Validacao_e_Gambiarra/maskara.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
+import '../app/providers/app.dbnotifier.dart';
 
 class CadPage2 extends StatefulWidget {
   CadPage2({Key? key, this.response}) : super(key: key);
@@ -17,43 +24,46 @@ class CadPage2 extends StatefulWidget {
 }
 
 class _CadPage2State extends State<CadPage2> {
-  var crud = CRUD();
   var valida = Validacao();
-  var enviaEmail = SendMail();
+  var inscE = InscE();
+  var maskaraIE = MaskaraInscE();
+  var count = 0;
 
-  final fieldText = TextEditingController();
-  final fieldText2 = TextEditingController();
-  final fieldText3 = TextEditingController();
-  final fieldText4 = TextEditingController();
-  final fieldText5 = TextEditingController();
-  final fieldText6 = TextEditingController();
-  final fieldText7 = TextEditingController();
-  final fieldText8 = TextEditingController();
+  String? estado;
+  List<String> estados = [
+    "AC Acre",
+    "AL Alagoas",
+    "AP Amapá",
+    "AM Amazonas",
+    "BA Bahia",
+    "CE Ceará",
+    "DF Distrito Federal",
+    "ES Espírito Santo",
+    "GO Goiás",
+    "MA Maranhão",
+    "MT Mato Grosso",
+    "MS Mato Grosso do Sul",
+    "MG Minas Gerais",
+    "PA Pará",
+    "PB Paraíba",
+    "PR Paraná",
+    "PE Pernambuco",
+    "PI Piauí",
+    "Rio de Janeiro - RJ",
+    "RN Rio Grande do Norte",
+    "RS Rio Grande do Sul",
+    "RO Rondônia",
+    "RR Roraima",
+    "SC Santa Catarina",
+    "SP São Paulo",
+    "SE Sergipe",
+    "TO Tocantins"
+  ];
 
-  void clearText() {
-    fieldText.clear();
-    fieldText2.clear();
-    fieldText3.clear();
-    fieldText4.clear();
-    fieldText5.clear();
-    fieldText6.clear();
-    fieldText7.clear();
-    fieldText8.clear();
-  }
-
-  String nomeE = "",
-      cnpj = "",
-      email = "",
-      endereco = "",
-      cidade = "",
-      estado = "",
-      telefone = "",
-      ganho = "";
-
-  bool carrega = false;
-  bool isDone = false;
-
-  List<String> valores = [];
+  MaskTextInputFormatter maskFormatterInscE = MaskTextInputFormatter(
+      mask: '#',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
 
   var maskFormatterCnpj = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
@@ -65,307 +75,438 @@ class _CadPage2State extends State<CadPage2> {
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
+  List<TextEditingController> textControllers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+
+  List<String?> mensagemDeErro = [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ];
+
+  var carouselController = CarouselController();
+
+  int indexAtivo = 0;
+  bool enabled = false;
+
   Widget _body() {
+    final DataBaseNotifier authDBNotifier =
+        provider.Provider.of<DataBaseNotifier>(context, listen: false);
+
     return SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Center(
-            child: Center(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Image.asset(AppController.instance.img2)),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                    controller: fieldText,
-                    onChanged: (text) {
-                      setState(() {
-                        nomeE = text;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Nome da Empresa',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText2,
-                      inputFormatters: [maskFormatterCnpj],
-                      onChanged: (text) {
-                        setState(() {
-                          cnpj = maskFormatterCnpj.getUnmaskedText();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'CNPJ',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText3,
-                      onChanged: (text) {
-                        setState(() {
-                          email = text;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText4,
-                      onChanged: (text) {
-                        setState(() {
-                          endereco = text;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Endereço',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText5,
-                      onChanged: (text) {
-                        setState(() {
-                          cidade = text;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Cidade',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText6,
-                      onChanged: (text) {
-                        setState(() {
-                          estado = text;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Estado',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText7,
-                      inputFormatters: [maskFormatterTelefone],
-                      onChanged: (text) {
-                        setState(() {
-                          telefone = maskFormatterTelefone.getUnmaskedText();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Telefone',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  TextField(
-                      controller: fieldText8,
-                      onChanged: (text) {
-                        setState(() {
-                          ganho = text;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Ganho Mensal',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Center(
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            carrega = true;
-                          });
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            CarouselSlider(
+                items: [empresa(), endereco()],
+                carouselController: carouselController,
+                options: CarouselOptions(
+                  height: MediaQuery.of(context).size.height - 200,
+                  initialPage: 0,
+                  viewportFraction: 1,
+                  enlargeCenterPage: true,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      indexAtivo = index;
+                    });
+                  },
+                  enableInfiniteScroll: false,
+                )),
+            Center(
+                child: AnimatedSmoothIndicator(
+              activeIndex: indexAtivo,
+              count: 2,
+              onDotClicked: (index) {
+                setState(() {
+                  indexAtivo = index;
+                  carouselController.animateToPage(indexAtivo,
+                      duration: const Duration(milliseconds: 500));
+                });
+              },
+            )),
+            const SizedBox(
+              height: 20,
+            ),
+            Center(
+                child: ElevatedButton(
+                    onPressed: () async {
+                      int id = -1;
+                      print(widget.response!.user!.id);
+                      if (isPreechido()) {
+                        if (valida
+                            .validacnpj(maskFormatterCnpj.getUnmaskedText())) {
+                          if (inscE.valida(maskFormatterInscE.getUnmaskedText(),
+                              estado!.substring(0, 2))) {
+                            Map<String, dynamic> endereco = {
+                              'logradouro': textControllers[5].text,
+                              'numero': int.parse(textControllers[6].text),
+                              'bairro': textControllers[7].text,
+                              'cidade': textControllers[8].text,
+                              'estado': estado,
+                              'cep': textControllers[9].text,
+                              'complemento': textControllers[10].text
+                            };
+                            var dados = await authDBNotifier.insert(
+                                tabela: "Endereco", map: endereco);
 
-                          valores.add(nomeE);
-                          valores.add(cnpj);
-                          valores.add(email);
-                          valores.add(endereco);
-                          valores.add(cidade);
-                          valores.add(estado);
-                          valores.add(telefone);
-                          valores.add(ganho);
-
-                          if (await valida.isVazio(valores)) {
-                            if (valida.validacnpj(cnpj)) {
-                              if (await valida.validaCad(
-                                  nomeE, cnpj, email, telefone, endereco)) {
-                                valida.abrevia(nomeE);
-                                await crud.insert(
-                                    "INSERT INTO usuario_dados (nome_empresa, cnpj, email, endereco, cidade, estado, telefone, ganho_mensal) VALUES(?,?,?,?,?,?,?,?)",
-                                    valores);
-                                await crud.insert(
-                                    "INSERT INTO usuario_login (login, senha, confirma_login) VALUES(?,?,'0')",
-                                    [valida.abrevia(nomeE), cnpj]);
-                                await enviaEmail.sendEmailWelcome(
-                                    abrevia: valida.abrevia(valores[0]),
-                                    cnpj: valores[1],
-                                    name: valores[0],
-                                    email: valores[2]);
-                                setState(() {
-                                  carrega = false;
-                                });
-                                mensagem("Cadastro feito com sucesso");
-
-                                clearText();
-                              } else {
-                                await Future.delayed(
-                                    const Duration(seconds: 1));
-                                setState(() {
-                                  carrega = false;
-                                });
-                                mensagem(valida.getMensagem());
-                              }
-                            } else {
-                              await Future.delayed(const Duration(seconds: 1));
-                              setState(() {
-                                carrega = false;
-                              });
-                              mensagem("CNPJ inválido");
+                            for (var row in dados) {
+                              id = row["idEndereco"];
+                              print(id);
                             }
-                          } else {
-                            await Future.delayed(const Duration(seconds: 1));
-                            setState(() {
-                              carrega = false;
-                            });
-                            mensagem(valida.getMensagem());
-                          }
 
-                          valores.clear();
-                          await Future.delayed(const Duration(seconds: 3));
+                            Map<String, dynamic> empresa = {
+                              'idAdministrador': widget.response!.user!.id,
+                              'idEndereco': id,
+                              'nomeEmpresa': textControllers[0].text,
+                              'cnpj': maskFormatterCnpj.getUnmaskedText(),
+                              'inscricaoEstadual':
+                                  maskFormatterInscE.getUnmaskedText(),
+                              'telefone': textControllers[3].text,
+                              'ganho_mensal':
+                                  double.parse(textControllers[4].text)
+                            };
+
+                            var dados1 = await authDBNotifier.insert(
+                                tabela: "Empresa", map: empresa);
+                            print(dados1);
+                          } else {
+                            mensagemDeErro[2] = "Inscrição estadual invalida";
+                          }
+                          print("Campos estão preenchidos e cnpj valido");
+                        } else {
                           setState(() {
-                            carrega = false;
+                            mensagemDeErro[1] = "CNPJ invalido";
                           });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: AppController.instance.theme2,
-                          textStyle: const TextStyle(fontSize: 24),
-                          minimumSize: const Size.fromHeight(72),
-                          shape: const StadiumBorder(),
-                        ),
-                        child: const Text('Cadastrar')),
-                  )
-                ],
+                          print("Campos estão preenchidos e cnpj invalido");
+                        }
+                      } else {
+                        if (valida
+                            .validacnpj(maskFormatterCnpj.getUnmaskedText())) {
+                        } else {
+                          setState(() {
+                            mensagemDeErro[1] = "CNPJ invalido";
+                          });
+                        }
+                        print("Algum campo está vazio");
+                      }
+                    },
+                    child: const Text("Cadastrar"))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget empresa() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const Center(
+              child: Text(
+                "Dados da Empresa",
+                style: TextStyle(fontSize: 25),
               ),
             ),
-          ),
-        ));
+            const SizedBox(
+              height: 15,
+            ),
+            TextField(
+              controller: textControllers[0],
+              decoration: InputDecoration(
+                  label: const Text("Nome"), errorText: mensagemDeErro[0]),
+              onChanged: (text) {
+                setState(() {
+                  enabled = true;
+                  mensagemDeErro[0] = null;
+                  print(textControllers[0].text);
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[1],
+              inputFormatters: [maskFormatterCnpj],
+              decoration: InputDecoration(
+                  label: const Text("Cnpj"), errorText: mensagemDeErro[1]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[1] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFF0080d9), width: 2),
+                  borderRadius: BorderRadius.circular(12)),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                    value: estado,
+                    menuMaxHeight: 200,
+                    hint: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("Estados"),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    isExpanded: true,
+                    items: estados.map(buildMenuItem).toList(),
+                    onChanged: (value) async {
+                      setState(() {
+                        estado = value;
+                        textControllers[2].text = "";
+                        count = 0;
+                        if (!(estado!.substring(0, 2) == "BA" ||
+                            estado!.substring(0, 2) == "TO")) {
+                          maskFormatterInscE = maskaraIE.estadoMascara(
+                              uf: estado!.substring(0, 2));
+                        }
+                      });
+                    }),
+              ),
+            ),
+            RawKeyboardListener(
+              focusNode: FocusNode(),
+              onKey: estado == null
+                  ? null
+                  : (estado!.substring(0, 2) == "BA" ||
+                          estado!.substring(0, 2) == "TO")
+                      ? (value) {
+                          if (value is RawKeyDownEvent) {
+                            RegExp digitRegExp = RegExp(r'\d');
+                            bool isDigit(String s) => s.contains(digitRegExp);
+                            if (value.logicalKey.keyLabel.toString() ==
+                                "Backspace") {
+                              if (count != 0) {
+                                count--;
+                              }
+                            } else if (isDigit(
+                                value.logicalKey.keyLabel.toString())) {
+                              if (estado!.substring(0, 2) == "BA"
+                                  ? count < 9
+                                  : count < 11) {
+                                count++;
+                              }
+                            }
+                          }
+                          if (estado!.substring(0, 2) == "BA") {
+                            if (count != 9) {
+                              maskFormatterInscE.updateMask(
+                                  mask: "######-###",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            } else {
+                              maskFormatterInscE.updateMask(
+                                  mask: "#######-##",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            }
+                          } else {
+                            if (count != 11) {
+                              maskFormatterInscE.updateMask(
+                                  mask: "########-###",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            } else {
+                              maskFormatterInscE.updateMask(
+                                  mask: "##########-#",
+                                  filter: {"#": RegExp(r'[0-9]')});
+                            }
+                          }
+                        }
+                      : null,
+              child: TextField(
+                controller: textControllers[2],
+                inputFormatters: [maskFormatterInscE],
+                decoration: InputDecoration(
+                    label: const Text("Inscrição estadual"),
+                    errorText: mensagemDeErro[2]),
+                onChanged: (text) {
+                  setState(() {
+                    mensagemDeErro[2] = null;
+                    print(count);
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[3],
+              inputFormatters: [maskFormatterTelefone],
+              decoration: InputDecoration(
+                  label: const Text("Telefone"), errorText: mensagemDeErro[2]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[3] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[4],
+              decoration: InputDecoration(
+                  label: const Text("Ganho Mensal"),
+                  errorText: mensagemDeErro[3]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[4] = null;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
+      value: item,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(item,
+            style: const TextStyle(
+              fontSize: 20,
+            )),
+      ));
+
+  Widget endereco() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const Center(
+              child: Text(
+                "Endereço da Empresa",
+                style: TextStyle(fontSize: 25),
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            TextField(
+              controller: textControllers[5],
+              decoration: InputDecoration(
+                  label: const Text("Logradouro"),
+                  errorText: mensagemDeErro[5]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[5] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[6],
+              decoration: InputDecoration(
+                  label: const Text("Numero"), errorText: mensagemDeErro[5]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[6] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[7],
+              decoration: InputDecoration(
+                  label: const Text("Bairro"), errorText: mensagemDeErro[6]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[7] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[8],
+              decoration: InputDecoration(
+                  label: const Text("Cidade"), errorText: mensagemDeErro[7]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[8] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[9],
+              decoration: InputDecoration(
+                  label: const Text("CEP"), errorText: mensagemDeErro[8]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[9] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[10],
+              decoration: InputDecoration(
+                  label: const Text("Complemento"),
+                  errorText: mensagemDeErro[8]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[10] = null;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool isPreechido() {
+    bool isPreenchido = true;
+    for (int i = 0; i < textControllers.length; i++) {
+      if (textControllers[i].text == "") {
+        setState(() {
+          mensagemDeErro[i] = "Campo está vazio";
+        });
+        isPreenchido = false;
+      }
+    }
+    return isPreenchido;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/', (Route<dynamic> route) => false);
-              },
-            ),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                      style: TextStyle(color: AppController.instance.theme1),
-                      "BlackTheme"),
-                  Switch(
-                    value: AppController.instance.isDarkTheme,
-                    onChanged: (value) {
-                      setState(() {
-                        AppController.instance.changeTheme();
-                      });
-                    },
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        print(widget.response!.user!.id);
-                      },
-                      child: Text("Pega id usuario"))
-                ],
-              ),
-            ]),
         body: Stack(
-          children: [
-            SizedBox(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child:
-                    Image.asset(AppController.instance.img, fit: BoxFit.cover)),
-            _body(),
-            if (carrega) telaCarrega()[0],
-            if (carrega) telaCarrega()[1]
-          ],
-        ));
-  }
-
-  List<Widget> telaCarrega() {
-    return [
-      Container(
-        color: Colors.white.withOpacity(0.7),
-      ),
-      const Center(child: (CircularProgressIndicator(color: Color(0xFF0080d9))))
-    ];
-  }
-
-  Widget alert(String mensagem) {
-    return AlertDialog(
-      title: const Text("Cadastro"),
-      content: Text(mensagem),
-      actions: [
-        TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('/');
-            },
-            child: const Text("Ok"))
+      children: [
+        SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Image.asset(
+              AppController.instance.img,
+              fit: BoxFit.cover,
+            )),
+        _body()
       ],
-    );
-  }
-
-  mensagem(String mensagem) {
-    return showDialog(
-      context: context,
-      builder: (_) => alert(mensagem),
-      barrierDismissible: true,
-    );
+    ));
   }
 }

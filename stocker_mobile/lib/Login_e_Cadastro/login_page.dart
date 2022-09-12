@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page%20copy.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 
 import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
+import '../app/providers/app.authentication.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -29,6 +33,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _body() {
+    final AuthenticationNotifier authNotifier =
+        Provider.of<AuthenticationNotifier>(context, listen: false);
     return SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -74,22 +80,18 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      if (await login.mudaSenha(usuario, senha)) {
-                        navegar.navegarEntreTela('/atualizasenha', context);
-                      } else if (await login.autorizaLogin(usuario, senha)) {
-                        if (await login.novoLogin(usuario, senha)) {
-                          navegar.navegarEntreTela('/novologinpage', context);
-                          AppController.instance
-                              .mudaLogin(login.getAlteraLoginID());
-                        } else {
-                          navegar.navegarEntreTela('/homepage', context);
-                        }
+                      var resposta = await authNotifier.signIn(
+                          email: fieldText.text, senha: fieldText2.text);
+
+                      if (resposta.error == null) {
+                        print(resposta.user!.id);
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    CadPage2(response: resposta)),
+                            (Route<dynamic> route) => false);
                       } else {
-                        showDialog(
-                          context: context,
-                          builder: (_) => alert(),
-                          barrierDismissible: true,
-                        );
+                        print(resposta.error!.message);
                       }
                       clearText();
                     },

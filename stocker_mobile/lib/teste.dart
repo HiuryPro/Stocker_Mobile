@@ -58,6 +58,10 @@ class _TesteState extends State<Teste> {
                         } else {
                           print(resposta.error!.message);
                         }
+
+                        await authDBNotifier.insert(
+                            tabela: "Teste",
+                            map: {'nome': "TtTT", 'numero': 12});
                       },
                       child: const Text("Login"))
                 ])))));

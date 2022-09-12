@@ -5,7 +5,6 @@ import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
-import 'package:stocker_mobile/teste2.dart';
 
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
@@ -47,7 +46,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/carousel',
+              initialRoute: '/',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/novologinpage': (context) => const NovoLoginPage(),
@@ -58,7 +57,6 @@ class AppWidget extends StatelessWidget {
                 '/telaCompra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
                 '/caduser': (context) => const CadUser(),
-                '/carousel': (context) => const CarouTeste(),
               });
         });
   }
