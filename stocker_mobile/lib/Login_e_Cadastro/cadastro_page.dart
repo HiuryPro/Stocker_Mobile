@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart' as provider;
+import 'package:stocker_mobile/Login_e_Cadastro/insereCadastro.dart';
 import 'package:supabase/supabase.dart';
 
 import '../DadosDB/crud.dart';
@@ -150,11 +151,6 @@ class _CadPageState extends State<CadPage> {
                       });
                     },
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        print(widget.response!.user!.id);
-                      },
-                      child: Text("Pega id usuario"))
                 ],
               ),
             ]),

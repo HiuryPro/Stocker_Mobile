@@ -580,8 +580,9 @@ class InscE {
     String dv = (d1.toString() + d2.toString());
     if (!(dv == ie.substring(ie.length - 2, ie.length))) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   bool validaIEPara(String ie) {

@@ -6,13 +6,13 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:supabase/supabase.dart';
 import 'package:provider/provider.dart' as provider;
-import '../DadosDB/crud.dart';
-import '../SendEmail/send_email.dart';
+
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/inscricaoestadual.dart';
 import '../Validacao_e_Gambiarra/maskara.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
 import '../app/providers/app.dbnotifier.dart';
+import 'insereCadastro.dart';
 
 class CadPage2 extends StatefulWidget {
   CadPage2({Key? key, this.response}) : super(key: key);
@@ -27,6 +27,8 @@ class _CadPage2State extends State<CadPage2> {
   var valida = Validacao();
   var inscE = InscE();
   var maskaraIE = MaskaraInscE();
+  var insereDB = InsereCadastro();
+
   var count = 0;
 
   String? estado;
@@ -87,9 +89,13 @@ class _CadPage2State extends State<CadPage2> {
     TextEditingController(),
     TextEditingController(),
     TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
   ];
 
   List<String?> mensagemDeErro = [
+    null,
+    null,
     null,
     null,
     null,
@@ -121,7 +127,7 @@ class _CadPage2State extends State<CadPage2> {
           shrinkWrap: true,
           children: [
             CarouselSlider(
-                items: [empresa(), endereco()],
+                items: [administrador(), empresa(), endereco()],
                 carouselController: carouselController,
                 options: CarouselOptions(
                   height: MediaQuery.of(context).size.height - 200,
@@ -138,7 +144,7 @@ class _CadPage2State extends State<CadPage2> {
             Center(
                 child: AnimatedSmoothIndicator(
               activeIndex: indexAtivo,
-              count: 2,
+              count: 3,
               onDotClicked: (index) {
                 setState(() {
                   indexAtivo = index;
@@ -160,38 +166,29 @@ class _CadPage2State extends State<CadPage2> {
                             .validacnpj(maskFormatterCnpj.getUnmaskedText())) {
                           if (inscE.valida(maskFormatterInscE.getUnmaskedText(),
                               estado!.substring(0, 2))) {
-                            Map<String, dynamic> endereco = {
-                              'logradouro': textControllers[5].text,
-                              'numero': int.parse(textControllers[6].text),
-                              'bairro': textControllers[7].text,
-                              'cidade': textControllers[8].text,
-                              'estado': estado,
-                              'cep': textControllers[9].text,
-                              'complemento': textControllers[10].text
-                            };
-                            var dados = await authDBNotifier.insert(
-                                tabela: "Endereco", map: endereco);
+                            insereDB.insereAdministrador(
+                                widget.response!,
+                                textControllers[0].text,
+                                maskFormatterTelefone.getUnmaskedText());
 
-                            for (var row in dados) {
-                              id = row["idEndereco"];
-                              print(id);
-                            }
+                            id = insereDB.insereEndereco([
+                              textControllers[7].text,
+                              textControllers[8].text,
+                              textControllers[9].text,
+                              textControllers[10].text,
+                              estado,
+                              textControllers[11].text,
+                              textControllers[12].text
+                            ]);
 
-                            Map<String, dynamic> empresa = {
-                              'idAdministrador': widget.response!.user!.id,
-                              'idEndereco': id,
-                              'nomeEmpresa': textControllers[0].text,
-                              'cnpj': maskFormatterCnpj.getUnmaskedText(),
-                              'inscricaoEstadual':
-                                  maskFormatterInscE.getUnmaskedText(),
-                              'telefone': textControllers[3].text,
-                              'ganho_mensal':
-                                  double.parse(textControllers[4].text)
-                            };
-
-                            var dados1 = await authDBNotifier.insert(
-                                tabela: "Empresa", map: empresa);
-                            print(dados1);
+                            insereDB.insereEmpresa(widget.response!, [
+                              id,
+                              textControllers[2].text,
+                              maskFormatterCnpj.getUnmaskedText(),
+                              maskFormatterInscE.getUnmaskedText(),
+                              textControllers[5].text,
+                              textControllers[6].text
+                            ]);
                           } else {
                             mensagemDeErro[2] = "Inscrição estadual invalida";
                           }
@@ -220,6 +217,45 @@ class _CadPage2State extends State<CadPage2> {
     );
   }
 
+  Widget administrador() {
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: Center(
+          child: ListView(shrinkWrap: true, children: [
+        TextField(
+          controller: textControllers[0],
+          decoration: InputDecoration(
+            labelText: 'Nome da Empresa',
+            errorText: mensagemDeErro[0],
+            border: const OutlineInputBorder(),
+          ),
+          onChanged: (text) {
+            setState(() {
+              mensagemDeErro[0] = null;
+            });
+          },
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        TextField(
+            controller: textControllers[1],
+            inputFormatters: [maskFormatterTelefone],
+            onChanged: (text) {
+              setState(() {
+                mensagemDeErro[1] = null;
+              });
+            },
+            decoration: InputDecoration(
+              labelText: 'Telefone',
+              errorText: mensagemDeErro[1],
+              border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red)),
+            )),
+      ])),
+    );
+  }
+
   Widget empresa() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -237,26 +273,26 @@ class _CadPage2State extends State<CadPage2> {
               height: 15,
             ),
             TextField(
-              controller: textControllers[0],
+              controller: textControllers[2],
               decoration: InputDecoration(
-                  label: const Text("Nome"), errorText: mensagemDeErro[0]),
+                  label: const Text("Nome"), errorText: mensagemDeErro[2]),
               onChanged: (text) {
                 setState(() {
                   enabled = true;
-                  mensagemDeErro[0] = null;
+                  mensagemDeErro[2] = null;
                   print(textControllers[0].text);
                 });
               },
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[1],
+              controller: textControllers[3],
               inputFormatters: [maskFormatterCnpj],
               decoration: InputDecoration(
-                  label: const Text("Cnpj"), errorText: mensagemDeErro[1]),
+                  label: const Text("Cnpj"), errorText: mensagemDeErro[3]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[1] = null;
+                  mensagemDeErro[3] = null;
                 });
               },
             ),
@@ -338,14 +374,14 @@ class _CadPage2State extends State<CadPage2> {
                         }
                       : null,
               child: TextField(
-                controller: textControllers[2],
+                controller: textControllers[4],
                 inputFormatters: [maskFormatterInscE],
                 decoration: InputDecoration(
                     label: const Text("Inscrição estadual"),
-                    errorText: mensagemDeErro[2]),
+                    errorText: mensagemDeErro[4]),
                 onChanged: (text) {
                   setState(() {
-                    mensagemDeErro[2] = null;
+                    mensagemDeErro[4] = null;
                     print(count);
                   });
                 },
@@ -353,25 +389,25 @@ class _CadPage2State extends State<CadPage2> {
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[3],
+              controller: textControllers[5],
               inputFormatters: [maskFormatterTelefone],
               decoration: InputDecoration(
-                  label: const Text("Telefone"), errorText: mensagemDeErro[2]),
+                  label: const Text("Telefone"), errorText: mensagemDeErro[5]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[3] = null;
+                  mensagemDeErro[5] = null;
                 });
               },
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[4],
+              controller: textControllers[6],
               decoration: InputDecoration(
                   label: const Text("Ganho Mensal"),
-                  errorText: mensagemDeErro[3]),
+                  errorText: mensagemDeErro[6]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[4] = null;
+                  mensagemDeErro[6] = null;
                 });
               },
             ),
@@ -408,32 +444,10 @@ class _CadPage2State extends State<CadPage2> {
               height: 15,
             ),
             TextField(
-              controller: textControllers[5],
-              decoration: InputDecoration(
-                  label: const Text("Logradouro"),
-                  errorText: mensagemDeErro[5]),
-              onChanged: (text) {
-                setState(() {
-                  mensagemDeErro[5] = null;
-                });
-              },
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: textControllers[6],
-              decoration: InputDecoration(
-                  label: const Text("Numero"), errorText: mensagemDeErro[5]),
-              onChanged: (text) {
-                setState(() {
-                  mensagemDeErro[6] = null;
-                });
-              },
-            ),
-            const SizedBox(height: 15),
-            TextField(
               controller: textControllers[7],
               decoration: InputDecoration(
-                  label: const Text("Bairro"), errorText: mensagemDeErro[6]),
+                  label: const Text("Logradouro"),
+                  errorText: mensagemDeErro[7]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[7] = null;
@@ -444,7 +458,7 @@ class _CadPage2State extends State<CadPage2> {
             TextField(
               controller: textControllers[8],
               decoration: InputDecoration(
-                  label: const Text("Cidade"), errorText: mensagemDeErro[7]),
+                  label: const Text("Numero"), errorText: mensagemDeErro[8]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[8] = null;
@@ -455,7 +469,7 @@ class _CadPage2State extends State<CadPage2> {
             TextField(
               controller: textControllers[9],
               decoration: InputDecoration(
-                  label: const Text("CEP"), errorText: mensagemDeErro[8]),
+                  label: const Text("Bairro"), errorText: mensagemDeErro[9]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[9] = null;
@@ -466,11 +480,33 @@ class _CadPage2State extends State<CadPage2> {
             TextField(
               controller: textControllers[10],
               decoration: InputDecoration(
-                  label: const Text("Complemento"),
-                  errorText: mensagemDeErro[8]),
+                  label: const Text("Cidade"), errorText: mensagemDeErro[10]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[10] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[11],
+              decoration: InputDecoration(
+                  label: const Text("CEP"), errorText: mensagemDeErro[11]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[11] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: textControllers[12],
+              decoration: InputDecoration(
+                  label: const Text("Complemento"),
+                  errorText: mensagemDeErro[12]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[12] = null;
                 });
               },
             ),
