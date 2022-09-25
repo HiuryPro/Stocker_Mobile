@@ -49,6 +49,7 @@ class AppWidget extends StatelessWidget {
               initialRoute: '/',
               routes: {
                 '/': (context) => const LoginPage(),
+                '/home': (context) => const HomePage(),
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
                 '/cadpage': (context) => CadPage(),

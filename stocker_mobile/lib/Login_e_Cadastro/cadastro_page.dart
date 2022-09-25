@@ -68,7 +68,7 @@ class _CadPageState extends State<CadPage> {
                   SizedBox(
                       width: 100,
                       height: 100,
-                      child: Image.asset(AppController.instance.img2)),
+                      child: Image.asset(AppController.instance.logo)),
                   const SizedBox(
                     height: 15,
                   ),
@@ -159,8 +159,8 @@ class _CadPageState extends State<CadPage> {
             SizedBox(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
-                child:
-                    Image.asset(AppController.instance.img, fit: BoxFit.cover)),
+                child: Image.asset(AppController.instance.background,
+                    fit: BoxFit.cover)),
             _body(),
             if (carrega) telaCarrega()[0],
             if (carrega) telaCarrega()[1]

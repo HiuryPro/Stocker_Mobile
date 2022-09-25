@@ -5,8 +5,8 @@ class AppController extends ChangeNotifier {
   static AppController instance = AppController();
 
   bool isDarkTheme = false;
-  String img = "assets/images/back2.jpg";
-  String img2 = "assets/images/Stocker_blue_transp.png";
+  String background = "assets/images/back2.jpg";
+  String logo = "assets/images/Stocker_blue_transp.png";
   Color theme1 = Colors.black;
   Color theme2 = const Color(0xFF0080d9);
 
@@ -19,13 +19,13 @@ class AppController extends ChangeNotifier {
   changeTheme() {
     isDarkTheme = !isDarkTheme;
     if (isDarkTheme) {
-      img = "assets/images/backblack.jpg";
-      img2 = "assets/images/Stocker_blue_transpblack.png";
+      background = "assets/images/back2B.jpg";
+      logo = "assets/images/Stocker_blue_transpNBpng";
       theme1 = Colors.white;
       theme2 = const Color(0xFFff7f26);
     } else {
-      img = "assets/images/back2.jpg";
-      img2 = "assets/images/Stocker_blue_transp.png";
+      background = "assets/images/back2.jpg";
+      logo = "assets/images/Stocker_blue_transp.png";
       theme1 = Colors.black;
       theme2 = const Color(0xFF0080d9);
     }

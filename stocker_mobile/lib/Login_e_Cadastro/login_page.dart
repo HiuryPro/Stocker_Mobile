@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                 Center(
                   child: SizedBox(
                       width: 400,
-                      child: Image.asset(AppController.instance.img2)),
+                      child: Image.asset(AppController.instance.logo)),
                 ),
                 const SizedBox(
                   height: 15,
@@ -85,11 +85,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       if (resposta.error == null) {
                         print(resposta.user!.id);
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CadPage2(response: resposta)),
-                            (Route<dynamic> route) => false);
+                        navegar.navegarEntreTela('/home', context);
                       } else {
                         print(resposta.error!.message);
                       }
@@ -172,8 +168,8 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              child:
-                  Image.asset(AppController.instance.img, fit: BoxFit.cover)),
+              child: Image.asset(AppController.instance.background,
+                  fit: BoxFit.cover)),
           _body()
         ]));
   }

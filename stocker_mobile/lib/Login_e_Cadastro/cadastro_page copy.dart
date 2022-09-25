@@ -538,7 +538,7 @@ class _CadPage2State extends State<CadPage2> {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Image.asset(
-              AppController.instance.img,
+              AppController.instance.background,
               fit: BoxFit.cover,
             )),
         _body()
