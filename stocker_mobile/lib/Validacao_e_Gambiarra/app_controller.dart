@@ -6,7 +6,7 @@ class AppController extends ChangeNotifier {
 
   bool isDarkTheme = false;
   String background = "assets/images/back2.jpg";
-  String logo = "assets/images/Stocker_blue_transp.png";
+  String logo = "assets/images/Stocker_blue_transpN.png";
   Color theme1 = Colors.black;
   Color theme2 = const Color(0xFF0080d9);
 
@@ -25,7 +25,7 @@ class AppController extends ChangeNotifier {
       theme2 = const Color(0xFFff7f26);
     } else {
       background = "assets/images/back2.jpg";
-      logo = "assets/images/Stocker_blue_transp.png";
+      logo = "assets/images/Stocker_blue_transpN.png";
       theme1 = Colors.black;
       theme2 = const Color(0xFF0080d9);
     }

@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page%20copy.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 
 import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
+import '../app/providers/app.authentication.dart';
 
-class CadUser extends StatefulWidget {
-  const CadUser({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<CadUser> createState() => _CadUserState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _CadUserState extends State<CadUser> {
+class _LoginPageState extends State<LoginPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
@@ -29,6 +33,8 @@ class _CadUserState extends State<CadUser> {
   }
 
   Widget _body() {
+    final AuthenticationNotifier authNotifier =
+        Provider.of<AuthenticationNotifier>(context, listen: false);
     return SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -74,27 +80,15 @@ class _CadUserState extends State<CadUser> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      if (await login.mudaSenha(usuario, senha)) {
-                        navegar.navegarEntreTela('/atualizasenha', context);
-                      } else if (await login.autorizaLogin(usuario, senha)) {
-                        if (await login.novoLogin(usuario, senha)) {
-                          navegar.navegarEntreTela('/novoCadUser', context);
-                          AppController.instance
-                              .mudaLogin(login.getAlteraLoginID());
-                        } else {
-                          navegar.navegarEntreTela('/homepage', context);
-                        }
-                      } else {
-                        showDialog(
+                      await authNotifier.signUp(
                           context: context,
-                          builder: (_) => alert(),
-                          barrierDismissible: true,
-                        );
-                      }
+                          email: fieldText.text,
+                          senha: fieldText2.text);
+
                       clearText();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: AppController.instance.theme2,
+                      backgroundColor: AppController.instance.theme2,
                       textStyle: const TextStyle(fontSize: 24),
                       minimumSize: const Size.fromHeight(72),
                       shape: const StadiumBorder(),
@@ -127,7 +121,7 @@ class _CadUserState extends State<CadUser> {
                       : AppController.instance.theme1;
                   return GestureDetector(
                     onTap: () {
-                      navegar.navegarEntreTela('/cadpage', context);
+                      navegar.navegarEntreTela('/caduser', context);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
-import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
 
@@ -57,7 +56,6 @@ class AppWidget extends StatelessWidget {
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/telaCompra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
-                '/caduser': (context) => const CadUser(),
               });
         });
   }
