@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+<key>Privacy - Microphone Usage Description NSMicrophoneUsageDescription</key>
+<string> Usar o microfone </string>
+<key>Privacy - Speech Recognition Usage Description  NSSpeechRecognitionUsageDescription</key>
+<string> reconhecer o audio </string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

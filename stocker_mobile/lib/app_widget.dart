@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
+import 'package:stocker_mobile/sttteste.dart';
+import 'package:stocker_mobile/voice.dart';
 
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
@@ -45,7 +47,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/',
+              initialRoute: '/Fala',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/home': (context) => const HomePage(),
@@ -56,6 +58,8 @@ class AppWidget extends StatelessWidget {
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/telaCompra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
+                '/Voice': (context) => const TTSTeste(),
+                '/Fala': (context) => const STTTeste()
               });
         });
   }
