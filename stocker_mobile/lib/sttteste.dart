@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -10,6 +12,9 @@ class STTTeste extends StatefulWidget {
 }
 
 class STTTesteState extends State<STTTeste> {
+  double minSoundLevel = 50000;
+  double maxSoundLevel = -50000;
+
   SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _lastWords = '';
@@ -21,49 +26,36 @@ class STTTesteState extends State<STTTeste> {
   }
 
   /// This has to happen only once per app
-  _initSpeech() async {
+  void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
 
   /// Each time to start a speech recognition session
-  _startListening() async {
-    if (!_speechEnabled) {
-      bool teste = await _speechToText.initialize(
-          onStatus: (status) => print(status),
-          onError: (error) => print(error));
-      if (teste) {
-        setState(() {
-          _speechEnabled = true;
-          _speechToText.listen(
-            onResult: (text) {
-              print(text.recognizedWords);
-            },
-          );
-        });
+  void _startListening() async {
+    await _speechToText.listen(
+        onResult: _onSpeechResult,
+        onSoundLevelChange: soundLevelListener,
+  
+  }
 
-        setState(() {});
-      }
-    } else {
-      setState(() {
-        _speechEnabled = false;
-        _speechToText.stop();
-      });
-    }
+  void soundLevelListener(double level) {
+    minSoundLevel = min(minSoundLevel, level);
+    maxSoundLevel = max(maxSoundLevel, level);
+    // _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
+    setState(() {
+      this.level = level;
+    });
   }
 
   /// Manually stop the active speech recognition session
   /// Note that there are also timeouts that each platform enforces
   /// and the SpeechToText plugin supports setting timeouts on the
   /// listen method.
-  ///
-  ///
-
-/*  _stopListening() async {
+  void _stopListening() async {
     await _speechToText.stop();
     setState(() {});
   }
-*/
 
   /// This is the callback that the SpeechToText plugin calls when
   /// the platform returns recognized words.
@@ -111,11 +103,9 @@ class STTTesteState extends State<STTTeste> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _startListening();
-        },
-        // If not yet listening for speech start, otherwise stop
-
+        onPressed:
+            // If not yet listening for speech start, otherwise stop
+            _speechToText.isNotListening ? _startListening : _stopListening,
         tooltip: 'Listen',
         child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
       ),

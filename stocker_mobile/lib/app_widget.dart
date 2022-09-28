@@ -5,6 +5,7 @@ import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
 import 'package:stocker_mobile/sttteste.dart';
+import 'package:stocker_mobile/talkinh.dart';
 import 'package:stocker_mobile/voice.dart';
 
 import 'Cria_PDF/chart.dart';
@@ -59,7 +60,8 @@ class AppWidget extends StatelessWidget {
                 '/telaCompra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
                 '/Voice': (context) => const TTSTeste(),
-                '/Fala': (context) => const STTTeste()
+                '/Fala': (context) => const STTTeste(),
+                '/talkin': (context) => const TalkinH()
               });
         });
   }
