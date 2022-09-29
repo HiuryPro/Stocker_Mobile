@@ -1,114 +1,229 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class STTTeste extends StatefulWidget {
-  const STTTeste({Key? key}) : super(key: key);
+void main() => runApp(SpeechSampleApp());
 
+class SpeechSampleApp extends StatefulWidget {
   @override
-  State<STTTeste> createState() => STTTesteState();
+  _SpeechSampleAppState createState() => _SpeechSampleAppState();
 }
 
-class STTTesteState extends State<STTTeste> {
-  double minSoundLevel = 50000;
-  double maxSoundLevel = -50000;
+enum TtsState { playing, stopped, paused, continued }
 
-  SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
+class _SpeechSampleAppState extends State<SpeechSampleApp> {
+  late FlutterTts flutterTts;
+  TtsState ttsState = TtsState.stopped;
+
+  double volume = 0.9;
+  double pitch = 1.8;
+  double rate = 1;
+
+  get isPlaying => ttsState == TtsState.playing;
+
+  bool get isIOS => !kIsWeb && Platform.isIOS;
+  bool get isAndroid => !kIsWeb && Platform.isAndroid;
+  bool get isWindows => !kIsWeb && Platform.isWindows;
+  bool get isWeb => kIsWeb;
+
+  bool _hasSpeech = false;
+  bool _logEvents = false;
+
+  String lastWords = '';
+  String lastError = '';
+  String lastStatus = '';
+  String _currentLocaleId = '';
+  List<LocaleName> _localeNames = [];
+  final SpeechToText speech = SpeechToText();
 
   @override
   void initState() {
+    Future.delayed(Duration.zero, () async {
+      await initSpeechState();
+    });
+    initTts();
     super.initState();
-    _initSpeech();
   }
 
-  /// This has to happen only once per app
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
+  initTts() {
+    flutterTts = FlutterTts();
 
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(
-        onResult: _onSpeechResult,
-        onSoundLevelChange: soundLevelListener,
-  
-  }
+    _setAwaitOptions();
 
-  void soundLevelListener(double level) {
-    minSoundLevel = min(minSoundLevel, level);
-    maxSoundLevel = max(maxSoundLevel, level);
-    // _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
-    setState(() {
-      this.level = level;
+    if (isAndroid) {
+      _getDefaultEngine();
+      _getDefaultVoice();
+    }
+
+    flutterTts.setErrorHandler((msg) {
+      setState(() {
+        print("error: $msg");
+        ttsState = TtsState.stopped;
+      });
     });
   }
 
-  /// Manually stop the active speech recognition session
-  /// Note that there are also timeouts that each platform enforces
-  /// and the SpeechToText plugin supports setting timeouts on the
-  /// listen method.
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
+  Future<dynamic> _getEngines() => flutterTts.getEngines;
+
+  Future _getDefaultEngine() async {
+    var engine = await flutterTts.getDefaultEngine;
+    if (engine != null) {
+      print(engine);
+    }
   }
 
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-    });
+  Future _getDefaultVoice() async {
+    var voice = await flutterTts.getDefaultVoice;
+    if (voice != null) {
+      print(voice);
+    }
+  }
+
+  Future _speak() async {
+    await flutterTts.setVolume(volume);
+    await flutterTts.setSpeechRate(rate);
+    await flutterTts.setPitch(pitch);
+
+    List<String> lista = [
+      "Samuel Guei",
+      "Hiury Burro",
+      "Ricardo Corno",
+      "Deus",
+      "Fudeu",
+      "Morre Filho da Puta"
+    ];
+
+    await flutterTts.speak(lista[Random().nextInt(lista.length)]);
+  }
+
+  Future _setAwaitOptions() async {
+    await flutterTts.awaitSpeakCompletion(true);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    flutterTts.stop();
+  }
+
+  Future<void> initSpeechState() async {
+    _logEvent('Initialize');
+    try {
+      var hasSpeech = await speech.initialize(
+        onError: errorListener,
+        onStatus: statusListener,
+        debugLogging: true,
+      );
+      if (hasSpeech) {
+        _localeNames = await speech.locales();
+
+        var systemLocale = await speech.systemLocale();
+        _currentLocaleId = systemLocale?.localeId ?? '';
+      }
+      if (!mounted) return;
+
+      setState(() {
+        _hasSpeech = hasSpeech;
+      });
+    } catch (e) {
+      setState(() {
+        lastError = 'Speech recognition failed: ${e.toString()}';
+        _hasSpeech = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Speech Demo'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Recognized words:',
-                style: TextStyle(fontSize: 20.0),
-              ),
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          Container(
+            child: Column(
+              children: <Widget>[
+                SpeechControlWidget(
+                    _hasSpeech, speech.isListening, startListening),
+              ],
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  // If listening is active show the recognized words
-                  _speechToText.isListening
-                      ? '$_lastWords'
-                      // If listening isn't active but could be tell the user
-                      // how to start it, otherwise indicate that speech
-                      // recognition is not yet ready or not supported on
-                      // the target device
-                      : _speechEnabled
-                          ? 'Tap the microphone to start listening...'
-                          : 'Speech not available',
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ]),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            // If not yet listening for speech start, otherwise stop
-            _speechToText.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
-      ),
+    );
+  }
+
+  void startListening() {
+    _logEvent('start listening');
+    lastWords = '';
+    lastError = '';
+
+    speech.listen(
+        onResult: resultListener,
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
+        partialResults: true,
+        localeId: _currentLocaleId,
+        cancelOnError: true,
+        listenMode: ListenMode.confirmation);
+    setState(() {});
+  }
+
+  void resultListener(SpeechRecognitionResult result) {
+    _logEvent(
+        'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
+    setState(() {
+      lastWords = '${result.recognizedWords} - ${result.finalResult}';
+    });
+  }
+
+  void errorListener(SpeechRecognitionError error) {
+    _logEvent(
+        'Received error status: $error, listening: ${speech.isListening}');
+    setState(() {
+      lastError = '${error.errorMsg} - ${error.permanent}';
+    });
+  }
+
+  void statusListener(String status) {
+    _logEvent(
+        'Received listener status: $status, listening: ${speech.isListening}');
+    setState(() {
+      lastStatus = '$status';
+    });
+  }
+
+  void _logEvent(String eventDescription) {
+    var eventTime = DateTime.now().toIso8601String();
+    print('$eventTime $eventDescription');
+  }
+}
+
+class SpeechControlWidget extends StatelessWidget {
+  const SpeechControlWidget(
+      this.hasSpeech, this.isListening, this.startListening,
+      {Key? key})
+      : super(key: key);
+
+  final bool hasSpeech;
+  final bool isListening;
+  final void Function() startListening;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: <Widget>[
+        TextButton(
+          onPressed: !hasSpeech || isListening ? null : startListening,
+          child: Text('Start'),
+        )
+      ],
     );
   }
 }

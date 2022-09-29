@@ -48,7 +48,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/Fala',
+              initialRoute: '/Voice',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/home': (context) => const HomePage(),
@@ -60,7 +60,6 @@ class AppWidget extends StatelessWidget {
                 '/telaCompra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
                 '/Voice': (context) => const TTSTeste(),
-                '/Fala': (context) => const STTTeste(),
                 '/talkin': (context) => const TalkinH()
               });
         });
