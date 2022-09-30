@@ -8,6 +8,7 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 import '../app/providers/app.authentication.dart';
+import '../services/supabase.services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   var theme = AppController();
   var login = Login();
   var navegar = Navegar();
+  var sign = AuthenticationService();
 
   String usuario = '';
   String senha = '';
@@ -33,8 +35,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _body() {
-    final AuthenticationNotifier authNotifier =
-        Provider.of<AuthenticationNotifier>(context, listen: false);
     return SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      var resposta = await authNotifier.signIn(
+                      var resposta = await sign.signIn(
                           email: fieldText.text, senha: fieldText2.text);
 
                       if (resposta.error == null) {

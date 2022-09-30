@@ -70,8 +70,6 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
     });
   }
 
-  Future<dynamic> _getEngines() => flutterTts.getEngines;
-
   Future _getDefaultEngine() async {
     var engine = await flutterTts.getDefaultEngine;
     if (engine != null) {
@@ -165,7 +163,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
 
     speech.listen(
         onResult: resultListener,
-        listenFor: const Duration(seconds: 30),
+        //  listenFor: const Duration(seconds: 30),
         pauseFor: const Duration(seconds: 3),
         partialResults: true,
         localeId: _currentLocaleId,
@@ -190,12 +188,19 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
     });
   }
 
-  void statusListener(String status) {
+  void statusListener(String status) async {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
     setState(() {
       lastStatus = '$status';
     });
+
+    if (lastStatus == 'notListening') {
+      await _speak();
+    }
+    if (lastStatus == 'done') {
+      startListening();
+    }
   }
 
   void _logEvent(String eventDescription) {
