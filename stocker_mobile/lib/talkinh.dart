@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -20,12 +21,11 @@ enum TtsState { playing, stopped, paused, continued }
 
 class _TalkinHState extends State<TalkinH> {
   var imagem = "assets/hiury/calado.png";
+  var audioPlayer = AudioPlayer();
+
   late FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
-
-  double volume = 1;
-  double pitch = 1.8;
-  double rate = 1;
+  int pause = 15;
 
   get isPlaying => ttsState == TtsState.playing;
 
@@ -37,6 +37,7 @@ class _TalkinHState extends State<TalkinH> {
   bool _hasSpeech = false;
   bool _logEvents = false;
   bool falando = false;
+  bool isImitando = false;
 
   String lastWords = '';
   String lastError = '';
@@ -87,17 +88,25 @@ class _TalkinHState extends State<TalkinH> {
   }
 
   Future _speak() async {
-    await flutterTts.setVolume(volume);
-    await flutterTts.setSpeechRate(rate);
-    await flutterTts.setPitch(pitch);
+    await flutterTts.setVolume(1);
+    await flutterTts.setSpeechRate(1);
+    await flutterTts.setPitch(1.8);
 
-    List<String> lista = ["Sim", "Não"];
+    List<String> lista = ["Sim", "Não", "Não sei", "Pesquisa no Gugol"];
 
     await flutterTts.speak(lista[Random().nextInt(lista.length)]);
   }
 
   Future _setAwaitOptions() async {
     await flutterTts.awaitSpeakCompletion(true);
+  }
+
+  Future _imita() async {
+    await flutterTts.setVolume(1);
+    await flutterTts.setSpeechRate(1);
+    await flutterTts.setPitch(1.8);
+
+    await flutterTts.speak(lastWords);
   }
 
   @override
@@ -133,13 +142,19 @@ class _TalkinHState extends State<TalkinH> {
     }
   }
 
+  Future<void> som(String mp3) async {
+    var player = AudioCache(prefix: 'assets/sounds/');
+    var url = await player.load(mp3);
+    await audioPlayer.play(url.path);
+  }
+
   void startListening() {
     _logEvent('start listening');
 
     speech.listen(
         onResult: resultListener,
-        listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(milliseconds: 1500),
+        listenFor: Duration(seconds: 30),
+        pauseFor: Duration(seconds: 3),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,
@@ -151,8 +166,13 @@ class _TalkinHState extends State<TalkinH> {
     _logEvent(
         'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
     setState(() {
-      lastWords = '${result.recognizedWords} - ${result.finalResult}';
+      lastWords = result.recognizedWords;
     });
+    if (!falando) {
+      setState(() {
+        falando = true;
+      });
+    }
   }
 
   void errorListener(SpeechRecognitionError error) {
@@ -170,19 +190,41 @@ class _TalkinHState extends State<TalkinH> {
       lastStatus = '$status';
     });
 
-    if (lastStatus == 'done') {
+    if (lastStatus == 'notListening') {
       if (lastWords != '') {
         setState(() {
-          imagem = "assets/hiury/falando.png";
+          imagem = "assets/hiury/hiuryfala.gif";
         });
-        await _speak();
+
+        if (!isImitando) {
+          await _speak();
+        } else {
+          await _imita();
+        }
+
         setState(() {
+          lastWords = '';
           imagem = "assets/hiury/calado.png";
+          falando = false;
         });
+
+        if (!isImitando) {
+          List<String> cancela = ["1", "2", "3"];
+          if (cancela[Random().nextInt(cancela.length)] == "3") {
+            await speech.cancel();
+
+            som("saiu.mp3");
+          } else {
+            await speech.cancel();
+
+            startListening();
+          }
+        }
+      } else {
+        await speech.cancel();
+
+        som("saiu.mp3");
       }
-      setState(() {
-        lastWords = '';
-      });
     }
   }
 
@@ -195,29 +237,63 @@ class _TalkinHState extends State<TalkinH> {
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Center(
-                child: ListView(shrinkWrap: true, children: [
-              GestureDetector(
-                onTap: () async {
-                  setState(() {
-                    imagem = "assets/hiury/fechado.png";
-                  });
+        child: ListView(shrinkWrap: true, children: [
+          Container(
+              decoration: BoxDecoration(color: Color(0xFF6caa46)),
+              width: MediaQuery.of(context).size.width,
+              height: 90,
+              child: Center(
+                child: Image.asset(
+                  "assets/hiury/talkinhiury2.png",
+                ),
+              )),
+          GestureDetector(
+            onTap: () async {
+              setState(() {
+                imagem = "assets/hiury/fechado.png";
+              });
 
-                  await Future.delayed(Duration(milliseconds: 300));
+              await Future.delayed(Duration(milliseconds: 300));
 
-                  setState(() {
-                    imagem = "assets/hiury/calado.png";
-                  });
-                },
-                child: Center(child: Image.asset(imagem)),
-              ),
-              TextButton(
-                onPressed: startListening,
-                child: Text('Start'),
-              )
-            ]))));
+              setState(() {
+                imagem = "assets/hiury/calado.png";
+              });
+            },
+            child: Center(child: Image.asset(imagem)),
+          ),
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      isImitando = false;
+                    });
+
+                    som("entro.mp3");
+                    startListening();
+                  },
+                  child: Row(
+                    children: [Icon(Icons.call), Text("Conversar")],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      isImitando = true;
+                    });
+                    som("entro.mp3");
+                    startListening();
+                  },
+                  child: Row(
+                    children: [Icon(Icons.mic), Text("Imitar")],
+                  ),
+                )
+              ],
+            ),
+          )
+        ]));
   }
 
   @override

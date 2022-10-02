@@ -52,6 +52,7 @@ dependencies:
   smooth_page_indicator: ^1.0.0+2
   flutter_tts: ^3.5.3
   speech_to_text: ^6.0.0
+  audioplayers: ^0.20.1
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +80,7 @@ flutter:
     - assets/images/
     - assets/hiury/
     - assets/images/Stocker_blue_transp.png
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
