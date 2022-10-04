@@ -10,6 +10,8 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import 'Metodos_das_Telas/navegar.dart';
+
 class TalkinH extends StatefulWidget {
   const TalkinH({super.key});
 
@@ -22,6 +24,7 @@ enum TtsState { playing, stopped, paused, continued }
 class _TalkinHState extends State<TalkinH> {
   var imagem = "assets/hiury/calado.png";
   var audioPlayer = AudioPlayer();
+  var navegar = Navegar();
 
   late FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
@@ -34,10 +37,10 @@ class _TalkinHState extends State<TalkinH> {
   bool get isWindows => !kIsWeb && Platform.isWindows;
   bool get isWeb => kIsWeb;
 
-  bool _hasSpeech = false;
-  bool _logEvents = false;
-  bool falando = false;
+  bool isConversa = false;
   bool isImitando = false;
+  bool isComando = false;
+  bool isEscutando = false;
 
   String lastWords = '';
   String lastError = '';
@@ -50,13 +53,17 @@ class _TalkinHState extends State<TalkinH> {
   void initState() {
     Future.delayed(Duration.zero, () async {
       await initSpeechState();
+      await initTts();
     });
-    initTts();
+
     super.initState();
   }
 
-  initTts() {
+  initTts() async {
     flutterTts = FlutterTts();
+    await flutterTts.setVolume(1);
+    await flutterTts.setSpeechRate(1);
+    await flutterTts.setPitch(1.8);
 
     _setAwaitOptions();
 
@@ -88,25 +95,29 @@ class _TalkinHState extends State<TalkinH> {
   }
 
   Future _speak() async {
-    await flutterTts.setVolume(1);
-    await flutterTts.setSpeechRate(1);
-    await flutterTts.setPitch(1.8);
-
     List<String> lista = ["Sim", "Não", "Não sei", "Pesquisa no Gugol"];
 
     await flutterTts.speak(lista[Random().nextInt(lista.length)]);
   }
 
-  Future _setAwaitOptions() async {
-    await flutterTts.awaitSpeakCompletion(true);
+  Future _imita() async {
+    await flutterTts.speak(lastWords);
   }
 
-  Future _imita() async {
-    await flutterTts.setVolume(1);
-    await flutterTts.setSpeechRate(1);
-    await flutterTts.setPitch(1.8);
+  Future _comando() async {
+    if (lastWords == "Compra" || lastWords == "compra") {
+      await flutterTts.speak("Tela Venda");
 
-    await flutterTts.speak(lastWords);
+      await som('saiu.mp3');
+      await Future.delayed(Duration(seconds: 1));
+      navegar.navegarEntreTela('/', context);
+    } else {
+      await flutterTts.speak("Esse comando não existe");
+    }
+  }
+
+  Future _setAwaitOptions() async {
+    await flutterTts.awaitSpeakCompletion(true);
   }
 
   @override
@@ -130,14 +141,9 @@ class _TalkinHState extends State<TalkinH> {
         _currentLocaleId = systemLocale?.localeId ?? '';
       }
       if (!mounted) return;
-
-      setState(() {
-        _hasSpeech = hasSpeech;
-      });
     } catch (e) {
       setState(() {
         lastError = 'Speech recognition failed: ${e.toString()}';
-        _hasSpeech = false;
       });
     }
   }
@@ -162,17 +168,43 @@ class _TalkinHState extends State<TalkinH> {
     setState(() {});
   }
 
+  Future<void> opcoesFala() async {
+    if (isConversa) {
+      await _speak();
+    }
+    if (isImitando) {
+      await _imita();
+      await Future.delayed(Duration(milliseconds: 250));
+      som('saiu.mp3');
+      isEscutando = false;
+    }
+    if (isComando) {
+      await _comando();
+      isEscutando = false;
+    }
+  }
+
+  Future<void> aposConversa() async {
+    if (isConversa) {
+      List<int> cancela = [1, 2, 3, 4];
+      if (cancela[Random().nextInt(cancela.length)] == 3) {
+        await speech.cancel();
+        isEscutando = false;
+        som("saiu.mp3");
+      } else {
+        await speech.cancel();
+        Future.delayed(Duration(milliseconds: 500));
+        startListening();
+      }
+    }
+  }
+
   void resultListener(SpeechRecognitionResult result) {
     _logEvent(
         'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
     setState(() {
       lastWords = result.recognizedWords;
     });
-    if (!falando) {
-      setState(() {
-        falando = true;
-      });
-    }
   }
 
   void errorListener(SpeechRecognitionError error) {
@@ -196,30 +228,14 @@ class _TalkinHState extends State<TalkinH> {
           imagem = "assets/hiury/hiuryfala.gif";
         });
 
-        if (!isImitando) {
-          await _speak();
-        } else {
-          await _imita();
-        }
+        await opcoesFala();
 
         setState(() {
           lastWords = '';
           imagem = "assets/hiury/calado.png";
-          falando = false;
         });
 
-        if (!isImitando) {
-          List<String> cancela = ["1", "2", "3"];
-          if (cancela[Random().nextInt(cancela.length)] == "3") {
-            await speech.cancel();
-
-            som("saiu.mp3");
-          } else {
-            await speech.cancel();
-
-            startListening();
-          }
-        }
+        aposConversa();
       } else {
         await speech.cancel();
 
@@ -267,12 +283,23 @@ class _TalkinHState extends State<TalkinH> {
               children: [
                 TextButton(
                   onPressed: () async {
-                    setState(() {
-                      isImitando = false;
-                    });
+                    if (!isEscutando) {
+                      setState(() {
+                        isConversa = true;
+                        isComando = false;
+                        isImitando = false;
+                        isEscutando = true;
+                      });
 
-                    som("entro.mp3");
-                    startListening();
+                      som("entro.mp3");
+                      startListening();
+                    } else {
+                      await speech.cancel();
+                      som('saiu.mp3');
+                      setState(() {
+                        isEscutando = false;
+                      });
+                    }
                   },
                   child: Row(
                     children: [Icon(Icons.call), Text("Conversar")],
@@ -280,14 +307,48 @@ class _TalkinHState extends State<TalkinH> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    setState(() {
-                      isImitando = true;
-                    });
-                    som("entro.mp3");
-                    startListening();
+                    if (!isEscutando) {
+                      setState(() {
+                        isConversa = false;
+                        isImitando = true;
+                        isComando = false;
+                        isEscutando = true;
+                      });
+                      som("entro.mp3");
+                      startListening();
+                    } else {
+                      await speech.cancel();
+                      som('saiu.mp3');
+                      setState(() {
+                        isEscutando = false;
+                      });
+                    }
                   },
                   child: Row(
                     children: [Icon(Icons.mic), Text("Imitar")],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (!isEscutando) {
+                      setState(() {
+                        isConversa = false;
+                        isImitando = false;
+                        isComando = true;
+                        isEscutando = true;
+                      });
+                      som("entro.mp3");
+                      startListening();
+                    } else {
+                      await speech.cancel();
+                      som('saiu.mp3');
+                      setState(() {
+                        isEscutando = false;
+                      });
+                    }
+                  },
+                  child: Row(
+                    children: [Icon(Icons.mic), Text("Comandos")],
                   ),
                 )
               ],
