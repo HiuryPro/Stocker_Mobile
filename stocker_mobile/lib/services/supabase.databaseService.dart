@@ -18,6 +18,37 @@ class DataBaseService {
     }
   }
 
+  dynamic selectWithoutFilter({
+    required String tabela,
+    required String select,
+  }) async {
+    try {
+      var response = await SupaBaseCredentials.supaBaseClient
+          .from(tabela)
+          .select(select)
+          .execute();
+
+      return response.data;
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  dynamic selectComando(
+      {required String tabela, required String select, required int id}) async {
+    try {
+      var response = await SupaBaseCredentials.supaBaseClient
+          .from(tabela)
+          .select(select)
+          .or('IdEmpresa.is.null, IdEmpresa.eq.$id')
+          .execute();
+
+      return response.data;
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   dynamic select({
     required String tabela,
     required String select,

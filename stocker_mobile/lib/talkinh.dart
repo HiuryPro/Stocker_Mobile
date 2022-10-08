@@ -11,6 +11,7 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import 'Metodos_das_Telas/navegar.dart';
+import 'services/supabase.databaseService.dart';
 
 class TalkinH extends StatefulWidget {
   const TalkinH({super.key});
@@ -22,6 +23,10 @@ class TalkinH extends StatefulWidget {
 enum TtsState { playing, stopped, paused, continued }
 
 class _TalkinHState extends State<TalkinH> {
+  var crud = DataBaseService();
+
+  Map<String, String> comandos = {};
+
   var imagem = "assets/hiury/calado.png";
   var audioPlayer = AudioPlayer();
   var navegar = Navegar();
@@ -30,12 +35,7 @@ class _TalkinHState extends State<TalkinH> {
   TtsState ttsState = TtsState.stopped;
   int pause = 15;
 
-  get isPlaying => ttsState == TtsState.playing;
-
-  bool get isIOS => !kIsWeb && Platform.isIOS;
   bool get isAndroid => !kIsWeb && Platform.isAndroid;
-  bool get isWindows => !kIsWeb && Platform.isWindows;
-  bool get isWeb => kIsWeb;
 
   bool isConversa = false;
   bool isImitando = false;
@@ -54,9 +54,22 @@ class _TalkinHState extends State<TalkinH> {
     Future.delayed(Duration.zero, () async {
       await initSpeechState();
       await initTts();
+      await buscaComandos();
     });
 
     super.initState();
+  }
+
+  Future<void> buscaComandos() async {
+    List<dynamic> teste = await crud.selectComando(
+        tabela: "Comando", select: "comando, acao", id: 1);
+    for (var row in teste) {
+      comandos
+          .addEntries(<String, String>{row['comando']: row['acao']}.entries);
+    }
+
+    print(comandos.keys.toList());
+    print(comandos);
   }
 
   initTts() async {
@@ -105,14 +118,21 @@ class _TalkinHState extends State<TalkinH> {
   }
 
   Future _comando() async {
-    if (lastWords == "Compra" || lastWords == "compra") {
-      await flutterTts.speak("Tela Venda");
+    List<String> comandosDados = comandos.keys.toList();
+    String? acao;
+    bool isComandoExistente = false;
+    for (int i = 0; i < comandosDados.length; i++) {
+      if (lastWords.toLowerCase() == comandosDados[i].toLowerCase()) {
+        isComandoExistente = true;
+        acao = comandos[comandosDados[i]];
+        break;
+      }
+    }
 
-      await som('saiu.mp3');
-      await Future.delayed(Duration(seconds: 1));
-      navegar.navegarEntreTela('/', context);
+    if (isComandoExistente) {
+      await flutterTts.speak("Tela ${acao!}");
     } else {
-      await flutterTts.speak("Esse comando não existe");
+      await flutterTts.speak("Esse Comando não existe");
     }
   }
 

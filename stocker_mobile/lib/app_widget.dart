@@ -48,7 +48,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/talkin',
+              initialRoute: '/home',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/home': (context) => const HomePage(),
@@ -57,7 +57,7 @@ class AppWidget extends StatelessWidget {
                 '/cadpage': (context) => CadPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pegaimagem': (context) => const TesteImagem(),
-                '/telaCompra': (context) => const Compra(),
+                '/Compra': (context) => const Compra(),
                 '/telaTeste': (context) => const Teste(),
                 '/Voice': (context) => const TTSTeste(),
                 '/talkin': (context) => const TalkinH()
