@@ -29,13 +29,15 @@ class _CompraState extends State<Compra> {
     produtos.clear();
     Future.delayed(Duration.zero, () async {
       var lista = await crud.selectInner(
-          tabela: "Fornecedor",
-          select: 'NomeFornecedor, Produto!inner(IdProduto, NomeProduto)',
+          tabela: "FornecedorProduto",
+          select:
+              'Preco, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor, NomeFornecedor)',
           where: {});
 
       setState(() {
         for (var row in lista) {
-          produtos.add(row["Produto"]["NomeProduto"]);
+          produtos.add(
+              "${row["Produto"]["IdProduto"]}  ${row["Produto"]["NomeProduto"]}");
         }
       });
     });
@@ -74,14 +76,17 @@ class _CompraState extends State<Compra> {
                         });
 
                         lista = await crud.selectInner(
-                            tabela: "Fornecedor",
+                            tabela: "FornecedorProduto",
                             select:
-                                'NomeFornecedor, Produto!inner(IdProduto, NomeProduto)',
-                            where: {"Produto.NomeProduto": "$produto"});
+                                'Fornecedor!inner(IdFornecedor, NomeFornecedor), Produto!inner(IdProduto, NomeProduto)',
+                            where: {
+                              "Produto.IdProduto": int.parse(produto![0])
+                            });
                         setState(() {
                           fornecedores.clear();
                           for (var row in lista) {
-                            fornecedores.add(row['NomeFornecedor']);
+                            fornecedores.add(
+                                "${row["Fornecedor"]["IdFornecedor"]} ${row['Fornecedor']['NomeFornecedor']}");
                           }
                         });
                       }),
@@ -110,18 +115,17 @@ class _CompraState extends State<Compra> {
                         setState(() {
                           fornecedor = value;
                         });
-                        print(
-                            "Select preco from fornecedor_produto where fornecedor = '$fornecedor' and produto = '$produto'");
 
                         var lista = await crud.selectInner(
-                            tabela: "Fornecedor",
+                            tabela: "FornecedorProduto",
                             select:
-                                'Preco, Produto!inner(IdProduto, NomeProduto)',
+                                'Preco, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
                             where: {
-                              "Produto.NomeProduto": "$produto",
-                              "NomeFornecedor": "$fornecedor"
+                              "Produto.IdProduto": int.parse(produto![0]),
+                              "Fornecedor.IdFornecedor":
+                                  int.parse(fornecedor![0])
                             });
-
+                        print(lista);
                         for (var row in lista) {
                           setState(() {
                             fieldControllerPreco.text = row['Preco'].toString();
