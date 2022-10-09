@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../DadosDB/crud.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
+import '../services/supabase.databaseService.dart';
 
 class Compra extends StatefulWidget {
   const Compra({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class Compra extends StatefulWidget {
 class _CompraState extends State<Compra> {
   var fieldControllerPreco = TextEditingController();
   var fieldControllerTotal = TextEditingController();
+  var crud = DataBaseService();
   final produtos = [""];
   final fornecedores = [""];
   String? produto;
@@ -21,20 +23,21 @@ class _CompraState extends State<Compra> {
   double? preco;
   double? total;
 
-  var crud = CRUD();
-
   @override
   void initState() {
     super.initState();
     produtos.clear();
     Future.delayed(Duration.zero, () async {
-      var result = await crud.select("SELECT *  FROM produto");
+      var lista = await crud.selectInner(
+          tabela: "Fornecedor",
+          select: 'NomeFornecedor, Produto!inner(IdProduto, NomeProduto)',
+          where: {});
 
-      for (var row in result) {
-        setState(() {
-          produtos.add(row['nome']);
-        });
-      }
+      setState(() {
+        for (var row in lista) {
+          produtos.add(row["Produto"]["NomeProduto"]);
+        }
+      });
     });
   }
 
@@ -70,12 +73,15 @@ class _CompraState extends State<Compra> {
                           fornecedor = null;
                         });
 
-                        lista = await crud.select(
-                            "SELECT *  FROM fornecedor_produto where produto = '$produto'");
+                        lista = await crud.selectInner(
+                            tabela: "Fornecedor",
+                            select:
+                                'NomeFornecedor, Produto!inner(IdProduto, NomeProduto)',
+                            where: {"Produto.NomeProduto": "$produto"});
                         setState(() {
                           fornecedores.clear();
                           for (var row in lista) {
-                            fornecedores.add(row['fornecedor']);
+                            fornecedores.add(row['NomeFornecedor']);
                           }
                         });
                       }),
@@ -107,12 +113,18 @@ class _CompraState extends State<Compra> {
                         print(
                             "Select preco from fornecedor_produto where fornecedor = '$fornecedor' and produto = '$produto'");
 
-                        var lista = await crud.select(
-                            "SELECT preco FROM fornecedor_produto where fornecedor = '$fornecedor' and produto = '$produto'");
+                        var lista = await crud.selectInner(
+                            tabela: "Fornecedor",
+                            select:
+                                'Preco, Produto!inner(IdProduto, NomeProduto)',
+                            where: {
+                              "Produto.NomeProduto": "$produto",
+                              "NomeFornecedor": "$fornecedor"
+                            });
+
                         for (var row in lista) {
-                          print(row['preco']);
                           setState(() {
-                            fieldControllerPreco.text = row['preco'].toString();
+                            fieldControllerPreco.text = row['Preco'].toString();
                             preco = double.parse(fieldControllerPreco.text);
                           });
                         }
@@ -125,7 +137,6 @@ class _CompraState extends State<Compra> {
               TextField(
                 onChanged: (qtd) {
                   setState(() {
-                    
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
                       fieldControllerTotal.text =

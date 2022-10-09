@@ -48,7 +48,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/home',
+              initialRoute: '/Compra',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/home': (context) => const HomePage(),
