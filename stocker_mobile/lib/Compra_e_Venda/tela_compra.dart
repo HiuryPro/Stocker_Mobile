@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../DadosDB/crud.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
@@ -23,84 +24,15 @@ class _CompraState extends State<Compra> {
   double? preco;
   double? total;
 
-  List<DataRow> linhas = const [
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-    DataRow(cells: [
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã")),
-      DataCell(Text("Maçã"))
-    ]),
-  ];
+  List<DataRow> linhas = [];
   List<DataColumn> colunas = const [
     DataColumn(label: Text("Produto")),
     DataColumn(label: Text("Fornecedor")),
     DataColumn(label: Text("Preco")),
     DataColumn(label: Text("Quantidade")),
-    DataColumn(label: Text("Frete"))
+    DataColumn(label: Text("Frete")),
+    DataColumn(label: Text("Data da Compra")),
+    DataColumn(label: Text("Hora da Compra")),
   ];
 
   @override
@@ -272,9 +204,22 @@ class _CompraState extends State<Compra> {
               const SizedBox(
                 height: 30,
               ),
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(columns: colunas, rows: linhas)),
+              SizedBox(
+                height: 300,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      Center(
+                        child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(columns: colunas, rows: linhas)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(
                 height: 30,
               ),
@@ -287,17 +232,19 @@ class _CompraState extends State<Compra> {
             ]))));
   }
 
-  void adicionaLinhaTabela() {
+  adicionaLinhaTabela() {
+    var data = DateFormat("dd/MM/yyyy").format(DateTime.now());
+    var hora = DateFormat.Hms().format(DateTime.now());
     setState(() {
-      /*  tabelaLinhas.add(const TableRow(children: [
-        Text("Coluna 0"),
-        Text("Coluna 1"),
-        Text("Coluna 2"),
-        Text("Coluna 3"),
-        Text("Coluna 4"),
-        Text("Coluna 4"),
+      linhas.add(DataRow(cells: [
+        const DataCell(Text("Maçã")),
+        const DataCell(Text("Mario")),
+        const DataCell(Text("5")),
+        const DataCell(Text("10")),
+        const DataCell(Text("2")),
+        DataCell(Text(data)),
+        DataCell(Text(hora))
       ]));
-      */
     });
   }
 

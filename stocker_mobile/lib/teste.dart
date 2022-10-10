@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
 main() async {
@@ -7,4 +8,7 @@ main() async {
       select:
           "*, FornecedorProduto!inner(Produto!inner(*), Fornecedor!inner(*), Preco)",
       where: {}));
+
+  print(DateFormat.Hms().format(DateTime.now()));
+  print(DateFormat("dd/MM/yyyy").format(DateTime.now()));
 }
