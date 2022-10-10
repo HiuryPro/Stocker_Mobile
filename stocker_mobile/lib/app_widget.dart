@@ -16,7 +16,6 @@ import 'Home/home_page.dart';
 import 'Login_e_Cadastro/login_page.dart';
 import 'Login_e_Cadastro/nova_senha.dart';
 import 'Login_e_Cadastro/novo_login.dart';
-import 'teste.dart';
 
 class Core extends StatelessWidget {
   const Core({Key? key}) : super(key: key);
@@ -58,7 +57,6 @@ class AppWidget extends StatelessWidget {
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/Compra': (context) => const Compra(),
-                '/telaTeste': (context) => const Teste(),
                 '/Voice': (context) => const TTSTeste(),
                 '/talkin': (context) => const TalkinH()
               });

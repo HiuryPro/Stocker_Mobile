@@ -23,6 +23,86 @@ class _CompraState extends State<Compra> {
   double? preco;
   double? total;
 
+  List<DataRow> linhas = const [
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+    DataRow(cells: [
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã")),
+      DataCell(Text("Maçã"))
+    ]),
+  ];
+  List<DataColumn> colunas = const [
+    DataColumn(label: Text("Produto")),
+    DataColumn(label: Text("Fornecedor")),
+    DataColumn(label: Text("Preco")),
+    DataColumn(label: Text("Quantidade")),
+    DataColumn(label: Text("Frete"))
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -189,7 +269,36 @@ class _CompraState extends State<Compra> {
                         borderSide: const BorderSide(
                             color: Color(0xFF0080d9), width: 2))),
               ),
+              const SizedBox(
+                height: 30,
+              ),
+              SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(columns: colunas, rows: linhas)),
+              const SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                  onPressed: () {
+// cadastar compra
+                    adicionaLinhaTabela();
+                  },
+                  child: Text("Comprar"))
             ]))));
+  }
+
+  void adicionaLinhaTabela() {
+    setState(() {
+      /*  tabelaLinhas.add(const TableRow(children: [
+        Text("Coluna 0"),
+        Text("Coluna 1"),
+        Text("Coluna 2"),
+        Text("Coluna 3"),
+        Text("Coluna 4"),
+        Text("Coluna 4"),
+      ]));
+      */
+    });
   }
 
   DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
