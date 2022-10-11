@@ -23,6 +23,8 @@ class _CompraState extends State<Compra> {
   int? quantidade;
   double? preco;
   double? total;
+  int quantidadeLinhas = 0;
+  List<bool> selecionado = [];
 
   List<DataRow> linhas = [];
   List<DataColumn> colunas = const [
@@ -214,7 +216,11 @@ class _CompraState extends State<Compra> {
                       Center(
                         child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: DataTable(columns: colunas, rows: linhas)),
+                            child: DataTable(
+                              columns: colunas,
+                              rows: linhas,
+                              showCheckboxColumn: true,
+                            )),
                       ),
                     ],
                   ),
@@ -236,15 +242,25 @@ class _CompraState extends State<Compra> {
     var data = DateFormat("dd/MM/yyyy").format(DateTime.now());
     var hora = DateFormat.Hms().format(DateTime.now());
     setState(() {
-      linhas.add(DataRow(cells: [
-        const DataCell(Text("Maçã")),
-        const DataCell(Text("Mario")),
-        const DataCell(Text("5")),
-        const DataCell(Text("10")),
-        const DataCell(Text("2")),
-        DataCell(Text(data)),
-        DataCell(Text(hora))
-      ]));
+      selecionado.add(false);
+
+      linhas.add(DataRow(
+          selected: selecionado[quantidadeLinhas],
+          onSelectChanged: ((bool? value) {
+            setState(() {
+              selecionado[quantidadeLinhas] = value!;
+            });
+          }),
+          cells: [
+            const DataCell(Text("Maçã")),
+            const DataCell(Text("Mario")),
+            const DataCell(Text("5")),
+            const DataCell(Text("10")),
+            const DataCell(Text("2")),
+            DataCell(Text(data)),
+            DataCell(Text(hora))
+          ]));
+      quantidadeLinhas++;
     });
   }
 
