@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../DadosDB/crud.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../services/supabase.databaseService.dart';
+import 'package:collection/collection.dart';
 
 class Compra extends StatefulWidget {
   const Compra({Key? key}) : super(key: key);
@@ -14,7 +15,9 @@ class Compra extends StatefulWidget {
 
 class _CompraState extends State<Compra> {
   var fieldControllerPreco = TextEditingController();
+  var fieldControllerFrete = TextEditingController();
   var fieldControllerTotal = TextEditingController();
+  var fieldControllerQtd = TextEditingController();
   var crud = DataBaseService();
   final produtos = [""];
   final fornecedores = [""];
@@ -22,20 +25,11 @@ class _CompraState extends State<Compra> {
   String? fornecedor;
   int? quantidade;
   double? preco;
+  double? frete;
   double? total;
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
-
-  List<DataRow> linhas = [];
-  List<DataColumn> colunas = const [
-    DataColumn(label: Text("Produto")),
-    DataColumn(label: Text("Fornecedor")),
-    DataColumn(label: Text("Preco")),
-    DataColumn(label: Text("Quantidade")),
-    DataColumn(label: Text("Frete")),
-    DataColumn(label: Text("Data da Compra")),
-    DataColumn(label: Text("Hora da Compra")),
-  ];
+  List<Map> preCompra = [];
 
   @override
   void initState() {
@@ -133,7 +127,7 @@ class _CompraState extends State<Compra> {
                         var lista = await crud.selectInner(
                             tabela: "FornecedorProduto",
                             select:
-                                'Preco, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
+                                '*, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
                             where: {
                               "Produto.IdProduto": int.parse(produto![0]),
                               "Fornecedor.IdFornecedor":
@@ -143,7 +137,9 @@ class _CompraState extends State<Compra> {
                         for (var row in lista) {
                           setState(() {
                             fieldControllerPreco.text = row['Preco'].toString();
+                            fieldControllerFrete.text = row['Frete'].toString();
                             preco = double.parse(fieldControllerPreco.text);
+                            frete = double.parse(fieldControllerFrete.text);
                           });
                         }
                       }),
@@ -153,12 +149,14 @@ class _CompraState extends State<Compra> {
                 height: 15,
               ),
               TextField(
+                controller: fieldControllerQtd,
                 onChanged: (qtd) {
                   setState(() {
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
                       fieldControllerTotal.text =
-                          (quantidade! * preco!).toString();
+                          ((quantidade! * preco!) + frete!).toString();
+                      total = double.parse(fieldControllerTotal.text);
                     } else {
                       fieldControllerTotal.text = "";
                     }
@@ -192,6 +190,22 @@ class _CompraState extends State<Compra> {
               ),
               TextField(
                 enabled: false,
+                controller: fieldControllerFrete,
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                    labelText: "Frete",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF0080d9), width: 2))),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextField(
+                enabled: false,
                 controller: fieldControllerTotal,
                 onChanged: (text) {
                   setState(() {});
@@ -206,61 +220,49 @@ class _CompraState extends State<Compra> {
               const SizedBox(
                 height: 30,
               ),
-              SizedBox(
-                height: 300,
-                width: MediaQuery.of(context).size.width,
-                child: Center(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Center(
-                        child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              columns: colunas,
-                              rows: linhas,
-                              showCheckboxColumn: true,
-                            )),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              ElevatedButton(
+                  onPressed: () {
+                    print(preCompra);
+                    adicionaPreCompra();
+                    setState(() {
+                      fieldControllerQtd.text = "";
+                    });
+                  },
+                  child: Text("Adiciona Linha")),
+              DataTable(columns: _createColumns(), rows: createRows()),
+              const SizedBox(height: 15),
+              SizedBox(height: 15),
+              ElevatedButton(
+                  onPressed: () {
+                    print(preCompra);
+                    print(selecionado);
+                    List<Map<dynamic, dynamic>?> lista = [];
+                    for (int i = 0; i < preCompra.length; i++) {
+                      if (selecionado[i] == true) {
+                        lista.add(preCompra[i]);
+                      }
+                    }
+                    lista.removeWhere((element) => element == null);
+                    print(lista);
+                  },
+                  child: Text("Imprimi")),
               const SizedBox(
                 height: 30,
               ),
-              ElevatedButton(
-                  onPressed: () {
-// cadastar compra
-                    adicionaLinhaTabela();
-                  },
-                  child: Text("Comprar"))
+              ElevatedButton(onPressed: () {}, child: Text("Comprar"))
             ]))));
   }
 
-  adicionaLinhaTabela() {
-    var data = DateFormat("dd/MM/yyyy").format(DateTime.now());
-    var hora = DateFormat.Hms().format(DateTime.now());
+  void adicionaPreCompra() {
     setState(() {
-      selecionado.add(false);
-
-      linhas.add(DataRow(
-          selected: selecionado[quantidadeLinhas],
-          onSelectChanged: ((bool? value) {
-            setState(() {
-              selecionado[quantidadeLinhas] = value!;
-            });
-          }),
-          cells: [
-            const DataCell(Text("Maçã")),
-            const DataCell(Text("Mario")),
-            const DataCell(Text("5")),
-            const DataCell(Text("10")),
-            const DataCell(Text("2")),
-            DataCell(Text(data)),
-            DataCell(Text(hora))
-          ]));
-      quantidadeLinhas++;
+      preCompra.add({
+        'produto': produto,
+        'fornecedor': fornecedor,
+        'quantidade': quantidade,
+        'preco': preco,
+        'frete': frete
+      });
+      selecionado.add(true);
     });
   }
 
@@ -306,5 +308,46 @@ class _CompraState extends State<Compra> {
               ),
             ]),
         body: body());
+  }
+
+  List<DataColumn> _createColumns() {
+    return [
+      DataColumn(label: Text("Produto")),
+      DataColumn(label: Text('Fornecedor')),
+      DataColumn(label: Text('Quantidade')),
+      DataColumn(label: Text('Preco')),
+      DataColumn(label: Text('Frete')),
+      DataColumn(label: Text('Total')),
+    ];
+  }
+
+  List<DataRow> createRows() {
+    return preCompra
+        .mapIndexed((index, book) => DataRow(
+                cells: [
+                  DataCell(Text(book['produto'])),
+                  DataCell(Text(book['fornecedor'])),
+                  DataCell(TextFormField(
+                    initialValue: "${book['quantidade']}",
+                    keyboardType: TextInputType.number,
+                    onChanged: (text) {
+                      setState(() {
+                        book['quantidade'] = int.parse(text);
+                      });
+                    },
+                  )),
+                  DataCell(Text("${book['preco']}")),
+                  DataCell(Text("${book['frete']}")),
+                  DataCell(Text(
+                      "${(book['quantidade'] * book['preco']) + book['frete']}"))
+                ],
+                selected: selecionado[index],
+                onSelectChanged: (bool? selected) {
+                  setState(() {
+                    selecionado[index] = selected!;
+                    print(preCompra);
+                  });
+                }))
+        .toList();
   }
 }

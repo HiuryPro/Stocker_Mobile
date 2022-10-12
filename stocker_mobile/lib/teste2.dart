@@ -47,9 +47,14 @@ class _MyAppState extends State<MyApp> {
             SizedBox(height: 15),
             ElevatedButton(
                 onPressed: () {
-                  List<Map<dynamic, dynamic>?> lista = preCompra
-                      .map((value) => value['selecionado'] ? value : null)
-                      .toList();
+                  List<Map<dynamic, dynamic>?> lista = [];
+                  for (var value in preCompra) {
+                    if (value['selecionado']) {
+                      print(value);
+                      value.removeWhere((key, value) => key == 'selecionado');
+                      lista.add(value);
+                    }
+                  }
                   lista.removeWhere((element) => element == null);
                   print(lista);
                 },

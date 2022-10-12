@@ -4,5 +4,5 @@ import 'package:stocker_mobile/teste2.dart';
 import 'app_widget.dart';
 
 main() {
-  runApp(MyApp());
+  runApp(AppWidget());
 }
