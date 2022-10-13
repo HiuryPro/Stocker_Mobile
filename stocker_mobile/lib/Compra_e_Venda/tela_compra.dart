@@ -236,20 +236,41 @@ class _CompraState extends State<Compra> {
                   onPressed: () {
                     print(preCompra);
                     print(selecionado);
-                    List<Map<dynamic, dynamic>?> lista = [];
-                    for (int i = 0; i < preCompra.length; i++) {
-                      if (selecionado[i] == true) {
-                        lista.add(preCompra[i]);
-                      }
-                    }
-                    lista.removeWhere((element) => element == null);
-                    print(lista);
+                    print(vaiComprar());
                   },
                   child: Text("Imprimi")),
               const SizedBox(
                 height: 30,
               ),
-              ElevatedButton(onPressed: () {}, child: Text("Comprar"))
+              ElevatedButton(
+                  onPressed: () async {
+                    List<Map<dynamic, dynamic>?> dados = vaiComprar();
+                    var insertCompra =
+                        await crud.insert(tabela: 'Compra', map: {
+                      'DataCompra':
+                          DateFormat.yMMMd().add_Hm().format(DateTime.now()),
+                      'HoraCompra': DateFormat.Hms().format(DateTime.now())
+                    });
+                    for (int i = 0; i < dados.length; i++) {
+                      var id = await crud.select(
+                          tabela: 'FornecedorProduto',
+                          select: 'IdFornecedorProduto',
+                          where: {
+                            'IdFornecedor': int.parse(
+                                dados[i]!['fornecedor'].substring(0, 1)),
+                            'IdProduto':
+                                int.parse(dados[i]!['produto'].substring(0, 1))
+                          });
+                      await crud.insert(tabela: 'ItemCompra', map: {
+                        'IdCompra': insertCompra[0]['IdCompra'],
+                        'IdFornecedorProduto': id[0]['IdFornecedorProduto'],
+                        'Quantidade': dados[i]!['quantidade'],
+                        'PrecoCompra': dados[i]!['preco'],
+                        'FreteCompra': dados[i]!['frete']
+                      });
+                    }
+                  },
+                  child: Text("Comprar"))
             ]))));
   }
 
@@ -264,6 +285,17 @@ class _CompraState extends State<Compra> {
       });
       selecionado.add(true);
     });
+  }
+
+  List<Map<dynamic, dynamic>?> vaiComprar() {
+    List<Map<dynamic, dynamic>?> lista = [];
+    for (int i = 0; i < preCompra.length; i++) {
+      if (selecionado[i] == true) {
+        lista.add(preCompra[i]);
+      }
+    }
+    lista.removeWhere((element) => element == null);
+    return lista;
   }
 
   DropdownMenuItem<String> buildMenuItem(String item) => DropdownMenuItem(
