@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../DadosDB/crud.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../services/supabase.databaseService.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 class Compra extends StatefulWidget {
@@ -76,7 +76,7 @@ class _CompraState extends State<Compra> {
                       isExpanded: true,
                       items: produtos.map(buildMenuItem).toList(),
                       onChanged: (value) async {
-                        var lista;
+                        var lista = [];
                         setState(() {
                           produto = value;
                           fieldControllerPreco.text = "";
@@ -228,17 +228,17 @@ class _CompraState extends State<Compra> {
                       fieldControllerQtd.text = "";
                     });
                   },
-                  child: Text("Adiciona Linha")),
+                  child: const Text("Adiciona Linha")),
               DataTable(columns: _createColumns(), rows: createRows()),
               const SizedBox(height: 15),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               ElevatedButton(
                   onPressed: () {
                     print(preCompra);
                     print(selecionado);
                     print(vaiComprar());
                   },
-                  child: Text("Imprimi")),
+                  child: const Text("Imprimi")),
               const SizedBox(
                 height: 30,
               ),
@@ -269,8 +269,11 @@ class _CompraState extends State<Compra> {
                         'FreteCompra': dados[i]!['frete']
                       });
                     }
+                    setState(() {
+                      preCompra.clear();
+                    });
                   },
-                  child: Text("Comprar"))
+                  child: const Text("Comprar"))
             ]))));
   }
 
@@ -343,7 +346,7 @@ class _CompraState extends State<Compra> {
   }
 
   List<DataColumn> _createColumns() {
-    return [
+    return const [
       DataColumn(label: Text("Produto")),
       DataColumn(label: Text('Fornecedor')),
       DataColumn(label: Text('Quantidade')),

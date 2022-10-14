@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page%20copy.dart';
-import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 
 import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';

@@ -11,8 +11,10 @@ class AuthenticationService {
     GotrueSessionResponse response =
         await SupaBaseCredentials.supaBaseClient.auth.signUp(email, senha);
     if (response.error == null) {
+      // ignore: use_build_context_synchronously
       mensagem(context, response);
     } else {
+      // ignore: use_build_context_synchronously
       mensagem(context, response);
     }
   }

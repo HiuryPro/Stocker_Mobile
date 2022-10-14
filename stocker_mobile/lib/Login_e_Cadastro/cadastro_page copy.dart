@@ -1,21 +1,18 @@
-import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:supabase/supabase.dart';
-import 'package:provider/provider.dart' as provider;
 
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/inscricaoestadual.dart';
 import '../Validacao_e_Gambiarra/maskara.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
-import '../app/providers/app.dbnotifier.dart';
 import 'insereCadastro.dart';
 
 class CadPage2 extends StatefulWidget {
-  CadPage2({Key? key, this.response}) : super(key: key);
+  const CadPage2({Key? key, this.response}) : super(key: key);
 
   final GotrueSessionResponse? response;
 
@@ -115,9 +112,6 @@ class _CadPage2State extends State<CadPage2> {
   bool enabled = false;
 
   Widget _body() {
-    final DataBaseNotifier authDBNotifier =
-        provider.Provider.of<DataBaseNotifier>(context, listen: false);
-
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -219,7 +213,7 @@ class _CadPage2State extends State<CadPage2> {
 
   Widget administrador() {
     return Padding(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: Center(
           child: ListView(shrinkWrap: true, children: [
         TextField(

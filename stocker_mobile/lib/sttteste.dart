@@ -9,16 +9,18 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-void main() => runApp(SpeechSampleApp());
+void main() => runApp(const SpeechSampleApp());
 
 class SpeechSampleApp extends StatefulWidget {
+  const SpeechSampleApp({super.key});
+
   @override
-  _SpeechSampleAppState createState() => _SpeechSampleAppState();
+  SpeechSampleAppState createState() => SpeechSampleAppState();
 }
 
 enum TtsState { playing, stopped, paused, continued }
 
-class _SpeechSampleAppState extends State<SpeechSampleApp> {
+class SpeechSampleAppState extends State<SpeechSampleApp> {
   late FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
 
@@ -34,13 +36,11 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
   bool get isWeb => kIsWeb;
 
   bool _hasSpeech = false;
-  bool _logEvents = false;
 
   String lastWords = '';
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
-  List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
 
   @override
@@ -120,8 +120,6 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
         debugLogging: true,
       );
       if (hasSpeech) {
-        _localeNames = await speech.locales();
-
         var systemLocale = await speech.systemLocale();
         _currentLocaleId = systemLocale?.localeId ?? '';
       }
@@ -143,13 +141,11 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
     return MaterialApp(
       home: Scaffold(
         body: Column(children: [
-          Container(
-            child: Column(
-              children: <Widget>[
-                SpeechControlWidget(
-                    _hasSpeech, speech.isListening, startListening),
-              ],
-            ),
+          Column(
+            children: <Widget>[
+              SpeechControlWidget(
+                  _hasSpeech, speech.isListening, startListening),
+            ],
           ),
         ]),
       ),
@@ -192,7 +188,7 @@ class _SpeechSampleAppState extends State<SpeechSampleApp> {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
     setState(() {
-      lastStatus = '$status';
+      lastStatus = status;
     });
 
     if (lastStatus == 'notListening') {
@@ -226,7 +222,7 @@ class SpeechControlWidget extends StatelessWidget {
       children: <Widget>[
         TextButton(
           onPressed: !hasSpeech || isListening ? null : startListening,
-          child: Text('Start'),
+          child: const Text('Start'),
         )
       ],
     );

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart' as provider;
-import 'package:stocker_mobile/Login_e_Cadastro/insereCadastro.dart';
 import 'package:supabase/supabase.dart';
 
 import '../DadosDB/crud.dart';
@@ -11,7 +10,7 @@ import '../Validacao_e_Gambiarra/validacao.dart';
 import '../app/providers/app.dbnotifier.dart';
 
 class CadPage extends StatefulWidget {
-  CadPage({Key? key, this.response}) : super(key: key);
+  const CadPage({Key? key, this.response}) : super(key: key);
 
   final GotrueSessionResponse? response;
 
@@ -114,7 +113,7 @@ class _CadPageState extends State<CadPage> {
                         await authDBNotifier.insert(
                             tabela: "Usuario", map: map);
                       },
-                      child: Text("Cadastra dados do usuario"))
+                      child: const Text("Cadastra dados do usuario"))
                 ],
               ),
             ),

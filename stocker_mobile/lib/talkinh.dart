@@ -5,7 +5,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:printing/printing.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -46,7 +45,6 @@ class _TalkinHState extends State<TalkinH> {
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
-  List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
 
   @override
@@ -155,8 +153,6 @@ class _TalkinHState extends State<TalkinH> {
         debugLogging: true,
       );
       if (hasSpeech) {
-        _localeNames = await speech.locales();
-
         var systemLocale = await speech.systemLocale();
         _currentLocaleId = systemLocale?.localeId ?? '';
       }
@@ -179,8 +175,8 @@ class _TalkinHState extends State<TalkinH> {
 
     speech.listen(
         onResult: resultListener,
-        listenFor: Duration(seconds: 30),
-        pauseFor: Duration(seconds: 3),
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,
@@ -194,7 +190,7 @@ class _TalkinHState extends State<TalkinH> {
     }
     if (isImitando) {
       await _imita();
-      await Future.delayed(Duration(milliseconds: 250));
+      await Future.delayed(const Duration(milliseconds: 250));
       som('saiu.mp3');
       isEscutando = false;
     }
@@ -213,7 +209,7 @@ class _TalkinHState extends State<TalkinH> {
         som("saiu.mp3");
       } else {
         await speech.cancel();
-        Future.delayed(Duration(milliseconds: 500));
+        Future.delayed(const Duration(milliseconds: 500));
         startListening();
       }
     }
@@ -239,7 +235,7 @@ class _TalkinHState extends State<TalkinH> {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
     setState(() {
-      lastStatus = '$status';
+      lastStatus = status;
     });
 
     if (lastStatus == 'notListening') {
@@ -275,7 +271,7 @@ class _TalkinHState extends State<TalkinH> {
         height: MediaQuery.of(context).size.height,
         child: ListView(shrinkWrap: true, children: [
           Container(
-              decoration: BoxDecoration(color: Color(0xFF6caa46)),
+              decoration: const BoxDecoration(color: Color(0xFF6caa46)),
               width: MediaQuery.of(context).size.width,
               height: 90,
               child: Center(
@@ -289,7 +285,7 @@ class _TalkinHState extends State<TalkinH> {
                 imagem = "assets/hiury/fechado.png";
               });
 
-              await Future.delayed(Duration(milliseconds: 300));
+              await Future.delayed(const Duration(milliseconds: 300));
 
               setState(() {
                 imagem = "assets/hiury/calado.png";
@@ -322,7 +318,7 @@ class _TalkinHState extends State<TalkinH> {
                     }
                   },
                   child: Row(
-                    children: [Icon(Icons.call), Text("Conversar")],
+                    children: const [Icon(Icons.call), Text("Conversar")],
                   ),
                 ),
                 TextButton(
@@ -345,7 +341,7 @@ class _TalkinHState extends State<TalkinH> {
                     }
                   },
                   child: Row(
-                    children: [Icon(Icons.mic), Text("Imitar")],
+                    children: const [Icon(Icons.mic), Text("Imitar")],
                   ),
                 ),
                 TextButton(
@@ -368,7 +364,7 @@ class _TalkinHState extends State<TalkinH> {
                     }
                   },
                   child: Row(
-                    children: [Icon(Icons.mic), Text("Comandos")],
+                    children: const [Icon(Icons.mic), Text("Comandos")],
                   ),
                 )
               ],

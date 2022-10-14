@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page%20copy.dart';
-import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 
 import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
-import '../app/providers/app.authentication.dart';
 import '../services/supabase.services.dart';
 
 class LoginPage extends StatefulWidget {
@@ -82,9 +78,10 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () async {
                       var resposta = await sign.signIn(
                           email: fieldText.text, senha: fieldText2.text);
-
+                      print(resposta.data);
                       if (resposta.error == null) {
                         print(resposta.user!.id);
+                        // ignore: use_build_context_synchronously
                         navegar.navegarEntreTela('/home', context);
                       } else {
                         print(resposta.error!.message);
@@ -92,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                       clearText();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: AppController.instance.theme2,
+                      backgroundColor: AppController.instance.theme2,
                       textStyle: const TextStyle(fontSize: 24),
                       minimumSize: const Size.fromHeight(72),
                       shape: const StadiumBorder(),

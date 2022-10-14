@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('DataTable Demo'),
+          title: const Text('DataTable Demo'),
         ),
         body: ListView(
           children: [
@@ -43,8 +43,8 @@ class _MyAppState extends State<MyApp> {
                     print(preCompra);
                   });
                 },
-                child: Text("Adiciona Linha")),
-            SizedBox(height: 15),
+                child: const Text("Adiciona Linha")),
+            const SizedBox(height: 15),
             ElevatedButton(
                 onPressed: () {
                   List<Map<dynamic, dynamic>?> lista = [];
@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
                   lista.removeWhere((element) => element == null);
                   print(lista);
                 },
-                child: Text("Imprimi"))
+                child: const Text("Imprimi"))
           ],
         ),
       ),
@@ -67,12 +67,12 @@ class _MyAppState extends State<MyApp> {
 
   List<DataColumn> _createColumns() {
     return [
-      DataColumn(label: Text("Produto")),
-      DataColumn(label: Text('Fornecedor')),
-      DataColumn(label: Text('Quantidade')),
-      DataColumn(label: Text('Preco')),
-      DataColumn(label: Text('Frete')),
-      DataColumn(label: Text('Total')),
+      const DataColumn(label: Text("Produto")),
+      const DataColumn(label: Text('Fornecedor')),
+      const DataColumn(label: Text('Quantidade')),
+      const DataColumn(label: Text('Preco')),
+      const DataColumn(label: Text('Frete')),
+      const DataColumn(label: Text('Total')),
     ];
   }
 

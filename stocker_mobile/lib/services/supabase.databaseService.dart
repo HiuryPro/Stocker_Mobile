@@ -1,5 +1,4 @@
 import 'package:stocker_mobile/credentials/supabase.credentials.dart';
-import 'package:supabase/supabase.dart';
 
 class DataBaseService {
   Future<dynamic> insert({
@@ -107,6 +106,18 @@ class DataBaseService {
           .delete()
           .match(where)
           .execute();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  dynamic selectNovo({required String function}) async {
+    try {
+      var response = await SupaBaseCredentials.supaBaseClient
+          .rpc('teste', params: {"idt": 1}).execute();
+      print(response.data);
+
+      return response.data;
     } catch (e) {
       print(e.toString());
     }

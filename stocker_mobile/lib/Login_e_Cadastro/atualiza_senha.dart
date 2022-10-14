@@ -120,7 +120,7 @@ class _AtualizaSenhaState extends State<AtualizaSenha> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: AppController.instance.theme2,
+                      backgroundColor: AppController.instance.theme2,
                       textStyle: const TextStyle(fontSize: 24),
                       minimumSize: const Size.fromHeight(72),
                       shape: const StadiumBorder(),

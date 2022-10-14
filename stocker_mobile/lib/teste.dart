@@ -20,4 +20,6 @@ main() async {
   });
   print(teste);
   print(teste[0]['IdTeste']);
+
+  await crud.selectNovo(function: 'teste');
 }

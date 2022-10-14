@@ -1,15 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:typed_data';
-// ignore: avoid_web_libraries_in_flutter
-import 'package:universal_html/html.dart' as html;
 
 import '../Cria_PDF/cria_pdf.dart';
 import '../Cria_PDF/uint.dart';

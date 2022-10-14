@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
+  // ignore: unused_field
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
 
@@ -92,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
     setState(() {
-      lastStatus = '$status';
+      lastStatus = status;
     });
 
     if (lastStatus == 'notListening') {
@@ -124,7 +125,8 @@ class _HomePageState extends State<HomePage> {
 
     if (isComandoExistente) {
       await flutterTts.speak("Tela ${acao!}");
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
+      // ignore: use_build_context_synchronously
       navegar.navegarEntreTela("/$acao", context);
     } else {
       await flutterTts.speak("Esse Comando não existe");
@@ -214,8 +216,8 @@ class _HomePageState extends State<HomePage> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Image.asset(AppController.instance.logo),
-          Text('Bem Vindo ao Stocker'),
-          Text('Começe cadastrando os dados de sua empresa'),
+          const Text('Bem Vindo ao Stocker'),
+          const Text('Começe cadastrando os dados de sua empresa'),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -243,8 +245,8 @@ class _HomePageState extends State<HomePage> {
 
     speech.listen(
         onResult: resultListener,
-        listenFor: Duration(seconds: 30),
-        pauseFor: Duration(seconds: 3),
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,
@@ -267,7 +269,7 @@ class _HomePageState extends State<HomePage> {
             isEscutando = true;
           }
         },
-        child: Icon(Icons.campaign),
+        child: const Icon(Icons.campaign),
       ),
       appBar: AppBar(
         foregroundColor: AppController.instance.theme1,

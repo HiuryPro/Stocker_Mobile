@@ -76,7 +76,7 @@ class InscE {
                                                     if (inscricaoEstadual
                                                             .codeUnitAt(0) ==
                                                         'P'.codeUnitAt(0)) {
-                                                      strIE = ("P" + strIE);
+                                                      strIE = ("P$strIE");
                                                     }
                                                     return validaIESaoPaulo(
                                                         strIE);

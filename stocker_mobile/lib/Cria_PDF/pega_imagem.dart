@@ -1,11 +1,7 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:universal_html/html.dart';
 
 class TesteImagem extends StatefulWidget {
   const TesteImagem({Key? key}) : super(key: key);
@@ -20,8 +16,6 @@ class _TesteImagemState extends State<TesteImagem> {
   Uint8List? logoBase64;
 
   chooseImage() async {
-    Blob teste;
-
     pickedFile = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ["jpg", "png", "jpeg"],
@@ -30,8 +24,6 @@ class _TesteImagemState extends State<TesteImagem> {
       try {
         setState(() {
           logoBase64 = pickedFile!.files.first.bytes!;
-          teste = Blob(logoBase64!.toList());
-        //  logoBase64 = base64.decode(teste.toBytes());
 
           isImageGetted = true;
         });
