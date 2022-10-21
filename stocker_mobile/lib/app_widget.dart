@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
+import 'package:stocker_mobile/Compra_e_Venda/tela_venda.dart';
 import 'package:stocker_mobile/Produto_Estoque/cadastroproduto.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
@@ -48,7 +49,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/',
+              initialRoute: '/Venda',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/home': (context) => const HomePage(),
@@ -60,7 +61,8 @@ class AppWidget extends StatelessWidget {
                 '/Compra': (context) => const Compra(),
                 '/Voice': (context) => const TTSTeste(),
                 '/talkin': (context) => const TalkinH(),
-                '/Produto': (context) => const CadProduto()
+                '/Produto': (context) => const CadProduto(),
+                '/Venda': (context) => const Venda(),
               });
         });
   }

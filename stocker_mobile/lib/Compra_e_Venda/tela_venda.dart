@@ -7,50 +7,64 @@ import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
-class Compra extends StatefulWidget {
-  const Compra({Key? key}) : super(key: key);
+class Venda extends StatefulWidget {
+  const Venda({Key? key}) : super(key: key);
 
   @override
-  State<Compra> createState() => _CompraState();
+  State<Venda> createState() => _VendaState();
 }
 
-class _CompraState extends State<Compra> {
+class _VendaState extends State<Venda> {
   var fieldControllerPreco = TextEditingController();
-  var fieldControllerFrete = TextEditingController();
+  var fieldControllerAdicional = TextEditingController();
   var fieldControllerTotal = TextEditingController();
   var fieldControllerQtd = TextEditingController();
+  var fieldControllerDesconto = TextEditingController();
   var crud = DataBaseService();
   final produtos = [""];
-  final fornecedores = [""];
+  final clientes = [""];
   String? produto;
-  String? fornecedor;
+  String? cliente;
   int? quantidade;
   double? preco;
-  double? frete;
+  double adicional = 0;
   double? total;
+  double desconto = 0;
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
-  List<Map> preCompra = [];
+  List<Map> preVenda = [];
 
   @override
   void initState() {
     super.initState();
     produtos.clear();
+    clientes.clear();
     Future.delayed(Duration.zero, () async {
-      var lista = await crud.selectInner(
-          tabela: "FornecedorProduto",
-          select:
-              'Preco, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor, NomeFornecedor)',
+      var lista1 = await crud.selectInner(
+          tabela: "Estoque",
+          select: 'Produto!inner(IdProduto,NomeProduto)PrecoMPM',
           where: {});
-      if (lista != null) {
-        setState(() {
-          for (var row in lista) {
-            produtos.add(
-                "${row["Produto"]["IdProduto"]}  ${row["Produto"]["NomeProduto"]}");
-          }
-        });
-      }
+      var lista2 = await crud.selectInner(
+          tabela: "Cliente", select: 'Pessoa!inner(IdPessoa, Nome)', where: {});
+
+      print(lista1);
+      print(lista2);
+
+      setState(() {
+        for (var row in lista1) {
+          produtos.add(
+              "${row['Produto']["IdProduto"]}  ${row["Produto"]["NomeProduto"]}");
+        }
+        for (var row in lista2) {
+          clientes.add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
+        }
+      });
     });
+  }
+
+  int apenasNumeros(String idNoText) {
+    String soId = idNoText.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.parse(soId);
   }
 
   Widget body() {
@@ -78,27 +92,26 @@ class _CompraState extends State<Compra> {
                       isExpanded: true,
                       items: produtos.map(buildMenuItem).toList(),
                       onChanged: (value) async {
-                        var lista = [];
                         setState(() {
                           produto = value;
                           fieldControllerPreco.text = "";
-                          fornecedor = null;
+                          cliente = null;
                         });
 
-                        lista = await crud.selectInner(
-                            tabela: "FornecedorProduto",
-                            select:
-                                'Fornecedor!inner(IdFornecedor, NomeFornecedor), Produto!inner(IdProduto, NomeProduto)',
+                        var lista = await crud.selectInner(
+                            tabela: "Estoque",
+                            select: 'PrecoMPM',
                             where: {
-                              "Produto.IdProduto": int.parse(produto![0])
+                              "IdProduto": apenasNumeros(produto!),
                             });
-                        setState(() {
-                          fornecedores.clear();
-                          for (var row in lista) {
-                            fornecedores.add(
-                                "${row["Fornecedor"]["IdFornecedor"]} ${row['Fornecedor']['NomeFornecedor']}");
-                          }
-                        });
+                        print(lista);
+                        for (var row in lista) {
+                          setState(() {
+                            fieldControllerPreco.text =
+                                row['PrecoMPM'].toString();
+                            preco = double.parse(fieldControllerPreco.text);
+                          });
+                        }
                       }),
                 ),
               ),
@@ -112,36 +125,32 @@ class _CompraState extends State<Compra> {
                     borderRadius: BorderRadius.circular(12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                      value: fornecedor,
+                      value: cliente,
                       menuMaxHeight: 200,
                       hint: const Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text("Fornecedores"),
+                        child: Text("Cliente"),
                       ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
-                      items: fornecedores.map(buildMenuItem).toList(),
+                      items: clientes.map(buildMenuItem).toList(),
                       onChanged: (value) async {
                         setState(() {
-                          fornecedor = value;
+                          cliente = value;
                         });
-
                         var lista = await crud.selectInner(
-                            tabela: "FornecedorProduto",
-                            select:
-                                '*, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
+                            tabela: "Cliente",
+                            select: 'Desconto',
                             where: {
-                              "Produto.IdProduto": int.parse(produto![0]),
-                              "Fornecedor.IdFornecedor":
-                                  int.parse(fornecedor![0])
+                              "IdCliente": apenasNumeros(cliente!),
                             });
                         print(lista);
                         for (var row in lista) {
                           setState(() {
-                            fieldControllerPreco.text = row['Preco'].toString();
-                            fieldControllerFrete.text = row['Frete'].toString();
-                            preco = double.parse(fieldControllerPreco.text);
-                            frete = double.parse(fieldControllerFrete.text);
+                            fieldControllerDesconto.text =
+                                row['Desconto'].toString();
+                            desconto =
+                                double.parse(fieldControllerDesconto.text);
                           });
                         }
                       }),
@@ -156,9 +165,6 @@ class _CompraState extends State<Compra> {
                   setState(() {
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
-                      fieldControllerTotal.text =
-                          ((quantidade! * preco!) + frete!).toString();
-                      total = double.parse(fieldControllerTotal.text);
                     } else {
                       fieldControllerTotal.text = "";
                     }
@@ -192,13 +198,44 @@ class _CompraState extends State<Compra> {
                 height: 15,
               ),
               TextField(
+                controller: fieldControllerAdicional,
+                onChanged: (adicional) {
+                  setState(() {
+                    if (adicional != "") {
+                      this.adicional = double.parse(adicional);
+                      double preTotal = (quantidade! * preco!);
+                      double preTotalComAdicional =
+                          preTotal + (preTotal * (this.adicional / 100));
+                      double total = preTotalComAdicional -
+                          (preTotalComAdicional * (desconto / 100));
+                      fieldControllerTotal.text = total.toStringAsFixed(2);
+                      total = double.parse(fieldControllerTotal.text);
+                    } else {
+                      fieldControllerTotal.text = "";
+                    }
+                  });
+                },
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
+                ],
+                decoration: InputDecoration(
+                    labelText: "Adicional (porcentagem)",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF0080d9), width: 2))),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              TextField(
                 enabled: false,
-                controller: fieldControllerFrete,
+                controller: fieldControllerDesconto,
                 onChanged: (text) {
                   setState(() {});
                 },
                 decoration: InputDecoration(
-                    labelText: "Frete",
+                    labelText: "Desconto (porcentagem)",
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
@@ -225,8 +262,8 @@ class _CompraState extends State<Compra> {
               ),
               ElevatedButton(
                   onPressed: () {
-                    print(preCompra);
-                    adicionaPreCompra();
+                    print(preVenda);
+                    adicionaPreVenda();
                     setState(() {
                       fieldControllerQtd.text = "";
                     });
@@ -237,9 +274,9 @@ class _CompraState extends State<Compra> {
               const SizedBox(height: 15),
               ElevatedButton(
                   onPressed: () {
-                    print(preCompra);
+                    print(preVenda);
                     print(selecionado);
-                    print(vaiComprar());
+                    print(vaiVendar());
                   },
                   child: const Text("Imprimi")),
               const SizedBox(
@@ -247,57 +284,57 @@ class _CompraState extends State<Compra> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    List<Map<dynamic, dynamic>?> dados = vaiComprar();
-                    var insertCompra =
-                        await crud.insert(tabela: 'Compra', map: {
-                      'DataCompra':
+                    List<Map<dynamic, dynamic>?> dados = vaiVendar();
+                    var insertVenda = await crud.insert(tabela: 'Venda', map: {
+                      'DataVenda':
                           DateFormat.yMMMd().add_Hm().format(DateTime.now()),
-                      'HoraCompra': DateFormat.Hms().format(DateTime.now())
+                      'HoraVenda': DateFormat.Hms().format(DateTime.now())
                     });
                     for (int i = 0; i < dados.length; i++) {
                       var id = await crud.select(
-                          tabela: 'FornecedorProduto',
-                          select: 'IdFornecedorProduto',
+                          tabela: 'clienteProduto',
+                          select: 'IdclienteProduto',
                           where: {
-                            'IdFornecedor': int.parse(
-                                dados[i]!['fornecedor'].substring(0, 1)),
+                            'Idcliente':
+                                int.parse(dados[i]!['cliente'].substring(0, 1)),
                             'IdProduto':
                                 int.parse(dados[i]!['produto'].substring(0, 1))
                           });
-                      await crud.insert(tabela: 'ItemCompra', map: {
-                        'IdCompra': insertCompra[0]['IdCompra'],
-                        'IdFornecedorProduto': id[0]['IdFornecedorProduto'],
+                      await crud.insert(tabela: 'ItemVenda', map: {
+                        'IdVenda': insertVenda[0]['IdVenda'],
+                        'IdclienteProduto': id[0]['IdclienteProduto'],
                         'Quantidade': dados[i]!['quantidade'],
-                        'PrecoCompra': dados[i]!['preco'],
-                        'FreteCompra': dados[i]!['frete']
+                        'PrecoVenda': dados[i]!['preco'],
+                        'adicionalVenda': dados[i]!['adicional']
                       });
                     }
                     setState(() {
-                      preCompra.clear();
+                      preVenda.clear();
                     });
                   },
-                  child: const Text("Comprar"))
+                  child: const Text("Vendar"))
             ]))));
   }
 
-  void adicionaPreCompra() {
+  void adicionaPreVenda() {
     setState(() {
-      preCompra.add({
+      preVenda.add({
         'produto': produto,
-        'fornecedor': fornecedor,
+        'cliente': cliente,
         'quantidade': quantidade,
         'preco': preco,
-        'frete': frete
+        'adicional': adicional,
+        'desconto': desconto
       });
       selecionado.add(true);
     });
   }
 
-  List<Map<dynamic, dynamic>?> vaiComprar() {
+  List<Map<dynamic, dynamic>?> vaiVendar() {
     List<Map<dynamic, dynamic>?> lista = [];
-    for (int i = 0; i < preCompra.length; i++) {
+    for (int i = 0; i < preVenda.length; i++) {
       if (selecionado[i] == true) {
-        lista.add(preCompra[i]);
+        lista.add(preVenda[i]);
       }
     }
     lista.removeWhere((element) => element == null);
@@ -351,20 +388,21 @@ class _CompraState extends State<Compra> {
   List<DataColumn> _createColumns() {
     return const [
       DataColumn(label: Text("Produto")),
-      DataColumn(label: Text('Fornecedor')),
+      DataColumn(label: Text('Cliente')),
       DataColumn(label: Text('Quantidade')),
       DataColumn(label: Text('Preco')),
-      DataColumn(label: Text('Frete')),
+      DataColumn(label: Text('Adicional')),
+      DataColumn(label: Text('Desconto')),
       DataColumn(label: Text('Total')),
     ];
   }
 
   List<DataRow> createRows() {
-    return preCompra
+    return preVenda
         .mapIndexed((index, book) => DataRow(
                 cells: [
                   DataCell(Text(book['produto'])),
-                  DataCell(Text(book['fornecedor'])),
+                  DataCell(Text(book['cliente'])),
                   DataCell(TextFormField(
                     initialValue: "${book['quantidade']}",
                     keyboardType: TextInputType.number,
@@ -375,15 +413,16 @@ class _CompraState extends State<Compra> {
                     },
                   )),
                   DataCell(Text("${book['preco']}")),
-                  DataCell(Text("${book['frete']}")),
+                  DataCell(Text("${book['adicional']}")),
+                  DataCell(Text("${book['desconto']}")),
                   DataCell(Text(
-                      "${(book['quantidade'] * book['preco']) + book['frete']}"))
+                      "${(book['quantidade'] * book['preco']) + book['adicional']}"))
                 ],
                 selected: selecionado[index],
                 onSelectChanged: (bool? selected) {
                   setState(() {
                     selecionado[index] = selected!;
-                    print(preCompra);
+                    print(preVenda);
                   });
                 }))
         .toList();

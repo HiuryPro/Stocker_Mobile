@@ -4,6 +4,12 @@ import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
 main() async {
   var crud = DataBaseService();
+
+  int apenasNumeros(String idNoText) {
+    String soId = idNoText.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.parse(soId);
+  }
+
   print(await crud.selectInner(
       tabela: "ItemCompra",
       select:
@@ -22,4 +28,5 @@ main() async {
   print(teste[0]['IdTeste']);
 
   await crud.selectNovo(function: 'teste');
+  print(apenasNumeros("ola meu nome é 35"));
 }
