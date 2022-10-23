@@ -25,7 +25,7 @@ class _VendaState extends State<Venda> {
   final clientes = [""];
   String? produto;
   String? cliente;
-  int? quantidade;
+  int quantidade = 0;
   double? preco;
   double adicional = 0;
   double? total;
@@ -165,6 +165,9 @@ class _VendaState extends State<Venda> {
                   setState(() {
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
+                      fieldControllerTotal.text =
+                          retornaTotal(quantidade, preco!, adicional, desconto)
+                              .toStringAsFixed(2);
                     } else {
                       fieldControllerTotal.text = "";
                     }
@@ -203,15 +206,14 @@ class _VendaState extends State<Venda> {
                   setState(() {
                     if (adicional != "") {
                       this.adicional = double.parse(adicional);
-                      double preTotal = (quantidade! * preco!);
-                      double preTotalComAdicional =
-                          preTotal + (preTotal * (this.adicional / 100));
-                      double total = preTotalComAdicional -
-                          (preTotalComAdicional * (desconto / 100));
-                      fieldControllerTotal.text = total.toStringAsFixed(2);
-                      total = double.parse(fieldControllerTotal.text);
+                      fieldControllerTotal.text = retornaTotal(
+                              quantidade, preco!, this.adicional, desconto)
+                          .toStringAsFixed(2);
                     } else {
-                      fieldControllerTotal.text = "";
+                      this.adicional = 0;
+                      fieldControllerTotal.text = retornaTotal(
+                              quantidade, preco!, this.adicional, desconto)
+                          .toStringAsFixed(2);
                     }
                   });
                 },
@@ -266,10 +268,26 @@ class _VendaState extends State<Venda> {
                     adicionaPreVenda();
                     setState(() {
                       fieldControllerQtd.text = "";
+                      fieldControllerAdicional.text = "";
+                      fieldControllerTotal.text = "";
+                      quantidade = 0;
+                      adicional = 0;
                     });
                   },
                   child: const Text("Adiciona Linha")),
-              DataTable(columns: _createColumns(), rows: createRows()),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 200,
+                  child: ListView(
+                    children: [
+                      Center(
+                        child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                                columns: _createColumns(), rows: createRows())),
+                      )
+                    ],
+                  )),
               const SizedBox(height: 15),
               const SizedBox(height: 15),
               ElevatedButton(
@@ -285,48 +303,80 @@ class _VendaState extends State<Venda> {
               ElevatedButton(
                   onPressed: () async {
                     List<Map<dynamic, dynamic>?> dados = vaiVendar();
-                    var insertVenda = await crud.insert(tabela: 'Venda', map: {
-                      'DataVenda':
-                          DateFormat.yMMMd().add_Hm().format(DateTime.now()),
-                      'HoraVenda': DateFormat.Hms().format(DateTime.now())
-                    });
-                    for (int i = 0; i < dados.length; i++) {
-                      var id = await crud.select(
-                          tabela: 'clienteProduto',
-                          select: 'IdclienteProduto',
-                          where: {
-                            'Idcliente':
-                                int.parse(dados[i]!['cliente'].substring(0, 1)),
-                            'IdProduto':
-                                int.parse(dados[i]!['produto'].substring(0, 1))
+                    Map<int, int> vendaCliente = {};
+
+                    if (dados[0] != null) {
+                      for (int i = 0; i < dados.length; i++) {
+                        if (vendaCliente.isEmpty ||
+                            !vendaCliente.containsKey(
+                                apenasNumeros(dados[i]!['cliente']))) {
+                          var insertVenda =
+                              await crud.insert(tabela: 'Venda', map: {
+                            'DataVenda': DateFormat.yMMMd()
+                                .add_Hm()
+                                .format(DateTime.now()),
+                            'HoraVenda':
+                                DateFormat.Hms().format(DateTime.now()),
+                            'IdCliente': apenasNumeros(dados[i]!['cliente'])
                           });
-                      await crud.insert(tabela: 'ItemVenda', map: {
-                        'IdVenda': insertVenda[0]['IdVenda'],
-                        'IdclienteProduto': id[0]['IdclienteProduto'],
-                        'Quantidade': dados[i]!['quantidade'],
-                        'PrecoVenda': dados[i]!['preco'],
-                        'adicionalVenda': dados[i]!['adicional']
-                      });
+                          print(insertVenda);
+                          vendaCliente.addAll({
+                            insertVenda[0]['IdCliente']: insertVenda[0]
+                                ['IdVenda']
+                          });
+
+                          await crud.insert(tabela: 'ItemVenda', map: {
+                            'IdVenda': vendaCliente[
+                                apenasNumeros(dados[i]!['cliente'])],
+                            'IdProduto': apenasNumeros(dados[i]!['produto']),
+                            'Quantidade': dados[i]!['quantidade'],
+                            'PrecoVenda': dados[i]!['preco'],
+                            'Adicional': dados[i]!['adicional'],
+                            'DescontoVenda': dados[i]!['desconto']
+                          });
+                        } else {
+                          await crud.insert(tabela: 'ItemVenda', map: {
+                            'IdVenda': vendaCliente[
+                                apenasNumeros(dados[i]!['cliente'])],
+                            'IdProduto': apenasNumeros(dados[i]!['produto']),
+                            'Quantidade': dados[i]!['quantidade'],
+                            'PrecoVenda': dados[i]!['preco'],
+                            'Adicional': dados[i]!['adicional'],
+                            'DescontoVenda': dados[i]!['desconto']
+                          });
+                        }
+                        setState(() {
+                          preVenda.clear();
+                        });
+                      }
                     }
-                    setState(() {
-                      preVenda.clear();
-                    });
                   },
-                  child: const Text("Vendar"))
+                  child: const Text("Vender"))
             ]))));
   }
 
   void adicionaPreVenda() {
+    bool podeAdicionar = true;
     setState(() {
-      preVenda.add({
-        'produto': produto,
-        'cliente': cliente,
-        'quantidade': quantidade,
-        'preco': preco,
-        'adicional': adicional,
-        'desconto': desconto
-      });
-      selecionado.add(true);
+      for (int i = 0; i < preVenda.length; i++) {
+        if (preVenda[i].containsValue(cliente) &&
+            preVenda[i].containsValue(produto)) {
+          podeAdicionar = false;
+          break;
+        }
+      }
+
+      if (podeAdicionar) {
+        preVenda.add({
+          'produto': produto,
+          'cliente': cliente,
+          'quantidade': quantidade,
+          'preco': preco,
+          'adicional': adicional,
+          'desconto': desconto
+        });
+        selecionado.add(true);
+      }
     });
   }
 
@@ -397,6 +447,14 @@ class _VendaState extends State<Venda> {
     ];
   }
 
+  double retornaTotal(int qtd, double prec, double adic, double desc) {
+    double preTotal = (qtd * prec);
+    double preTotalComAdicional = preTotal + (preTotal * (adic / 100));
+    double total = preTotalComAdicional - (preTotalComAdicional * (desc / 100));
+
+    return total;
+  }
+
   List<DataRow> createRows() {
     return preVenda
         .mapIndexed((index, book) => DataRow(
@@ -413,10 +471,19 @@ class _VendaState extends State<Venda> {
                     },
                   )),
                   DataCell(Text("${book['preco']}")),
-                  DataCell(Text("${book['adicional']}")),
+                  DataCell(TextFormField(
+                    initialValue: "${book['adicional']}",
+                    keyboardType: TextInputType.number,
+                    onChanged: (text) {
+                      setState(() {
+                        book['adicional'] = int.parse(text);
+                      });
+                    },
+                  )),
                   DataCell(Text("${book['desconto']}")),
-                  DataCell(Text(
-                      "${(book['quantidade'] * book['preco']) + book['adicional']}"))
+                  DataCell(Text(retornaTotal(book['quantidade'], book['preco'],
+                          book['adicional'], book['desconto'])
+                      .toStringAsFixed(2)))
                 ],
                 selected: selecionado[index],
                 onSelectChanged: (bool? selected) {

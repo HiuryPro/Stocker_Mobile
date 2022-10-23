@@ -232,7 +232,14 @@ class _CompraState extends State<Compra> {
                     });
                   },
                   child: const Text("Adiciona Linha")),
-              DataTable(columns: _createColumns(), rows: createRows()),
+              ListView(
+                children: [
+                  SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                          columns: _createColumns(), rows: createRows()))
+                ],
+              ),
               const SizedBox(height: 15),
               const SizedBox(height: 15),
               ElevatedButton(

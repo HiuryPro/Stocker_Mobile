@@ -3,6 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
 main() async {
+  Map<int, int> vendaCliente = {};
+  for (int i = 0; i < 10; i++) {
+    vendaCliente.addAll({i: i + 1});
+  }
+
+  print(vendaCliente);
+  /*
   var crud = DataBaseService();
 
   int apenasNumeros(String idNoText) {
@@ -29,4 +36,5 @@ main() async {
 
   await crud.selectNovo(function: 'teste');
   print(apenasNumeros("ola meu nome é 35"));
+  */
 }

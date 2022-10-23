@@ -10,7 +10,9 @@ class DataBaseService {
           .from(tabela)
           .insert(map)
           .execute();
-      print(response.error);
+      if (response.error != null) {
+        print(response.error);
+      }
       return response.data;
     } catch (e) {
       print(e);
