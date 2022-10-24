@@ -5,7 +5,6 @@ import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
-import '../app/providers/app.authentication.dart';
 import '../services/supabase.services.dart';
 
 class CadUsuario extends StatefulWidget {

@@ -7,6 +7,7 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
 
 import '../Metodos_das_Telas/navegar.dart';
 import '../services/supabase.databaseService.dart';
@@ -22,6 +23,8 @@ enum TtsState { playing, stopped, paused, continued }
 
 class _HomePageState extends State<HomePage> {
   var crud = DataBaseService();
+  var teste = const HomePage();
+  var drawerTela = DrawerTela();
 
   Map<String, String> comandos = {};
   var navegar = Navegar();
@@ -239,7 +242,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           )
         ],
@@ -259,56 +262,6 @@ class _HomePageState extends State<HomePage> {
         cancelOnError: true,
         listenMode: ListenMode.confirmation);
     setState(() {});
-  }
-
-  Drawer criaDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Text('Drawer Header'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            subtitle: const Text('Tela de Inicio'),
-            onTap: () {
-              navegar.navegarEntreTela('/home', context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.shopping_cart),
-            title: const Text('Venda'),
-            subtitle: const Text('Tela de Venda'),
-            onTap: () {
-              navegar.navegarEntreTela('/Venda', context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('Compra'),
-            subtitle: const Text('Tela de Compra'),
-            onTap: () {
-              navegar.navegarEntreTela('/Compra', context);
-            },
-          ),
-          ListTile(
-            title: Switch(
-              value: AppController.instance.isDarkTheme,
-              onChanged: (value) {
-                setState(() {
-                  AppController.instance.changeTheme();
-                });
-              },
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   @override
@@ -333,7 +286,7 @@ class _HomePageState extends State<HomePage> {
         shadowColor: Colors.transparent,
         backgroundColor: Colors.transparent,
       ),
-      drawer: criaDrawer(),
+      drawer: drawerTela.drawerTela(context),
       body: Stack(
         children: [
           SizedBox(

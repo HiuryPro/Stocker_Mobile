@@ -3,10 +3,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_venda.dart';
+import 'package:stocker_mobile/Configuru%C3%A7%C3%B5es/configuracaotelas.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/Produto_Estoque/cadastroproduto.dart';
-import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
 import 'package:stocker_mobile/sttteste.dart';
 import 'package:stocker_mobile/talkinh.dart';
@@ -25,8 +25,7 @@ class Core extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: AppProvider.providers, child: const AppWidget());
+    return const AppWidget();
   }
 }
 
@@ -50,7 +49,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/',
+              initialRoute: '/home',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/Cadastro': (context) => const CadPage(),
@@ -64,7 +63,8 @@ class AppWidget extends StatelessWidget {
                 '/talkin': (context) => const TalkinH(),
                 '/Produto': (context) => const CadProduto(),
                 '/Venda': (context) => const Venda(),
-                '/CadastroUsuario': (context) => const CadUsuario()
+                '/CadastroUsuario': (context) => const CadUsuario(),
+                '/Configuracoes': (context) => const Configuracoes()
               });
         });
   }
