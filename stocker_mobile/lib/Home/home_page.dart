@@ -199,13 +199,11 @@ class _HomePageState extends State<HomePage> {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
-      child: Center(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            card(),
-          ],
-        ),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          card(),
+        ],
       ),
     );
   }
@@ -215,26 +213,35 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Image.asset(AppController.instance.logo),
-          const Text('Bem Vindo ao Stocker'),
-          const Text('Começe cadastrando os dados de sua empresa'),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Center(
-                child: ElevatedButton(
-                  child: const Text('BUY TICKETS'),
-                  onPressed: () {/* ... */},
-                ),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                child: const Text('LISTEN'),
-                onPressed: () {/* ... */},
-              ),
-              const SizedBox(width: 8),
-            ],
+          SizedBox(
+              height: 70,
+              width: 200,
+              child: Image.asset(AppController.instance.logo)),
+          const Text(
+            'Bem Vindo ao Stocker',
+            style: TextStyle(fontSize: 20),
           ),
+          const Text(
+            'Começe cadastrando os dados de sua empresa',
+            style: TextStyle(fontSize: 20),
+          ),
+          Center(
+            child: SizedBox(
+              height: 40,
+              child: ElevatedButton(
+                child: const Text(
+                  "Cadastrar",
+                  style: TextStyle(fontSize: 20),
+                ),
+                onPressed: () {
+                  navegar.navegarEntreTela('/Cadastro', context);
+                },
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 5,
+          )
         ],
       ),
     );
@@ -252,6 +259,56 @@ class _HomePageState extends State<HomePage> {
         cancelOnError: true,
         listenMode: ListenMode.confirmation);
     setState(() {});
+  }
+
+  Drawer criaDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text('Drawer Header'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
+            subtitle: const Text('Tela de Inicio'),
+            onTap: () {
+              navegar.navegarEntreTela('/home', context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart),
+            title: const Text('Venda'),
+            subtitle: const Text('Tela de Venda'),
+            onTap: () {
+              navegar.navegarEntreTela('/Venda', context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('Compra'),
+            subtitle: const Text('Tela de Compra'),
+            onTap: () {
+              navegar.navegarEntreTela('/Compra', context);
+            },
+          ),
+          ListTile(
+            title: Switch(
+              value: AppController.instance.isDarkTheme,
+              onChanged: (value) {
+                setState(() {
+                  AppController.instance.changeTheme();
+                });
+              },
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -276,39 +333,7 @@ class _HomePageState extends State<HomePage> {
         shadowColor: Colors.transparent,
         backgroundColor: Colors.transparent,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Drawer Header'),
-            ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: Switch(
-                value: AppController.instance.isDarkTheme,
-                onChanged: (value) {
-                  setState(() {
-                    AppController.instance.changeTheme();
-                  });
-                },
-              ),
-            )
-          ],
-        ),
-      ),
+      drawer: criaDrawer(),
       body: Stack(
         children: [
           SizedBox(

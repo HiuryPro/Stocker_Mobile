@@ -81,6 +81,10 @@ class _LoginPageState extends State<LoginPage> {
                       print(resposta.data);
                       if (resposta.error == null) {
                         print(resposta.user!.id);
+                        setState(() {
+                          AppController.instance.response = resposta;
+                        });
+
                         // ignore: use_build_context_synchronously
                         navegar.navegarEntreTela('/home', context);
                       } else {

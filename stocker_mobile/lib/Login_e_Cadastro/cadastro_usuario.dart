@@ -6,21 +6,23 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
 import '../app/providers/app.authentication.dart';
+import '../services/supabase.services.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class CadUsuario extends StatefulWidget {
+  const CadUsuario({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<CadUsuario> createState() => _CadUsuarioState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _CadUsuarioState extends State<CadUsuario> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
 
   var theme = AppController();
   var login = Login();
   var navegar = Navegar();
+  var cadastrar = AuthenticationService();
 
   String usuario = '';
   String senha = '';
@@ -31,8 +33,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _body() {
-    final AuthenticationNotifier authNotifier =
-        Provider.of<AuthenticationNotifier>(context, listen: false);
     return SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   controller: fieldText,
                   decoration: const InputDecoration(
-                    labelText: 'Usuário',
+                    labelText: 'Email Usuário',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -78,11 +78,18 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      await authNotifier.signUp(
+                      var response = await cadastrar.signUp(
                           context: context,
                           email: fieldText.text,
                           senha: fieldText2.text);
 
+                      if (response.error == null) {
+                        mostraAlerta(
+                            'Sucesso', 'Cadastro feito com sucesso!!', true);
+                      } else {
+                        mostraAlerta(
+                            'Erro', 'Erro ao Cadastrar Usuário', false);
+                      }
                       clearText();
                     },
                     style: ElevatedButton.styleFrom(
@@ -91,42 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                       minimumSize: const Size.fromHeight(72),
                       shape: const StadiumBorder(),
                     ),
-                    child: const Text('Entrar')),
-                const SizedBox(
-                  height: 20,
-                ),
-                OnHover(builder: (isHovered) {
-                  final color = isHovered
-                      ? AppController.instance.theme2
-                      : AppController.instance.theme1;
-                  Colors.black;
-                  return GestureDetector(
-                    onTap: () {
-                      navegar.navegarEntreTela('/novasenhapage', context);
-                    },
-                    child: Center(
-                      child: Text("Esqueci minha Senha ?",
-                          style: TextStyle(color: color, fontSize: 16)),
-                    ),
-                  );
-                }),
-                const SizedBox(
-                  height: 20,
-                ),
-                OnHover(builder: (isHovered) {
-                  final color = isHovered
-                      ? AppController.instance.theme2
-                      : AppController.instance.theme1;
-                  return GestureDetector(
-                    onTap: () {
-                      navegar.navegarEntreTela('/caduser', context);
-                    },
-                    child: Center(
-                      child: Text("Ainda não é cadastrado ?",
-                          style: TextStyle(color: color, fontSize: 16)),
-                    ),
-                  );
-                }),
+                    child: const Text('Cadastrar')),
               ],
             ),
           ),
@@ -168,14 +140,25 @@ class _LoginPageState extends State<LoginPage> {
         ]));
   }
 
-  Widget alert() {
+  mostraAlerta(String msg1, String msg2, bool sucesso) {
+    return showDialog(
+        context: context,
+        builder: (_) => alert(msg1, msg2, sucesso),
+        barrierDismissible: false);
+  }
+
+  Widget alert(String msg1, String msg2, bool sucesso) {
     return AlertDialog(
-      title: const Text("Login Invalido"),
-      content: const Text("Usuário/senha incorretos"),
+      title: Text(msg1),
+      content: Text(msg2),
       actions: [
         TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              if (sucesso) {
+                navegar.navegarEntreTela('/', context);
+              } else {
+                Navigator.of(context).pop();
+              }
             },
             child: const Text("Ok"))
       ],

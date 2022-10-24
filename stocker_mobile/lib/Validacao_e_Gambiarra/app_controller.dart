@@ -20,7 +20,7 @@ class AppController extends ChangeNotifier {
     isDarkTheme = !isDarkTheme;
     if (isDarkTheme) {
       background = "assets/images/back2B.jpg";
-      logo = "assets/images/Stocker_blue_transpNBpng";
+      logo = "assets/images/Stocker_blue_transpNB.png";
       theme1 = Colors.white;
       theme2 = const Color(0xFFff7f26);
     } else {

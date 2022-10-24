@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
@@ -15,6 +16,7 @@ class Compra extends StatefulWidget {
 }
 
 class _CompraState extends State<Compra> {
+  var navegar = Navegar();
   var fieldControllerPreco = TextEditingController();
   var fieldControllerFrete = TextEditingController();
   var fieldControllerTotal = TextEditingController();
@@ -233,6 +235,7 @@ class _CompraState extends State<Compra> {
                   },
                   child: const Text("Adiciona Linha")),
               ListView(
+                shrinkWrap: true,
                 children: [
                   SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -288,15 +291,25 @@ class _CompraState extends State<Compra> {
   }
 
   void adicionaPreCompra() {
+    bool podeAdicionar = true;
     setState(() {
-      preCompra.add({
-        'produto': produto,
-        'fornecedor': fornecedor,
-        'quantidade': quantidade,
-        'preco': preco,
-        'frete': frete
-      });
-      selecionado.add(true);
+      for (int i = 0; i < preCompra.length; i++) {
+        if (preCompra[i].containsValue(fornecedor) &&
+            preCompra[i].containsValue(produto)) {
+          podeAdicionar = false;
+          break;
+        }
+      }
+      if (podeAdicionar) {
+        preCompra.add({
+          'produto': produto,
+          'fornecedor': fornecedor,
+          'quantidade': quantidade,
+          'preco': preco,
+          'frete': frete
+        });
+        selecionado.add(true);
+      }
     });
   }
 
@@ -321,38 +334,60 @@ class _CompraState extends State<Compra> {
             )),
       ));
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/homepage', (Route<dynamic> route) => false);
+  Drawer criaDrawer() {
+    return Drawer(
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text('Drawer Header'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
+            subtitle: const Text('Tela de Inicio'),
+            onTap: () {
+              navegar.navegarEntreTela('/home', context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart),
+            title: const Text('Venda'),
+            subtitle: const Text('Tela de Venda'),
+            onTap: () {
+              navegar.navegarEntreTela('/Venda', context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('Compra'),
+            subtitle: const Text('Tela de Compra'),
+            onTap: () {
+              navegar.navegarEntreTela('/Compra', context);
+            },
+          ),
+          ListTile(
+            title: Switch(
+              value: AppController.instance.isDarkTheme,
+              onChanged: (value) {
+                setState(() {
+                  AppController.instance.changeTheme();
+                });
               },
             ),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                      style: TextStyle(color: AppController.instance.theme1),
-                      "BlackTheme"),
-                  Switch(
-                    value: AppController.instance.isDarkTheme,
-                    onChanged: (value) {
-                      setState(() {
-                        AppController.instance.changeTheme();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ]),
-        body: body());
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(drawer: criaDrawer(), appBar: AppBar(), body: body());
   }
 
   List<DataColumn> _createColumns() {

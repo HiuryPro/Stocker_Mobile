@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:printing/printing.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
+import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
 class CadProduto extends StatefulWidget {
   const CadProduto({super.key});
@@ -13,6 +16,14 @@ class _CadProdutoState extends State<CadProduto> {
   TextEditingController controllerQtd = TextEditingController();
   TextEditingController controllerPrecoUnd = TextEditingController();
   TextEditingController controllerDescricao = TextEditingController();
+  var crud = DataBaseService();
+
+  clearCampos() {
+    controllerProduto.clear();
+    controllerQtd.clear();
+    controllerPrecoUnd.clear();
+    controllerDescricao.clear();
+  }
 
   Widget body() {
     return SizedBox(
@@ -66,6 +77,32 @@ class _CadProdutoState extends State<CadProduto> {
                 border: OutlineInputBorder(),
               ),
             ),
+            const SizedBox(
+              height: 15,
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  var idEmpresa = await crud
+                      .select(tabela: 'Empresa', select: 'IdEmpresa', where: {
+                    'IdAdministrador': AppController.instance.response!.user!.id
+                  });
+                  print(idEmpresa);
+                  var responseProduto =
+                      await crud.insert(tabela: 'Produto', map: {
+                    'NomeProduto': controllerProduto.text,
+                    'Descricao': controllerDescricao.text,
+                    'IdEmpresa': idEmpresa[0]['IdEmpresa']
+                  });
+                  print(responseProduto);
+                  await crud.insert(tabela: 'Estoque', map: {
+                    'IdProduto': responseProduto['IdProduto'],
+                    'Quantidade': int.parse(controllerQtd.text),
+                    'PrecoMPM': int.parse(controllerPrecoUnd.text)
+                  });
+
+                  clearCampos();
+                },
+                child: const Text('Cadastrar Produto'))
           ]))),
     );
   }

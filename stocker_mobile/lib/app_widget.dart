@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_venda.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
+import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/Produto_Estoque/cadastroproduto.dart';
 import 'package:stocker_mobile/app/providers/app.providers.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
@@ -13,7 +15,6 @@ import 'package:stocker_mobile/voice.dart';
 import 'Cria_PDF/chart.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
-import 'Login_e_Cadastro/cadastro_page.dart';
 import 'Home/home_page.dart';
 import 'Login_e_Cadastro/login_page.dart';
 import 'Login_e_Cadastro/nova_senha.dart';
@@ -49,13 +50,13 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/Venda',
+              initialRoute: '/',
               routes: {
                 '/': (context) => const LoginPage(),
+                '/Cadastro': (context) => const CadPage(),
                 '/home': (context) => const HomePage(),
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
-                '/cadpage': (context) => CadPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
                 '/pegaimagem': (context) => const TesteImagem(),
                 '/Compra': (context) => const Compra(),
@@ -63,6 +64,7 @@ class AppWidget extends StatelessWidget {
                 '/talkin': (context) => const TalkinH(),
                 '/Produto': (context) => const CadProduto(),
                 '/Venda': (context) => const Venda(),
+                '/CadastroUsuario': (context) => const CadUsuario()
               });
         });
   }
