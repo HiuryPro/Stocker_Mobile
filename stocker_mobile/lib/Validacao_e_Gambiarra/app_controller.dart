@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 
+import '../Home/home_page.dart';
+
 class AppController extends ChangeNotifier {
   static AppController instance = AppController();
 

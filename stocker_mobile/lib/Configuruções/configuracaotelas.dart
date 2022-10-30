@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/voz.dart';
 
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
@@ -38,6 +39,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: const ReconheceVoz(),
       body: body(),
       appBar: AppBar(),
       drawer: drawerTela.drawerTela(context),

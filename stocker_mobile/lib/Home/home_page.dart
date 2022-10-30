@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var actionButton = const ReconheceVoz();
   var drawerTela = DrawerTela();
   var navegar = Navegar();
 
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      floatingActionButton: const ReconheceVoz(),
+      floatingActionButton: new ReconheceVoz(),
       appBar: AppBar(
         foregroundColor: AppController.instance.theme1,
         shadowColor: Colors.transparent,

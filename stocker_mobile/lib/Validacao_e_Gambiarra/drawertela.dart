@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Metodos_das_Telas/navegar.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/teste4.dart';
 
 import 'app_controller.dart';
+import 'argumentosVoz.dart';
 
 class DrawerTela {
   var navegar = Navegar();
@@ -23,7 +25,7 @@ class DrawerTela {
             title: const Text('Home'),
             subtitle: const Text('Tela de Inicio'),
             onTap: () {
-              navegar.navegarEntreTela('/home', context);
+              navegar.navegarEntreTela('/Home', context);
             },
           ),
           ListTile(
@@ -56,6 +58,16 @@ class DrawerTela {
             subtitle: const Text('Sair do Login'),
             onTap: () {
               navegar.navegarEntreTela('/', context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bug_report),
+            title: const Text('Teste'),
+            subtitle: const Text('Testando o App depois nos tira'),
+            onTap: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  TesteFrog.nomeDaRota, (Route<dynamic> route) => false,
+                  arguments: ScreenArguments(MyPage()));
             },
           ),
         ],

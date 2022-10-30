@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/voz.dart';
 
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
@@ -18,6 +19,8 @@ class Venda extends StatefulWidget {
 
 class _VendaState extends State<Venda> {
   var drawerTela = DrawerTela();
+  var actionButton = new ReconheceVoz();
+
   var fieldControllerPreco = TextEditingController();
   var fieldControllerAdicional = TextEditingController();
   var fieldControllerTotal = TextEditingController();
@@ -408,7 +411,10 @@ class _VendaState extends State<Venda> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: drawerTela.drawerTela(context), appBar: AppBar(), body: body());
+        floatingActionButton: new ReconheceVoz(),
+        drawer: drawerTela.drawerTela(context),
+        appBar: AppBar(),
+        body: body());
   }
 
   List<DataColumn> _createColumns() {

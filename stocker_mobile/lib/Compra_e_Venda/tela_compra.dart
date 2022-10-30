@@ -19,6 +19,8 @@ class Compra extends StatefulWidget {
 
 class _CompraState extends State<Compra> {
   var drawerTela = DrawerTela();
+  late ReconheceVoz reconhece;
+
   var fieldControllerPreco = TextEditingController();
   var fieldControllerFrete = TextEditingController();
   var fieldControllerTotal = TextEditingController();
@@ -40,6 +42,9 @@ class _CompraState extends State<Compra> {
   void initState() {
     super.initState();
     produtos.clear();
+    reconhece = new ReconheceVoz();
+    print('Funciona inferno');
+
     Future.delayed(Duration.zero, () async {
       var lista = await crud.selectInner(
           tabela: "FornecedorProduto",
@@ -55,6 +60,17 @@ class _CompraState extends State<Compra> {
         });
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(Compra oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    print('Dispose used');
+    super.dispose();
   }
 
   Widget body() {
@@ -339,7 +355,7 @@ class _CompraState extends State<Compra> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: const ReconheceVoz(),
+        floatingActionButton: reconhece,
         drawer: drawerTela.drawerTela(context),
         appBar: AppBar(),
         body: body());

@@ -45,6 +45,7 @@ class _ReconheceVozState extends State<ReconheceVoz> {
 
   @override
   void initState() {
+    super.initState();
     Future.delayed(Duration.zero, () async {
       await initSpeechState();
       await initTts();
@@ -57,8 +58,6 @@ class _ReconheceVozState extends State<ReconheceVoz> {
         }
       }
     });
-
-    super.initState();
   }
 
   Future<void> initSpeechState() async {
@@ -86,6 +85,7 @@ class _ReconheceVozState extends State<ReconheceVoz> {
   void resultListener(SpeechRecognitionResult result) {
     _logEvent(
         'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
+
     setState(() {
       lastWords = result.recognizedWords;
     });
@@ -94,6 +94,7 @@ class _ReconheceVozState extends State<ReconheceVoz> {
   void errorListener(SpeechRecognitionError error) {
     _logEvent(
         'Received error status: $error, listening: ${speech.isListening}');
+
     setState(() {
       lastError = '${error.errorMsg} - ${error.permanent}';
     });
@@ -102,6 +103,7 @@ class _ReconheceVozState extends State<ReconheceVoz> {
   void statusListener(String status) async {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
+
     setState(() {
       lastStatus = status;
     });
@@ -216,7 +218,10 @@ class _ReconheceVozState extends State<ReconheceVoz> {
         localeId: _currentLocaleId,
         cancelOnError: true,
         listenMode: ListenMode.confirmation);
-    setState(() {});
+
+    setState(() {
+      print(2);
+    });
   }
 
   @override

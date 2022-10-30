@@ -8,6 +8,8 @@ import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/Produto_Estoque/cadastroproduto.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/teste4.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/voz.dart';
 import 'package:stocker_mobile/sttteste.dart';
 import 'package:stocker_mobile/talkinh.dart';
 import 'package:stocker_mobile/voice.dart';
@@ -49,11 +51,11 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/home',
+              initialRoute: '/Home',
               routes: {
                 '/': (context) => const LoginPage(),
                 '/Cadastro': (context) => const CadPage(),
-                '/home': (context) => const HomePage(),
+                '/Home': (context) => const HomePage(),
                 '/novologinpage': (context) => const NovoLoginPage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
                 '/atualizasenha': (context) => const AtualizaSenha(),
@@ -64,7 +66,9 @@ class AppWidget extends StatelessWidget {
                 '/Produto': (context) => const CadProduto(),
                 '/Venda': (context) => const Venda(),
                 '/CadastroUsuario': (context) => const CadUsuario(),
-                '/Configuracoes': (context) => const Configuracoes()
+                '/Configuracoes': (context) => const Configuracoes(),
+                '/Voz': (conetext) => const ReconheceVoz(),
+                TesteFrog.nomeDaRota: (context) => const TesteFrog()
               });
         });
   }
