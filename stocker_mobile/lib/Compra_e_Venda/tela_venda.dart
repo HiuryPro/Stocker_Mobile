@@ -1,11 +1,21 @@
+import 'dart:io' as plataforma;
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:intl/intl.dart';
-import 'package:stocker_mobile/Validacao_e_Gambiarra/voz.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
+import 'package:universal_html/html.dart';
 
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
+import '../Validacao_e_Gambiarra/voz.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -17,9 +27,10 @@ class Venda extends StatefulWidget {
   State<Venda> createState() => _VendaState();
 }
 
+enum TtsState { playing, stopped, paused, continued }
+
 class _VendaState extends State<Venda> {
   var drawerTela = DrawerTela();
-  var actionButton = new ReconheceVoz();
 
   var fieldControllerPreco = TextEditingController();
   var fieldControllerAdicional = TextEditingController();
@@ -42,10 +53,20 @@ class _VendaState extends State<Venda> {
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     produtos.clear();
     clientes.clear();
+
     Future.delayed(Duration.zero, () async {
+      if (kIsWeb) {
+        await window.navigator.getUserMedia(audio: true);
+      } else {
+        if (!await Permission.microphone.isGranted) {
+          await Permission.microphone.request();
+        }
+      }
+
       var lista1 = await crud.selectInner(
           tabela: "Estoque",
           select: 'Produto!inner(IdProduto,NomeProduto)PrecoMPM',
@@ -411,7 +432,16 @@ class _VendaState extends State<Venda> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: new ReconheceVoz(),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.phone),
+            onPressed: () async {
+              print(this.context);
+              await Voz.instance.initSpeechState(this.context);
+
+              await Voz.instance.initTts();
+              await Voz.instance.buscaComandos();
+              Voz.instance.startListening();
+            }),
         drawer: drawerTela.drawerTela(context),
         appBar: AppBar(),
         body: body());

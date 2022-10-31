@@ -1,11 +1,21 @@
+import 'dart:io' as plataforma;
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:intl/intl.dart';
-import 'package:stocker_mobile/Validacao_e_Gambiarra/voz.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:universal_html/html.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
+import '../Validacao_e_Gambiarra/voz.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -17,9 +27,10 @@ class Compra extends StatefulWidget {
   State<Compra> createState() => _CompraState();
 }
 
+enum TtsState { playing, stopped, paused, continued }
+
 class _CompraState extends State<Compra> {
   var drawerTela = DrawerTela();
-  late ReconheceVoz reconhece;
 
   var fieldControllerPreco = TextEditingController();
   var fieldControllerFrete = TextEditingController();
@@ -38,14 +49,23 @@ class _CompraState extends State<Compra> {
   List<bool> selecionado = [];
   List<Map> preCompra = [];
 
+  var navegar = Navegar();
+
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     produtos.clear();
-    reconhece = new ReconheceVoz();
     print('Funciona inferno');
-
     Future.delayed(Duration.zero, () async {
+      if (kIsWeb) {
+        await window.navigator.getUserMedia(audio: true);
+      } else {
+        if (!await Permission.microphone.isGranted) {
+          await Permission.microphone.request();
+        }
+      }
+
       var lista = await crud.selectInner(
           tabela: "FornecedorProduto",
           select:
@@ -60,17 +80,6 @@ class _CompraState extends State<Compra> {
         });
       }
     });
-  }
-
-  @override
-  void didUpdateWidget(Compra oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    print('Dispose used');
-    super.dispose();
   }
 
   Widget body() {
@@ -355,7 +364,16 @@ class _CompraState extends State<Compra> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: reconhece,
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.phone),
+            onPressed: () async {
+              print(this.context);
+              await Voz.instance.initSpeechState(this.context);
+
+              await Voz.instance.initTts();
+              await Voz.instance.buscaComandos();
+              Voz.instance.startListening();
+            }),
         drawer: drawerTela.drawerTela(context),
         appBar: AppBar(),
         body: body());

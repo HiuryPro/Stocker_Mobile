@@ -1,33 +1,22 @@
-import 'dart:io' as plataforma;
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
-import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
-import 'package:universal_html/html.dart';
-
+import 'dart:io' as plataforma;
 import '../Metodos_das_Telas/navegar.dart';
 import '../services/supabase.databaseService.dart';
 
-class ReconheceVoz extends StatefulWidget {
-  const ReconheceVoz({super.key});
-
-  @override
-  State<ReconheceVoz> createState() => _ReconheceVozState();
-}
-
 enum TtsState { playing, stopped, paused, continued }
 
-class _ReconheceVozState extends State<ReconheceVoz> {
+class Voz extends ChangeNotifier {
+  static Voz instance = Voz();
   Map<String, String> comandos = {};
-  var navegar = Navegar();
   var crud = DataBaseService();
   var audioPlayer = AudioPlayer();
+  late Navegar navegar;
 
   late FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
@@ -35,37 +24,29 @@ class _ReconheceVozState extends State<ReconheceVoz> {
   bool isEscutando = false;
 
   bool get isAndroid => !kIsWeb && plataforma.Platform.isAndroid;
-  String lastWords = 'Compra';
+  String lastWords = 'Home';
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
   // ignore: unused_field
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
+  bool isIniciado = false;
+  String navegar2 = '';
 
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration.zero, () async {
-      await initSpeechState();
-      await initTts();
-      await buscaComandos();
-      if (kIsWeb) {
-        await window.navigator.getUserMedia(audio: true);
-      } else {
-        if (!await Permission.microphone.isGranted) {
-          await Permission.microphone.request();
-        }
-      }
-    });
+  Voz() {
+    navegar = Navegar();
+    print('Teste');
   }
 
-  Future<void> initSpeechState() async {
+  Future<void> initSpeechState(BuildContext context) async {
     _logEvent('Initialize');
     try {
       var hasSpeech = await speech.initialize(
         onError: errorListener,
-        onStatus: statusListener,
+        onStatus: (status) {
+          statusListener(status, context);
+        },
         debugLogging: true,
       );
       if (hasSpeech) {
@@ -74,11 +55,8 @@ class _ReconheceVozState extends State<ReconheceVoz> {
         var systemLocale = await speech.systemLocale();
         _currentLocaleId = systemLocale?.localeId ?? '';
       }
-      if (!mounted) return;
     } catch (e) {
-      setState(() {
-        lastError = 'Speech recognition failed: ${e.toString()}';
-      });
+      lastError = 'Speech recognition failed: ${e.toString()}';
     }
   }
 
@@ -86,44 +64,34 @@ class _ReconheceVozState extends State<ReconheceVoz> {
     _logEvent(
         'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
 
-    setState(() {
-      lastWords = result.recognizedWords;
-    });
+    lastWords = result.recognizedWords;
   }
 
   void errorListener(SpeechRecognitionError error) {
     _logEvent(
         'Received error status: $error, listening: ${speech.isListening}');
 
-    setState(() {
-      lastError = '${error.errorMsg} - ${error.permanent}';
-    });
+    lastError = '${error.errorMsg} - ${error.permanent}';
   }
 
-  void statusListener(String status) async {
+  void statusListener(String status, BuildContext context) async {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
 
-    setState(() {
-      lastStatus = status;
-    });
+    lastStatus = status;
+    print(status);
 
-    if (lastStatus == 'notListening') {
+    if (status == 'notListening') {
       if (lastWords != '') {
-        await _comando();
-        isEscutando = false;
-
-        setState(() {
-          lastWords = '';
-        });
+        await _comando(context);
       } else {
-        som("saiu.mp3");
+        somSaiu();
         await speech.cancel();
       }
     }
   }
 
-  Future _comando() async {
+  Future _comando(BuildContext context) async {
     List<String> comandosDados = comandos.keys.toList();
     String? acao;
     bool isComandoExistente = false;
@@ -137,9 +105,11 @@ class _ReconheceVozState extends State<ReconheceVoz> {
 
     if (isComandoExistente) {
       await flutterTts.speak("Tela ${acao!}");
-      await Future.delayed(const Duration(seconds: 1));
-      // ignore: use_build_context_synchronously
-      navegar.navegarEntreTela("/$acao", context);
+      navegar2 = "/$acao";
+      print('Chegp');
+      print(navegar2);
+      print(context);
+      Navigator.pushNamed(context, navegar2);
     } else {
       await flutterTts.speak("Esse Comando não existe");
     }
@@ -176,10 +146,8 @@ class _ReconheceVozState extends State<ReconheceVoz> {
     }
 
     flutterTts.setErrorHandler((msg) {
-      setState(() {
-        print("error: $msg");
-        ttsState = TtsState.stopped;
-      });
+      print("error: $msg");
+      ttsState = TtsState.stopped;
     });
   }
 
@@ -201,9 +169,15 @@ class _ReconheceVozState extends State<ReconheceVoz> {
     await flutterTts.awaitSpeakCompletion(true);
   }
 
-  Future<void> som(String mp3) async {
+  Future<void> somEntrou() async {
     var player = AudioCache(prefix: 'assets/sounds/');
-    var url = await player.load(mp3);
+    var url = await player.load('entro.mp3');
+    await audioPlayer.play(url.path);
+  }
+
+  Future<void> somSaiu() async {
+    var player = AudioCache(prefix: 'assets/sounds/');
+    var url = await player.load('saiu.mp3');
     await audioPlayer.play(url.path);
   }
 
@@ -213,31 +187,10 @@ class _ReconheceVozState extends State<ReconheceVoz> {
     speech.listen(
         onResult: resultListener,
         listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(seconds: 3),
+        pauseFor: const Duration(milliseconds: 1500),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,
         listenMode: ListenMode.confirmation);
-
-    setState(() {
-      print(2);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () async {
-        if (isEscutando) {
-          await speech.cancel();
-          isEscutando = false;
-        } else {
-          som("entro.mp3");
-          startListening();
-          isEscutando = true;
-        }
-      },
-      child: const Icon(Icons.campaign),
-    );
   }
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Metodos_das_Telas/navegar.dart';
-import 'package:stocker_mobile/Validacao_e_Gambiarra/teste4.dart';
 
 import 'app_controller.dart';
-import 'argumentosVoz.dart';
 
 class DrawerTela {
   var navegar = Navegar();
@@ -21,19 +19,18 @@ class DrawerTela {
             child: Image.asset(AppController.instance.background),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            subtitle: const Text('Tela de Inicio'),
-            onTap: () {
-              navegar.navegarEntreTela('/Home', context);
-            },
-          ),
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              subtitle: const Text('Tela de Inicio'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Home');
+              }),
           ListTile(
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Venda'),
             subtitle: const Text('Tela de Venda'),
             onTap: () {
-              navegar.navegarEntreTela('/Venda', context);
+              Navigator.pushNamed(context, '/Venda');
             },
           ),
           ListTile(
@@ -41,7 +38,7 @@ class DrawerTela {
             title: const Text('Compra'),
             subtitle: const Text('Tela de Compra'),
             onTap: () {
-              navegar.navegarEntreTela('/Compra', context);
+              Navigator.pushNamed(context, '/Compra');
             },
           ),
           ListTile(
@@ -49,7 +46,7 @@ class DrawerTela {
             title: const Text('Configurações'),
             subtitle: const Text('Theme, Acessibilidade'),
             onTap: () {
-              navegar.navegarEntreTela('/Configuracoes', context);
+              Navigator.pushNamed(context, '/Configuracoes');
             },
           ),
           ListTile(
@@ -57,17 +54,7 @@ class DrawerTela {
             title: const Text('Logout'),
             subtitle: const Text('Sair do Login'),
             onTap: () {
-              navegar.navegarEntreTela('/', context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.bug_report),
-            title: const Text('Teste'),
-            subtitle: const Text('Testando o App depois nos tira'),
-            onTap: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  TesteFrog.nomeDaRota, (Route<dynamic> route) => false,
-                  arguments: ScreenArguments(MyPage()));
+              Navigator.pushNamed(context, '/');
             },
           ),
         ],
