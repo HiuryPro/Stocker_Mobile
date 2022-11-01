@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                         });
 
                         // ignore: use_build_context_synchronously
-                        navegar.navegarEntreTela('/home', context);
+                        navegar.navegarEntreTela('/Home', context, false);
                       } else {
                         print(resposta.error!.message);
                       }
@@ -109,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                   Colors.black;
                   return GestureDetector(
                     onTap: () {
-                      navegar.navegarEntreTela('/novasenhapage', context);
+                      navegar.navegarEntreTela('/novasenhapage', context, true);
                     },
                     child: Center(
                       child: Text("Esqueci minha Senha ?",
@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                       : AppController.instance.theme1;
                   return GestureDetector(
                     onTap: () {
-                      navegar.navegarEntreTela('/caduser', context);
+                      navegar.navegarEntreTela('/caduser', context, true);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",

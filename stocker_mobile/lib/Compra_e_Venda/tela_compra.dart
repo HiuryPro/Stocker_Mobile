@@ -16,6 +16,7 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
 import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/voz2.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -26,8 +27,6 @@ class Compra extends StatefulWidget {
   @override
   State<Compra> createState() => _CompraState();
 }
-
-enum TtsState { playing, stopped, paused, continued }
 
 class _CompraState extends State<Compra> {
   var drawerTela = DrawerTela();
@@ -48,8 +47,7 @@ class _CompraState extends State<Compra> {
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
   List<Map> preCompra = [];
-
-  var navegar = Navegar();
+  bool isPreechendoVoz = false;
 
   @override
   void initState() {
@@ -69,8 +67,9 @@ class _CompraState extends State<Compra> {
       var lista = await crud.selectInner(
           tabela: "FornecedorProduto",
           select:
-              'Preco, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor, NomeFornecedor)',
+              'Preco, Frete, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
           where: {});
+      print(lista);
       if (lista != null) {
         setState(() {
           for (var row in lista) {
@@ -82,7 +81,19 @@ class _CompraState extends State<Compra> {
     });
   }
 
-  Widget body() {
+  Widget body(int lastWords, Map<String, String> palavras) {
+    Future.delayed(Duration.zero, () async {
+      if (palavras.containsKey('quantidade')) {
+        if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
+          await Voz2.instance
+              .mensagem('Erro ao gravar Quantidade. Tente falar novamente');
+          Voz2.instance.palavras.remove('quantidade');
+        } else {
+          fieldControllerQtd.text = palavras['quantidade']!;
+        }
+      }
+    });
+
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -90,6 +101,8 @@ class _CompraState extends State<Compra> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
                 child: ListView(shrinkWrap: true, children: [
+              Text(palavras.toString()),
+              SizedBox(height: 15),
               Container(
                 decoration: BoxDecoration(
                     border:
@@ -97,11 +110,13 @@ class _CompraState extends State<Compra> {
                     borderRadius: BorderRadius.circular(12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                      value: produto,
+                      value: palavras.containsKey('produto')
+                          ? palavras['produto']
+                          : produto,
                       menuMaxHeight: 200,
-                      hint: const Padding(
+                      hint: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text("Produtos"),
+                        child: Text("Produtos ${palavras['produto']}"),
                       ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
@@ -110,6 +125,7 @@ class _CompraState extends State<Compra> {
                         var lista = [];
                         setState(() {
                           produto = value;
+                          isPreechendoVoz = false;
                           fieldControllerPreco.text = "";
                           fornecedor = null;
                         });
@@ -117,7 +133,7 @@ class _CompraState extends State<Compra> {
                         lista = await crud.selectInner(
                             tabela: "FornecedorProduto",
                             select:
-                                'Fornecedor!inner(IdFornecedor, NomeFornecedor), Produto!inner(IdProduto, NomeProduto)',
+                                'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
                             where: {
                               "Produto.IdProduto": int.parse(produto![0])
                             });
@@ -125,7 +141,7 @@ class _CompraState extends State<Compra> {
                           fornecedores.clear();
                           for (var row in lista) {
                             fornecedores.add(
-                                "${row["Fornecedor"]["IdFornecedor"]} ${row['Fornecedor']['NomeFornecedor']}");
+                                "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
                           }
                         });
                       }),
@@ -141,7 +157,9 @@ class _CompraState extends State<Compra> {
                     borderRadius: BorderRadius.circular(12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                      value: fornecedor,
+                      value: palavras.containsKey('fornecedor')
+                          ? palavras['fornecedor']
+                          : fornecedor,
                       menuMaxHeight: 200,
                       hint: const Padding(
                         padding: EdgeInsets.all(8.0),
@@ -153,6 +171,7 @@ class _CompraState extends State<Compra> {
                       onChanged: (value) async {
                         setState(() {
                           fornecedor = value;
+                          isPreechendoVoz = false;
                         });
 
                         var lista = await crud.selectInner(
@@ -183,6 +202,9 @@ class _CompraState extends State<Compra> {
                 controller: fieldControllerQtd,
                 onChanged: (qtd) {
                   setState(() {
+                    if (palavras.containsKey('quantidade')) {
+                      palavras['quantidade'] = qtd;
+                    }
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
                       fieldControllerTotal.text =
@@ -363,20 +385,44 @@ class _CompraState extends State<Compra> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.phone),
-            onPressed: () async {
-              print(this.context);
-              await Voz.instance.initSpeechState(this.context);
+    return AnimatedBuilder(
+        animation: Voz2.instance,
+        builder: (context, snapshot) {
+          return Scaffold(
+              floatingActionButton: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton(
+                      heroTag: null,
+                      child: Icon(Icons.hearing),
+                      onPressed: () async {
+                        print(this.context);
+                        await Voz2.instance.initSpeechState();
+                        await Voz2.instance.initTts();
 
-              await Voz.instance.initTts();
-              await Voz.instance.buscaComandos();
-              Voz.instance.startListening();
-            }),
-        drawer: drawerTela.drawerTela(context),
-        appBar: AppBar(),
-        body: body());
+                        Voz2.instance.startListening();
+                        setState(() {
+                          isPreechendoVoz = true;
+                        });
+                      }),
+                  FloatingActionButton(
+                      heroTag: null,
+                      child: Icon(Icons.phone),
+                      onPressed: () async {
+                        print(this.context);
+                        await Voz.instance.initSpeechState(context);
+
+                        await Voz.instance.initTts();
+                        await Voz.instance.buscaComandos();
+                        Voz.instance.startListening();
+                      })
+                ],
+              ),
+              drawer: drawerTela.drawerTela(context),
+              appBar: AppBar(),
+              body:
+                  body(Voz2.instance.palavras.length, Voz2.instance.palavras));
+        });
   }
 
   List<DataColumn> _createColumns() {

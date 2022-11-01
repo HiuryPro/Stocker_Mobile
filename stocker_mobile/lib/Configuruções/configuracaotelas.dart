@@ -126,7 +126,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
       await flutterTts.speak("Tela ${acao!}");
       await Future.delayed(const Duration(seconds: 1));
       // ignore: use_build_context_synchronously
-      navegar.navegarEntreTela("/$acao", context);
+      navegar.navegarEntreTela("/$acao", context, true);
     } else {
       await flutterTts.speak("Esse Comando não existe");
     }

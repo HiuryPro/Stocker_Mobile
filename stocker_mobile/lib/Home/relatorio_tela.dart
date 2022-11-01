@@ -213,7 +213,7 @@ class RelatorioState extends State<Relatorio> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  navegar.navegarEntreTela("/telaCompra", context);
+                  navegar.navegarEntreTela("/telaCompra", context, true);
                 },
                 child: const Text("Tela de Compra")),
           ],

@@ -154,7 +154,7 @@ class _CadUsuarioState extends State<CadUsuario> {
         TextButton(
             onPressed: () {
               if (sucesso) {
-                navegar.navegarEntreTela('/', context);
+                navegar.navegarEntreTela('/', context, true);
               } else {
                 Navigator.of(context).pop();
               }

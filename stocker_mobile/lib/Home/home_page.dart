@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 20),
                 ),
                 onPressed: () {
-                  navegar.navegarEntreTela('/Cadastro', context);
+                  navegar.navegarEntreTela('/Cadastro', context, true);
                 },
               ),
             ),

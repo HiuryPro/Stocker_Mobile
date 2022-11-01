@@ -9,17 +9,16 @@ import 'dart:io' as plataforma;
 import '../Metodos_das_Telas/navegar.dart';
 import '../services/supabase.databaseService.dart';
 
-enum TtsState { playing, stopped, paused, continued }
+enum TtsState2 { playing, stopped, paused, continued }
 
-class Voz extends ChangeNotifier {
-  static Voz instance = Voz();
-  Map<String, String> comandos = {};
+class Voz2 extends ChangeNotifier {
+  static Voz2 instance = Voz2();
   var crud = DataBaseService();
   final audioPlayer = AudioPlayer();
   late Navegar navegar;
 
   static late FlutterTts flutterTts;
-  TtsState ttsState = TtsState.stopped;
+  TtsState2 ttsState = TtsState2.stopped;
   int pause = 15;
   bool isEscutando = false;
 
@@ -33,20 +32,20 @@ class Voz extends ChangeNotifier {
   static SpeechToText speech = SpeechToText();
   bool isIniciado = false;
   String navegar2 = '';
+  Map<String, String> palavras = {};
+  List<String> palavrasChaves = ['produto', 'quantidade', 'fornecedor'];
 
   Voz() {
     navegar = Navegar();
     print('Teste');
   }
 
-  Future<void> initSpeechState(BuildContext context) async {
+  Future<void> initSpeechState() async {
     _logEvent('Initialize');
     try {
       var hasSpeech = await speech.initialize(
         onError: errorListener,
-        onStatus: (status) {
-          statusListener(status, context);
-        },
+        onStatus: statusListener,
         debugLogging: true,
       );
       if (hasSpeech) {
@@ -60,11 +59,16 @@ class Voz extends ChangeNotifier {
     }
   }
 
+  Future<void> mensagem(String mensagem) async {
+    await flutterTts.speak(mensagem);
+  }
+
   void resultListener(SpeechRecognitionResult result) {
     _logEvent(
         'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
 
     lastWords = result.recognizedWords;
+    print(lastWords);
   }
 
   void errorListener(SpeechRecognitionError error) {
@@ -74,17 +78,17 @@ class Voz extends ChangeNotifier {
     lastError = '${error.errorMsg} - ${error.permanent}';
   }
 
-  void statusListener(String status, BuildContext context) async {
+  void statusListener(String status) async {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
 
     lastStatus = status;
     print(status);
-
+    print(lastWords);
     if (status == 'notListening') {
       print(lastWords);
       if (lastWords != '') {
-        await _comando(context);
+        await _comando();
       } else {
         somSaiu();
         await speech.cancel();
@@ -92,45 +96,40 @@ class Voz extends ChangeNotifier {
     }
   }
 
-  Future _comando(BuildContext context) async {
-    List<String> comandosDados = comandos.keys.toList();
+  Future _comando() async {
     String? acao;
-    bool isComandoExistente = false;
-    for (int i = 0; i < comandosDados.length; i++) {
-      if (lastWords.toLowerCase() == comandosDados[i].toLowerCase()) {
-        isComandoExistente = true;
-        acao = comandos[comandosDados[i]];
+    bool isPalavraChave = false;
+    for (int i = 0; i < palavrasChaves.length; i++) {
+      print(lastWords
+          .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
+          .toLowerCase());
+      if (lastWords
+              .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
+              .toLowerCase() ==
+          palavrasChaves[i].toLowerCase()) {
+        isPalavraChave = true;
+        acao = palavrasChaves[i];
         break;
       }
     }
-    lastWords = '';
-    if (isComandoExistente) {
-      await flutterTts.speak("Tela ${acao!}");
-      navegar2 = "/$acao";
-      print('Chegp');
-      print(navegar2);
-      print(context);
-      Navigator.pushNamed(context, navegar2);
+
+    if (isPalavraChave) {
+      await flutterTts.speak("$acao");
+
+      palavras.addAll({
+        lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))): lastWords
+            .substring(lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
+      });
     } else {
       await flutterTts.speak("Esse Comando não existe");
     }
+
+    notifyListeners();
   }
 
   void _logEvent(String eventDescription) {
     var eventTime = DateTime.now().toIso8601String();
     print('$eventTime $eventDescription');
-  }
-
-  Future<void> buscaComandos() async {
-    List<dynamic> teste = await crud.selectComando(
-        tabela: "Comando", select: "comando, acao", id: 1);
-    for (var row in teste) {
-      comandos
-          .addEntries(<String, String>{row['comando']: row['acao']}.entries);
-    }
-
-    print(comandos.keys.toList());
-    print(comandos);
   }
 
   initTts() async {
@@ -148,7 +147,7 @@ class Voz extends ChangeNotifier {
 
     flutterTts.setErrorHandler((msg) {
       print("error: $msg");
-      ttsState = TtsState.stopped;
+      ttsState = TtsState2.stopped;
     });
   }
 
@@ -188,7 +187,7 @@ class Voz extends ChangeNotifier {
     speech.listen(
         onResult: resultListener,
         listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(milliseconds: 1500),
+        pauseFor: const Duration(milliseconds: 2000),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,
