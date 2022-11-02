@@ -49,6 +49,8 @@ class _CompraState extends State<Compra> {
   bool isPreechendoVoz = false;
   bool isDigitando = false;
   bool valor = true;
+  bool valor2 = true;
+  bool valor3 = true;
 
   @override
   void initState() {
@@ -100,6 +102,7 @@ class _CompraState extends State<Compra> {
     setState(() {
       valor = false;
       fieldControllerPreco.text = "";
+      produto = palavras['produto'];
       fornecedor = null;
       fornecedores.clear();
       for (var row in lista) {
@@ -109,31 +112,77 @@ class _CompraState extends State<Compra> {
     });
   }
 
+  adicionaPreco(var palavras) async {
+    var lista = await crud.selectInner(
+        tabela: "FornecedorProduto",
+        select:
+            '*, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
+        where: {
+          "Produto.IdProduto": apenasNumeros(palavras['produto']),
+          "Fornecedor.IdFornecedor": apenasNumeros(palavras['fornecedor'])
+        });
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        valor2 = false;
+        fornecedor = palavras['fornecedor'];
+        fieldControllerPreco.text = row['Preco'].toString();
+        fieldControllerFrete.text = row['Frete'].toString();
+        preco = double.parse(fieldControllerPreco.text);
+        frete = double.parse(fieldControllerFrete.text);
+        calculaTotal();
+      });
+    }
+  }
+
+  adicionaQtd(var palavras) async {
+    setState(() {
+      valor3 = false;
+    });
+
+    if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
+      await Voz.instance
+          .mensagem('Erro ao gravar Quantidade. Tente falar novamente');
+      Voz.instance.palavras.remove('quantidade');
+    } else {
+      fieldControllerQtd.text = palavras['quantidade']!;
+      calculaTotal();
+    }
+  }
+
+  calculaTotal() {
+    if (fieldControllerQtd.text != "" &&
+        fieldControllerFrete.text != "" &&
+        fieldControllerPreco.text != "") {
+      quantidade = int.parse(fieldControllerQtd.text);
+      setState(() {
+        fieldControllerTotal.text =
+            ((quantidade! * preco!) + frete!).toString();
+        total = double.parse(fieldControllerTotal.text);
+      });
+    } else {
+      fieldControllerTotal.text = "";
+    }
+  }
+
   Widget body(int lastWords, Map<String, String> palavras) {
     Future.delayed(Duration.zero, () async {
       if (palavras.containsKey('produto') &&
           !palavras.containsKey('fornecedor') &&
           valor) {
         produto = palavras['produto'];
-        adicionaF(palavras);
+        await adicionaF(palavras);
       }
 
-      if (palavras.containsKey('quantidade')) {
-        if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
-          await Voz.instance
-              .mensagem('Erro ao gravar Quantidade. Tente falar novamente');
-          Voz.instance.palavras.remove('quantidade');
-        } else {
-          fieldControllerQtd.text = palavras['quantidade']!;
-          if (fieldControllerQtd.text != "" && preco != null && frete != null) {
-            quantidade = int.parse(fieldControllerQtd.text);
-            fieldControllerTotal.text =
-                ((quantidade! * preco!) + frete!).toString();
-            total = double.parse(fieldControllerTotal.text);
-          } else {
-            fieldControllerTotal.text = "";
-          }
-        }
+      if (palavras.containsKey('fornecedor') &&
+          palavras.containsKey('produto') &&
+          valor2) {
+        fornecedor = palavras['fornecedor'];
+        await adicionaPreco(palavras);
+      }
+
+      if (palavras.containsKey('quantidade') && valor3) {
+        await adicionaQtd(palavras);
       }
     });
 
@@ -153,9 +202,7 @@ class _CompraState extends State<Compra> {
                     borderRadius: BorderRadius.circular(12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                      value: palavras.containsKey('produto')
-                          ? palavras['produto']
-                          : produto,
+                      value: produto,
                       menuMaxHeight: 200,
                       hint: Padding(
                         padding: EdgeInsets.all(8.0),
@@ -172,7 +219,7 @@ class _CompraState extends State<Compra> {
                           fieldControllerPreco.text = "";
                           fornecedor = null;
                         });
-
+                        print(produto);
                         lista = await crud.selectInner(
                             tabela: "FornecedorProduto",
                             select:
@@ -200,9 +247,7 @@ class _CompraState extends State<Compra> {
                     borderRadius: BorderRadius.circular(12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                      value: palavras.containsKey('fornecedor')
-                          ? palavras['fornecedor']
-                          : fornecedor,
+                      value: fornecedor,
                       menuMaxHeight: 200,
                       hint: const Padding(
                         padding: EdgeInsets.all(8.0),
@@ -216,7 +261,7 @@ class _CompraState extends State<Compra> {
                           fornecedor = value;
                           isPreechendoVoz = false;
                         });
-
+                        print(fornecedor);
                         var lista = await crud.selectInner(
                             tabela: "FornecedorProduto",
                             select:
@@ -245,7 +290,9 @@ class _CompraState extends State<Compra> {
                 controller: fieldControllerQtd,
                 onChanged: (qtd) {
                   setState(() {
-                    Voz.instance.palavras.remove('quantidade');
+                    if (Voz.instance.palavras.containsKey('quantidade')) {
+                      Voz.instance.palavras.remove('quantidade');
+                    }
 
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
@@ -253,6 +300,7 @@ class _CompraState extends State<Compra> {
                           ((quantidade! * preco!) + frete!).toString();
                       total = double.parse(fieldControllerTotal.text);
                     } else {
+                      quantidade = 0;
                       fieldControllerTotal.text = "";
                     }
                   });
@@ -320,9 +368,19 @@ class _CompraState extends State<Compra> {
                   onPressed: () {
                     print(preCompra);
                     adicionaPreCompra();
+
                     setState(() {
                       fieldControllerQtd.text = "";
+                      fieldControllerTotal.text = "";
+                      fieldControllerFrete.text = "";
+                      fieldControllerPreco.text = "";
+                      fornecedor = null;
+                      produto = null;
                     });
+
+                    if (Voz.instance.palavras.isNotEmpty) {
+                      Voz.instance.palavras.clear();
+                    }
                   },
                   child: const Text("Adiciona Linha")),
               ListView(
@@ -402,6 +460,7 @@ class _CompraState extends State<Compra> {
         selecionado.add(true);
       }
     });
+    print(preCompra);
   }
 
   List<Map<dynamic, dynamic>?> vaiComprar() {
@@ -440,6 +499,9 @@ class _CompraState extends State<Compra> {
                       onPressed: () async {
                         setState(() {
                           isDigitando = false;
+                          valor = true;
+                          valor2 = true;
+                          valor3 = true;
                         });
                         print(this.context);
                         Voz.instance.opcao = false;
@@ -495,7 +557,11 @@ class _CompraState extends State<Compra> {
                     keyboardType: TextInputType.number,
                     onChanged: (text) {
                       setState(() {
-                        book['quantidade'] = int.parse(text);
+                        if (text != '') {
+                          book['quantidade'] = int.parse(text);
+                        } else {
+                          book['quantidade'] = 0;
+                        }
                       });
                     },
                   )),
