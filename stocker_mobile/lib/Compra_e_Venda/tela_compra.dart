@@ -16,7 +16,6 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
 import '../Validacao_e_Gambiarra/voz.dart';
-import '../Validacao_e_Gambiarra/voz2.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -85,9 +84,9 @@ class _CompraState extends State<Compra> {
     Future.delayed(Duration.zero, () async {
       if (palavras.containsKey('quantidade')) {
         if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
-          await Voz2.instance
+          await Voz.instance
               .mensagem('Erro ao gravar Quantidade. Tente falar novamente');
-          Voz2.instance.palavras.remove('quantidade');
+          Voz.instance.palavras.remove('quantidade');
         } else {
           fieldControllerQtd.text = palavras['quantidade']!;
         }
@@ -386,7 +385,7 @@ class _CompraState extends State<Compra> {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: Voz2.instance,
+        animation: Voz.instance,
         builder: (context, snapshot) {
           return Scaffold(
               floatingActionButton: Column(
@@ -397,10 +396,12 @@ class _CompraState extends State<Compra> {
                       child: Icon(Icons.hearing),
                       onPressed: () async {
                         print(this.context);
-                        await Voz2.instance.initSpeechState();
-                        await Voz2.instance.initTts();
-
-                        Voz2.instance.startListening();
+                        Voz.instance.opcao = false;
+                        Voz.instance.context = this.context;
+                        await Voz.instance.initSpeechState();
+                        await Voz.instance.initTts();
+                        await Voz.instance.buscaComandos();
+                        Voz.instance.startListening();
                         setState(() {
                           isPreechendoVoz = true;
                         });
@@ -410,7 +411,9 @@ class _CompraState extends State<Compra> {
                       child: Icon(Icons.phone),
                       onPressed: () async {
                         print(this.context);
-                        await Voz.instance.initSpeechState(context);
+                        Voz.instance.context = this.context;
+                        Voz.instance.opcao = true;
+                        await Voz.instance.initSpeechState();
 
                         await Voz.instance.initTts();
                         await Voz.instance.buscaComandos();
@@ -420,8 +423,7 @@ class _CompraState extends State<Compra> {
               ),
               drawer: drawerTela.drawerTela(context),
               appBar: AppBar(),
-              body:
-                  body(Voz2.instance.palavras.length, Voz2.instance.palavras));
+              body: body(Voz.instance.palavras.length, Voz.instance.palavras));
         });
   }
 

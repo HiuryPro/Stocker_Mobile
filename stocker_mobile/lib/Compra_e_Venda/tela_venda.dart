@@ -436,7 +436,8 @@ class _VendaState extends State<Venda> {
             child: Icon(Icons.phone),
             onPressed: () async {
               print(this.context);
-              await Voz.instance.initSpeechState(this.context);
+              Voz.instance.context = this.context;
+              await Voz.instance.initSpeechState();
 
               await Voz.instance.initTts();
               await Voz.instance.buscaComandos();

@@ -24,7 +24,7 @@ class Voz extends ChangeNotifier {
   bool isEscutando = false;
 
   bool get isAndroid => !kIsWeb && plataforma.Platform.isAndroid;
-  String lastWords = '';
+  String lastWords = 'Venda';
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
@@ -33,19 +33,23 @@ class Voz extends ChangeNotifier {
   static SpeechToText speech = SpeechToText();
   bool isIniciado = false;
   String navegar2 = '';
+  Map<String, String> palavras = {};
+  List<String> palavrasChaves = ['produto', 'quantidade', 'fornecedor'];
+  bool opcao = true;
+  late BuildContext context;
 
   Voz() {
     navegar = Navegar();
     print('Teste');
   }
 
-  Future<void> initSpeechState(BuildContext context) async {
+  Future<void> initSpeechState() async {
     _logEvent('Initialize');
     try {
       var hasSpeech = await speech.initialize(
         onError: errorListener,
         onStatus: (status) {
-          statusListener(status, context);
+          statusListener(status);
         },
         debugLogging: true,
       );
@@ -74,17 +78,22 @@ class Voz extends ChangeNotifier {
     lastError = '${error.errorMsg} - ${error.permanent}';
   }
 
-  void statusListener(String status, BuildContext context) async {
+  void statusListener(String status) async {
     _logEvent(
         'Received listener status: $status, listening: ${speech.isListening}');
 
     lastStatus = status;
     print(status);
+    print(opcao);
 
     if (status == 'notListening') {
       print(lastWords);
       if (lastWords != '') {
-        await _comando(context);
+        if (opcao) {
+          await _comando();
+        } else {
+          await _comando2();
+        }
       } else {
         somSaiu();
         await speech.cancel();
@@ -92,7 +101,7 @@ class Voz extends ChangeNotifier {
     }
   }
 
-  Future _comando(BuildContext context) async {
+  Future _comando() async {
     List<String> comandosDados = comandos.keys.toList();
     String? acao;
     bool isComandoExistente = false;
@@ -103,7 +112,7 @@ class Voz extends ChangeNotifier {
         break;
       }
     }
-    lastWords = '';
+
     if (isComandoExistente) {
       await flutterTts.speak("Tela ${acao!}");
       navegar2 = "/$acao";
@@ -116,6 +125,37 @@ class Voz extends ChangeNotifier {
     }
   }
 
+  Future _comando2() async {
+    String? acao;
+    bool isPalavraChave = false;
+    for (int i = 0; i < palavrasChaves.length; i++) {
+      print(lastWords
+          .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
+          .toLowerCase());
+      if (lastWords
+              .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
+              .toLowerCase() ==
+          palavrasChaves[i].toLowerCase()) {
+        isPalavraChave = true;
+        acao = palavrasChaves[i];
+        break;
+      }
+    }
+
+    if (isPalavraChave) {
+      await flutterTts.speak("$acao");
+
+      palavras.addAll({
+        lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))): lastWords
+            .substring(lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
+      });
+    } else {
+      await flutterTts.speak("Campo invalido");
+    }
+
+    notifyListeners();
+  }
+
   void _logEvent(String eventDescription) {
     var eventTime = DateTime.now().toIso8601String();
     print('$eventTime $eventDescription');
@@ -124,6 +164,7 @@ class Voz extends ChangeNotifier {
   Future<void> buscaComandos() async {
     List<dynamic> teste = await crud.selectComando(
         tabela: "Comando", select: "comando, acao", id: 1);
+    comandos.clear();
     for (var row in teste) {
       comandos
           .addEntries(<String, String>{row['comando']: row['acao']}.entries);
@@ -193,5 +234,9 @@ class Voz extends ChangeNotifier {
         localeId: _currentLocaleId,
         cancelOnError: true,
         listenMode: ListenMode.confirmation);
+  }
+
+  Future<void> mensagem(String mensagem) async {
+    await flutterTts.speak(mensagem);
   }
 }
