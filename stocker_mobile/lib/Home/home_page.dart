@@ -113,6 +113,7 @@ class _HomePageState extends State<HomePage> {
 
             await Voz.instance.initTts();
             await Voz.instance.buscaComandos();
+
             Voz.instance.startListening();
 
             //  navegar.navegarEntreTela(voz.navegar, context);

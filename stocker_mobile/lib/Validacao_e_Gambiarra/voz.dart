@@ -24,7 +24,7 @@ class Voz extends ChangeNotifier {
   bool isEscutando = false;
 
   bool get isAndroid => !kIsWeb && plataforma.Platform.isAndroid;
-  String lastWords = 'Venda';
+  String lastWords = '';
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
@@ -37,6 +37,7 @@ class Voz extends ChangeNotifier {
   List<String> palavrasChaves = ['produto', 'quantidade', 'fornecedor'];
   bool opcao = true;
   late BuildContext context;
+  String produtoSelecionado = "";
 
   Voz() {
     navegar = Navegar();
@@ -113,6 +114,7 @@ class Voz extends ChangeNotifier {
       }
     }
 
+    lastWords = '';
     if (isComandoExistente) {
       await flutterTts.speak("Tela ${acao!}");
       navegar2 = "/$acao";
@@ -128,6 +130,23 @@ class Voz extends ChangeNotifier {
   Future _comando2() async {
     String? acao;
     bool isPalavraChave = false;
+    List<String> produtos = [];
+    List<String> fornecedores = [];
+
+    var lista = await crud.selectInner(
+        tabela: "FornecedorProduto",
+        select:
+            'Preco, Frete, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
+        where: {});
+    print(lista);
+
+    if (lista != null) {
+      for (var row in lista) {
+        produtos.add(
+            "${row["Produto"]["IdProduto"]} ${row["Produto"]["NomeProduto"]}");
+      }
+    }
+
     for (int i = 0; i < palavrasChaves.length; i++) {
       print(lastWords
           .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
@@ -145,14 +164,91 @@ class Voz extends ChangeNotifier {
     if (isPalavraChave) {
       await flutterTts.speak("$acao");
 
-      palavras.addAll({
-        lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))): lastWords
-            .substring(lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
-      });
+      if (lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))) ==
+          'produto') {
+        bool isProdutoExiste = false;
+        for (int i = 0; i < produtos.length; i++) {
+          if (lastWords
+                  .substring(
+                      lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
+                  .toLowerCase() ==
+              produtos[i]
+                  .substring(produtos[i].indexOf(RegExp(r"[ ]")) + 1,
+                      produtos[i].length)
+                  .toLowerCase()) {
+            isProdutoExiste = true;
+            produtoSelecionado = produtos[i];
+            break;
+          }
+        }
+
+        if (isProdutoExiste) {
+          palavras.addAll({
+            lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))):
+                produtoSelecionado
+          });
+        } else {
+          await flutterTts.speak("Esse produto não existe");
+        }
+      } else if (lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))) ==
+          'fornecedor') {
+        bool isFornecedorExiste = false;
+        String fornecedorSelecionado = "";
+        if (produtoSelecionado != '') {
+          print('Entro');
+          print(lastWords.indexOf(RegExp(r"[ ]")));
+
+          var lista2 = await crud.selectInner(
+              tabela: "FornecedorProduto",
+              select: 'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
+              where: {
+                'IdProduto': int.parse(produtoSelecionado.substring(
+                    0, produtoSelecionado.indexOf(RegExp(r"[ ]"))))
+              });
+          print(lista2);
+          if (lista != null) {
+            for (var row in lista2) {
+              fornecedores.add(
+                  "${row["Fornecedor"]['Pessoa']["IdPessoa"]} ${row["Fornecedor"]['Pessoa']["Nome"]}");
+            }
+          }
+          for (int i = 0; i < fornecedores.length; i++) {
+            if (lastWords
+                    .substring(
+                        lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
+                    .toLowerCase() ==
+                fornecedores[i]
+                    .substring(fornecedores[i].indexOf(RegExp(r"[ ]")) + 1,
+                        fornecedores[i].length)
+                    .toLowerCase()) {
+              isFornecedorExiste = true;
+              fornecedorSelecionado = fornecedores[i];
+              break;
+            }
+          }
+
+          if (isFornecedorExiste) {
+            palavras.addAll({
+              lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))):
+                  fornecedorSelecionado
+            });
+          } else {
+            await flutterTts.speak("Esse fornecedor não existe");
+          }
+        } else {
+          await flutterTts.speak('Fale um produto primeiro');
+        }
+      } else {
+        palavras.addAll({
+          lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))):
+              lastWords.substring(
+                  lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
+        });
+      }
     } else {
       await flutterTts.speak("Campo invalido");
     }
-
+    produtos.clear();
     notifyListeners();
   }
 
@@ -225,11 +321,12 @@ class Voz extends ChangeNotifier {
 
   void startListening() {
     _logEvent('start listening');
+    somEntrou();
 
     speech.listen(
         onResult: resultListener,
         listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(milliseconds: 1500),
+        pauseFor: const Duration(milliseconds: 2000),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,

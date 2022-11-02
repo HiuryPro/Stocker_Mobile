@@ -47,6 +47,8 @@ class _CompraState extends State<Compra> {
   List<bool> selecionado = [];
   List<Map> preCompra = [];
   bool isPreechendoVoz = false;
+  bool isDigitando = false;
+  bool valor = true;
 
   @override
   void initState() {
@@ -73,15 +75,49 @@ class _CompraState extends State<Compra> {
         setState(() {
           for (var row in lista) {
             produtos.add(
-                "${row["Produto"]["IdProduto"]}  ${row["Produto"]["NomeProduto"]}");
+                "${row["Produto"]["IdProduto"]} ${row["Produto"]["NomeProduto"]}");
           }
         });
       }
     });
   }
 
+  int apenasNumeros(String idNoText) {
+    String soId = idNoText.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.parse(soId);
+  }
+
+  adicionaF(var palavras) async {
+    var lista = [];
+
+    print(palavras['produto']);
+    print(apenasNumeros(palavras['produto']!));
+    lista = await crud.selectInner(
+        tabela: "FornecedorProduto",
+        select:
+            'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
+        where: {"Produto.IdProduto": apenasNumeros(palavras['produto']!)});
+    setState(() {
+      valor = false;
+      fieldControllerPreco.text = "";
+      fornecedor = null;
+      fornecedores.clear();
+      for (var row in lista) {
+        fornecedores.add(
+            "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
+      }
+    });
+  }
+
   Widget body(int lastWords, Map<String, String> palavras) {
     Future.delayed(Duration.zero, () async {
+      if (palavras.containsKey('produto') &&
+          !palavras.containsKey('fornecedor') &&
+          valor) {
+        produto = palavras['produto'];
+        adicionaF(palavras);
+      }
+
       if (palavras.containsKey('quantidade')) {
         if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
           await Voz.instance
@@ -89,6 +125,14 @@ class _CompraState extends State<Compra> {
           Voz.instance.palavras.remove('quantidade');
         } else {
           fieldControllerQtd.text = palavras['quantidade']!;
+          if (fieldControllerQtd.text != "" && preco != null && frete != null) {
+            quantidade = int.parse(fieldControllerQtd.text);
+            fieldControllerTotal.text =
+                ((quantidade! * preco!) + frete!).toString();
+            total = double.parse(fieldControllerTotal.text);
+          } else {
+            fieldControllerTotal.text = "";
+          }
         }
       }
     });
@@ -134,7 +178,7 @@ class _CompraState extends State<Compra> {
                             select:
                                 'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
                             where: {
-                              "Produto.IdProduto": int.parse(produto![0])
+                              "Produto.IdProduto": apenasNumeros(produto!)
                             });
                         setState(() {
                           fornecedores.clear();
@@ -201,9 +245,8 @@ class _CompraState extends State<Compra> {
                 controller: fieldControllerQtd,
                 onChanged: (qtd) {
                   setState(() {
-                    if (palavras.containsKey('quantidade')) {
-                      palavras['quantidade'] = qtd;
-                    }
+                    Voz.instance.palavras.remove('quantidade');
+
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
                       fieldControllerTotal.text =
@@ -395,6 +438,9 @@ class _CompraState extends State<Compra> {
                       heroTag: null,
                       child: Icon(Icons.hearing),
                       onPressed: () async {
+                        setState(() {
+                          isDigitando = false;
+                        });
                         print(this.context);
                         Voz.instance.opcao = false;
                         Voz.instance.context = this.context;
