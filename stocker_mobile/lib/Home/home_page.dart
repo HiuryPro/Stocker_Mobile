@@ -9,6 +9,7 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
+import 'package:stocker_mobile/services/supabase.services.dart';
 
 import 'package:universal_html/html.dart';
 
@@ -28,6 +29,7 @@ enum TtsState { playing, stopped, paused, continued }
 
 class _HomePageState extends State<HomePage> {
   var drawerTela = DrawerTela();
+  var auth = AuthenticationService();
   var navegar = Navegar();
   late Voz voz;
 
@@ -55,6 +57,16 @@ class _HomePageState extends State<HomePage> {
         shrinkWrap: true,
         children: [
           card(),
+          SizedBox(height: 15),
+          Center(
+            child: ElevatedButton(
+                onPressed: () async {
+                  var teste = await AuthenticationService.auth
+                      .passwordChange(novaSenha: '1234567');
+                  print(teste.data);
+                },
+                child: Text("Mudar Senha")),
+          )
         ],
       ),
     );

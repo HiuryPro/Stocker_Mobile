@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/Metodos_das_Telas/navegar.dart';
+import 'package:stocker_mobile/services/supabase.services.dart';
 
 import 'app_controller.dart';
 
 class DrawerTela {
   var navegar = Navegar();
   var teste = AppController;
+  var auth = AuthenticationService();
 
   Drawer drawerTela(BuildContext context) {
     return Drawer(
@@ -53,8 +55,10 @@ class DrawerTela {
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             subtitle: const Text('Sair do Login'),
-            onTap: () {
+            onTap: () async {
               Navigator.pushNamed(context, '/');
+              await AuthenticationService.auth
+                  .signOut(email: "jdzj", senha: "vjihsvi");
             },
           ),
         ],

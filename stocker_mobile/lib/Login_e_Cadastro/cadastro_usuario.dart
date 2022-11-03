@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
@@ -19,7 +18,6 @@ class _CadUsuarioState extends State<CadUsuario> {
   final fieldText2 = TextEditingController();
 
   var theme = AppController();
-  var login = Login();
   var navegar = Navegar();
   var cadastrar = AuthenticationService();
 

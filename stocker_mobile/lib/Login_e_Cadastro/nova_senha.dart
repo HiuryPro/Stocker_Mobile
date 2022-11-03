@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:stocker_mobile/services/supabase.databaseService.dart';
+import 'package:stocker_mobile/services/supabase.services.dart';
+import 'package:universal_html/html.dart';
 import '../DadosDB/crud.dart';
 import '../SendEmail/send_email.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
@@ -15,15 +18,16 @@ class NovaSenhaPage extends StatefulWidget {
 class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
+  var auth = AuthenticationService();
+  var url = window.location.href;
 
-  var crud = CRUD();
+  var crud = DataBaseService();
   var sendMail = SendMail();
 
   String email = '';
 
   void clearText() {
     fieldText.clear();
-    fieldText2.clear();
   }
 
   Widget _body() {
@@ -50,6 +54,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                       style: TextStyle(fontSize: 20),
                       "Informe o email que está vinculado a seu cadastrado \n que iremos envia-ló uma nova senha"),
                 ),
+                Text(url.substring(0, url.indexOf(RegExp(r'[#]')) + 1)),
                 const SizedBox(
                   height: 15,
                 ),
@@ -68,31 +73,22 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      String random = "";
-                      dynamic lista = [];
-                      bool enviou = false;
-                      lista =
-                          await crud.select("SELECT *  FROM usuario_dados ");
-                      for (var row in lista) {
-                        if (email == row['email']) {
-                          random = geraStringAleatoria();
-                          await crud.update(
-                              'Update usuario_login set senha = ?, nova_senha = ?  where id = ?',
-                              [random, 0, row['id']]);
-                          await sendMail.sendEmailChangePass(
-                              email: email,
-                              password: random,
-                              name: row['nome_empresa']);
-                          enviou = true;
-                          break;
-                        }
-                      }
+                      var lista = await crud.select(
+                          tabela: 'Administrador',
+                          select: 'email',
+                          where: {'email': fieldText.text});
+                      print(lista);
 
-                      if (enviou) {
-                        mensagem("Senha enviada",
-                            "Sua nova senha foi enviada ao seu email");
+                      if (lista != null) {
+                        var resposta = await AuthenticationService.auth
+                            .passwordReset(
+                                email: fieldText.text,
+                                url: url.substring(
+                                    0, url.indexOf(RegExp(r'[#]')) + 1));
+                        print(resposta.data);
                       } else {
-                        mensagem("Email incorreto", "Esse email é invalido");
+                        print('erro');
+                        const SnackBar(content: Text('Email não existe'));
                       }
 
                       clearText();

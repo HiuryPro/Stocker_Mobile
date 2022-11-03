@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
-import '../Metodos_das_Telas/login_metodos.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
@@ -16,11 +16,10 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
+  final _textFieldController = TextEditingController();
 
   var theme = AppController();
-  var login = Login();
   var navegar = Navegar();
-  var sign = AuthenticationService();
 
   String usuario = '';
   String senha = '';
@@ -28,6 +27,28 @@ class _LoginPageState extends State<LoginPage> {
   void clearText() {
     fieldText.clear();
     fieldText2.clear();
+  }
+
+  Widget alert(var mensagem) {
+    return AlertDialog(
+      title: const Text("Atualização de senha"),
+      content: Text(mensagem),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Ok"))
+      ],
+    );
+  }
+
+  mensagem(var mensagem) {
+    return showDialog(
+      context: context,
+      builder: (_) => alert(mensagem),
+      barrierDismissible: true,
+    );
   }
 
   Widget _body() {
@@ -76,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      var resposta = await sign.signIn(
+                      var resposta = await AuthenticationService.auth.signIn(
                           email: fieldText.text, senha: fieldText2.text);
                       print(resposta.data);
                       if (resposta.error == null) {
@@ -126,7 +147,8 @@ class _LoginPageState extends State<LoginPage> {
                       : AppController.instance.theme1;
                   return GestureDetector(
                     onTap: () {
-                      navegar.navegarEntreTela('/caduser', context, true);
+                      navegar.navegarEntreTela(
+                          '/CadastroUsuario', context, true);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",
@@ -173,19 +195,5 @@ class _LoginPageState extends State<LoginPage> {
                   fit: BoxFit.cover)),
           _body()
         ]));
-  }
-
-  Widget alert() {
-    return AlertDialog(
-      title: const Text("Login Invalido"),
-      content: const Text("Usuário/senha incorretos"),
-      actions: [
-        TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text("Ok"))
-      ],
-    );
   }
 }
