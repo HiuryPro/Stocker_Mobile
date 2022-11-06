@@ -73,23 +73,11 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      var lista = await crud.select(
-                          tabela: 'Administrador',
-                          select: 'email',
-                          where: {'email': fieldText.text});
-                      print(lista);
-
-                      if (lista != null) {
-                        var resposta = await AuthenticationService.auth
-                            .passwordReset(
-                                email: fieldText.text,
-                                url: url.substring(
-                                    0, url.indexOf(RegExp(r'[#]')) + 1));
-                        print(resposta.data);
-                      } else {
-                        print('erro');
-                        const SnackBar(content: Text('Email não existe'));
-                      }
+                      var resposta =
+                          await AuthenticationService.auth.passwordReset(
+                        email: fieldText.text,
+                      );
+                      print(resposta.data);
 
                       clearText();
                     },
@@ -103,6 +91,11 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                 const SizedBox(
                   height: 20,
                 ),
+                ElevatedButton(
+                    onPressed: () {
+                      print(AuthenticationService.auth.email);
+                    },
+                    child: Text("lica"))
               ],
             ),
           ),

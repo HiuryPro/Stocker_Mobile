@@ -46,8 +46,7 @@ class _CompraState extends State<Compra> {
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
   List<Map> preCompra = [];
-  bool isPreechendoVoz = false;
-  bool isDigitando = false;
+
   bool valor = true;
   bool valor2 = true;
   bool valor3 = true;
@@ -143,7 +142,7 @@ class _CompraState extends State<Compra> {
     if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
       await Voz.instance
           .mensagem('Erro ao gravar Quantidade. Tente falar novamente');
-      Voz.instance.palavras.remove('quantidade');
+      Voz.instance.palavrasCompra.remove('quantidade');
     } else {
       fieldControllerQtd.text = palavras['quantidade']!;
       calculaTotal();
@@ -215,7 +214,7 @@ class _CompraState extends State<Compra> {
                         var lista = [];
                         setState(() {
                           produto = value;
-                          isPreechendoVoz = false;
+
                           fieldControllerPreco.text = "";
                           fornecedor = null;
                         });
@@ -259,7 +258,6 @@ class _CompraState extends State<Compra> {
                       onChanged: (value) async {
                         setState(() {
                           fornecedor = value;
-                          isPreechendoVoz = false;
                         });
                         print(fornecedor);
                         var lista = await crud.selectInner(
@@ -290,8 +288,8 @@ class _CompraState extends State<Compra> {
                 controller: fieldControllerQtd,
                 onChanged: (qtd) {
                   setState(() {
-                    if (Voz.instance.palavras.containsKey('quantidade')) {
-                      Voz.instance.palavras.remove('quantidade');
+                    if (Voz.instance.palavrasCompra.containsKey('quantidade')) {
+                      Voz.instance.palavrasCompra.remove('quantidade');
                     }
 
                     if (qtd != "") {
@@ -378,8 +376,8 @@ class _CompraState extends State<Compra> {
                       produto = null;
                     });
 
-                    if (Voz.instance.palavras.isNotEmpty) {
-                      Voz.instance.palavras.clear();
+                    if (Voz.instance.palavrasCompra.isNotEmpty) {
+                      Voz.instance.palavrasCompra.clear();
                     }
                   },
                   child: const Text("Adiciona Linha")),
@@ -498,21 +496,17 @@ class _CompraState extends State<Compra> {
                       child: Icon(Icons.hearing),
                       onPressed: () async {
                         setState(() {
-                          isDigitando = false;
                           valor = true;
                           valor2 = true;
                           valor3 = true;
                         });
                         print(this.context);
-                        Voz.instance.opcao = false;
+                        Voz.instance.opcao = 1;
                         Voz.instance.context = this.context;
                         await Voz.instance.initSpeechState();
                         await Voz.instance.initTts();
                         await Voz.instance.buscaComandos();
                         Voz.instance.startListening();
-                        setState(() {
-                          isPreechendoVoz = true;
-                        });
                       }),
                   FloatingActionButton(
                       heroTag: null,
@@ -520,7 +514,7 @@ class _CompraState extends State<Compra> {
                       onPressed: () async {
                         print(this.context);
                         Voz.instance.context = this.context;
-                        Voz.instance.opcao = true;
+                        Voz.instance.opcao = 0;
                         await Voz.instance.initSpeechState();
 
                         await Voz.instance.initTts();
@@ -531,7 +525,8 @@ class _CompraState extends State<Compra> {
               ),
               drawer: drawerTela.drawerTela(context),
               appBar: AppBar(),
-              body: body(Voz.instance.palavras.length, Voz.instance.palavras));
+              body: body(Voz.instance.palavrasCompra.length,
+                  Voz.instance.palavrasCompra));
         });
   }
 

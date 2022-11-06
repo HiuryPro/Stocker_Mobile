@@ -33,11 +33,19 @@ class Voz extends ChangeNotifier {
   static SpeechToText speech = SpeechToText();
   bool isIniciado = false;
   String navegar2 = '';
-  Map<String, String> palavras = {};
-  List<String> palavrasChaves = ['produto', 'quantidade', 'fornecedor'];
-  bool opcao = true;
+  Map<String, String> palavrasVenda = {};
+  Map<String, String> palavrasCompra = {};
+  List<String> palavrasChavesCompra = ['produto', 'quantidade', 'fornecedor'];
+  List<String> palavrasChavesVenda = [
+    'produto',
+    'quantidade',
+    'cliente',
+    'adicional'
+  ];
+  int opcao = 0;
   late BuildContext context;
-  String produtoSelecionado = "";
+  String produtoSelecionadoCompra = "";
+  String produtoSelecionadoVenda = "";
 
   Voz() {
     navegar = Navegar();
@@ -90,10 +98,12 @@ class Voz extends ChangeNotifier {
     if (status == 'notListening') {
       print(lastWords);
       if (lastWords != '') {
-        if (opcao) {
+        if (opcao == 0) {
           await _comando();
-        } else {
+        } else if (opcao == 1) {
           await _comando2();
+        } else {
+          await _comando3();
         }
       } else {
         somSaiu();
@@ -118,20 +128,21 @@ class Voz extends ChangeNotifier {
     if (isComandoExistente) {
       await flutterTts.speak("Tela ${acao!}");
       navegar2 = "/$acao";
-      print('Chegp');
-      print(navegar2);
-      print(context);
       Navigator.pushNamed(context, navegar2);
     } else {
       await flutterTts.speak("Esse Comando não existe");
     }
   }
 
+//Compra
   Future _comando2() async {
     String? acao;
     bool isPalavraChave = false;
     List<String> produtos = [];
     List<String> fornecedores = [];
+    String comando = lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]")));
+    String item = lastWords.substring(
+        lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length);
 
     var lista = await crud.selectInner(
         tabela: "FornecedorProduto",
@@ -147,16 +158,11 @@ class Voz extends ChangeNotifier {
       }
     }
 
-    for (int i = 0; i < palavrasChaves.length; i++) {
-      print(lastWords
-          .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
-          .toLowerCase());
-      if (lastWords
-              .substring(0, lastWords.indexOf(RegExp(r"[ ]")))
-              .toLowerCase() ==
-          palavrasChaves[i].toLowerCase()) {
+    for (int i = 0; i < palavrasChavesCompra.length; i++) {
+      print(comando.toLowerCase());
+      if (comando.toLowerCase() == palavrasChavesCompra[i].toLowerCase()) {
         isPalavraChave = true;
-        acao = palavrasChaves[i];
+        acao = palavrasChavesCompra[i];
         break;
       }
     }
@@ -164,48 +170,40 @@ class Voz extends ChangeNotifier {
     if (isPalavraChave) {
       await flutterTts.speak("$acao");
 
-      if (lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))) ==
-          'produto') {
+      if (comando.toLowerCase() == 'produto'.toLowerCase()) {
         bool isProdutoExiste = false;
         for (int i = 0; i < produtos.length; i++) {
-          if (lastWords
-                  .substring(
-                      lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
-                  .toLowerCase() ==
-              produtos[i]
-                  .substring(produtos[i].indexOf(RegExp(r"[ ]")) + 1,
-                      produtos[i].length)
-                  .toLowerCase()) {
+          String produtoCompara = produtos[i]
+              .substring(
+                  produtos[i].indexOf(RegExp(r"[ ]")) + 1, produtos[i].length)
+              .toLowerCase();
+          if (item.toLowerCase() == produtoCompara) {
             isProdutoExiste = true;
-            produtoSelecionado = produtos[i];
+            produtoSelecionadoCompra = produtos[i];
             break;
           }
         }
 
         if (isProdutoExiste) {
-          palavras.addAll({
-            lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))):
-                produtoSelecionado
-          });
+          palavrasCompra.addAll({comando: produtoSelecionadoCompra});
         } else {
           await flutterTts.speak("Esse produto não existe");
         }
-      } else if (lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))) ==
-          'fornecedor') {
+      } else if (comando.toLowerCase() == 'fornecedor'.toLowerCase()) {
         bool isFornecedorExiste = false;
         String fornecedorSelecionado = "";
-        if (produtoSelecionado != '') {
-          print('Entro');
+
+        if (produtoSelecionadoCompra != '') {
           print(lastWords.indexOf(RegExp(r"[ ]")));
 
           var lista2 = await crud.selectInner(
               tabela: "FornecedorProduto",
               select: 'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
               where: {
-                'IdProduto': int.parse(produtoSelecionado.substring(
-                    0, produtoSelecionado.indexOf(RegExp(r"[ ]"))))
+                'IdProduto': int.parse(produtoSelecionadoCompra.substring(
+                    0, produtoSelecionadoCompra.indexOf(RegExp(r"[ ]"))))
               });
-          print(lista2);
+
           if (lista != null) {
             for (var row in lista2) {
               fornecedores.add(
@@ -213,14 +211,11 @@ class Voz extends ChangeNotifier {
             }
           }
           for (int i = 0; i < fornecedores.length; i++) {
-            if (lastWords
-                    .substring(
-                        lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
-                    .toLowerCase() ==
-                fornecedores[i]
-                    .substring(fornecedores[i].indexOf(RegExp(r"[ ]")) + 1,
-                        fornecedores[i].length)
-                    .toLowerCase()) {
+            String fornecedorCompara = fornecedores[i]
+                .substring(fornecedores[i].indexOf(RegExp(r"[ ]")) + 1,
+                    fornecedores[i].length)
+                .toLowerCase();
+            if (item.toLowerCase() == fornecedorCompara) {
               isFornecedorExiste = true;
               fornecedorSelecionado = fornecedores[i];
               break;
@@ -228,10 +223,7 @@ class Voz extends ChangeNotifier {
           }
 
           if (isFornecedorExiste) {
-            palavras.addAll({
-              lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))):
-                  fornecedorSelecionado
-            });
+            palavrasCompra.addAll({comando: fornecedorSelecionado});
           } else {
             await flutterTts.speak("Esse fornecedor não existe");
           }
@@ -239,16 +231,103 @@ class Voz extends ChangeNotifier {
           await flutterTts.speak('Fale um produto primeiro');
         }
       } else {
-        palavras.addAll({
-          lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]"))):
-              lastWords.substring(
-                  lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length)
-        });
+        palavrasCompra.addAll({comando: item});
       }
     } else {
       await flutterTts.speak("Campo invalido");
     }
     produtos.clear();
+    produtoSelecionadoCompra = "";
+    notifyListeners();
+  }
+
+//Venda
+  Future _comando3() async {
+    List<String> produtos = [];
+    List<String> clientes = [];
+    bool isPalavraChave = false;
+    String comando = lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]")));
+    String item = lastWords.substring(
+        lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length);
+    String? acao;
+
+    var lista1 = await crud.selectInner(
+        tabela: "Estoque",
+        select: 'Produto!inner(IdProduto,NomeProduto)PrecoMPM',
+        where: {});
+    var lista2 = await crud.selectInner(
+        tabela: "Cliente", select: 'Pessoa!inner(IdPessoa, Nome)', where: {});
+
+    for (var row in lista1) {
+      produtos.add(
+          "${row['Produto']["IdProduto"]} ${row["Produto"]["NomeProduto"]}");
+    }
+    for (var row in lista2) {
+      clientes.add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
+    }
+
+    for (int i = 0; i < palavrasChavesVenda.length; i++) {
+      print(comando);
+      if (comando.toLowerCase() == palavrasChavesVenda[i].toLowerCase()) {
+        isPalavraChave = true;
+        acao = palavrasChavesVenda[i];
+        break;
+      }
+    }
+
+    if (isPalavraChave) {
+      await flutterTts.speak("$acao");
+
+      if (comando.toLowerCase() == "produto".toLowerCase()) {
+        bool isProdutoExiste = false;
+
+        for (int i = 0; i < produtos.length; i++) {
+          String produtoCompara = produtos[i]
+              .substring(
+                  produtos[i].indexOf(RegExp(r"[ ]")) + 1, produtos[i].length)
+              .toLowerCase();
+
+          if (item.toLowerCase() == produtoCompara) {
+            isProdutoExiste = true;
+            produtoSelecionadoVenda = produtos[i];
+            break;
+          }
+        }
+
+        if (isProdutoExiste) {
+          palavrasVenda.addAll({comando: produtoSelecionadoVenda});
+        } else {
+          await flutterTts.speak("Esse produto não existe");
+        }
+      } else if (comando.toLowerCase() == "cliente".toLowerCase()) {
+        bool isClienteExiste = false;
+        String clienteSelecionado = "";
+        for (int i = 0; i < clientes.length; i++) {
+          String clienteCompara = clientes[i]
+              .substring(
+                  clientes[i].indexOf(RegExp(r"[ ]")) + 1, clientes[i].length)
+              .toLowerCase();
+
+          if (item.toLowerCase() == clienteCompara) {
+            isClienteExiste = true;
+            clienteSelecionado = clientes[i];
+            break;
+          }
+        }
+
+        if (isClienteExiste) {
+          palavrasVenda.addAll({comando: clienteSelecionado});
+        } else {
+          await flutterTts.speak("Esse produto não existe");
+        }
+      } else {
+        palavrasVenda.addAll({comando: item});
+      }
+    }
+
+    produtos.clear();
+    clientes.clear();
+    produtoSelecionadoCompra = "";
     notifyListeners();
   }
 
@@ -326,7 +405,7 @@ class Voz extends ChangeNotifier {
     speech.listen(
         onResult: resultListener,
         listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(milliseconds: 2000),
+        pauseFor: const Duration(milliseconds: 2500),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,

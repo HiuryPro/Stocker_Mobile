@@ -9,12 +9,14 @@ import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_usuario.dart';
 import 'package:stocker_mobile/Produto_Estoque/cadastroproduto.dart';
 import 'package:stocker_mobile/Cria_PDF/pega_imagem.dart';
+import 'package:stocker_mobile/Produto_Estoque/estoque.dart';
 
 import 'package:stocker_mobile/sttteste.dart';
 import 'package:stocker_mobile/talkinh.dart';
 import 'package:stocker_mobile/voice.dart';
 
 import 'Cria_PDF/chart.dart';
+import 'Produto_Estoque/relatorio_tela.dart';
 import 'Validacao_e_Gambiarra/app_controller.dart';
 import 'Login_e_Cadastro/atualiza_senha.dart';
 import 'Home/home_page.dart';
@@ -50,9 +52,9 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/',
+              initialRoute: '/login',
               routes: {
-                '/': (context) => const LoginPage(),
+                '/login': (context) => const LoginPage(),
                 '/Cadastro': (context) => const CadPage(),
                 '/Home': (context) => const HomePage(),
                 '/novasenhapage': (context) => const NovaSenhaPage(),
@@ -61,11 +63,13 @@ class AppWidget extends StatelessWidget {
                 '/Compra': (context) => const Compra(),
                 '/Voice': (context) => const TTSTeste(),
                 '/talkin': (context) => const TalkinH(),
-                '/Produto': (context) => const CadProduto(),
+                '/CadastrarProduto': (context) => const CadProduto(),
                 '/Venda': (context) => const Venda(),
-                '/CadastroUsuario': (context) => const CadUsuario(),
+                '/CadastrarUsuario': (context) => const CadUsuario(),
                 '/Configuracoes': (context) => const Configuracoes(),
-                '/alterasenha': (context) => const AlteraSenha()
+                '/': (context) => const AlteraSenha(),
+                '/Estoque': (context) => const Estoque(),
+                '/Relatorio': (context) => const Relatorio()
               });
         });
   }

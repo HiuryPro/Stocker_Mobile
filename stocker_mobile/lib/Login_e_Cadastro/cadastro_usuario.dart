@@ -80,13 +80,6 @@ class _CadUsuarioState extends State<CadUsuario> {
                           email: fieldText.text,
                           senha: fieldText2.text);
 
-                      if (response.error == null) {
-                        mostraAlerta(
-                            'Sucesso', 'Cadastro feito com sucesso!!', true);
-                      } else {
-                        mostraAlerta(
-                            'Erro', 'Erro ao Cadastrar Usuário', false);
-                      }
                       clearText();
                     },
                     style: ElevatedButton.styleFrom(
@@ -107,6 +100,16 @@ class _CadUsuarioState extends State<CadUsuario> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil("/login", (route) => false);
+                },
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: AppController.instance.theme1,
+                )),
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: [
@@ -152,7 +155,7 @@ class _CadUsuarioState extends State<CadUsuario> {
         TextButton(
             onPressed: () {
               if (sucesso) {
-                navegar.navegarEntreTela('/', context, true);
+                navegar.navegarEntreTela('/login', context, true);
               } else {
                 Navigator.of(context).pop();
               }

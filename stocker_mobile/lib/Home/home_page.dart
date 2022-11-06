@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
           child: Icon(Icons.phone),
           onPressed: () async {
             print(this.context);
-            Voz.instance.opcao = true;
+            Voz.instance.opcao = 0;
             Voz.instance.context = this.context;
             await Voz.instance.initSpeechState();
 

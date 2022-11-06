@@ -167,8 +167,10 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
             elevation: 0.0,
+            leading: null,
             actions: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

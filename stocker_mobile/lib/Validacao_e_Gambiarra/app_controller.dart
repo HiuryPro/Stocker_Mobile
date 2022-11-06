@@ -24,7 +24,7 @@ class AppController extends ChangeNotifier {
       background = "assets/images/back2B.jpg";
       logo = "assets/images/Stocker_blue_transpNB.png";
       theme1 = Colors.white;
-      theme2 = const Color(0xFFff7f26);
+      theme2 = const Color(0xFF710a9f);
     } else {
       background = "assets/images/back2.jpg";
       logo = "assets/images/Stocker_blue_transpN.png";

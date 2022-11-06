@@ -50,6 +50,10 @@ class _VendaState extends State<Venda> {
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
   List<Map> preVenda = [];
+  bool valor = false;
+  bool valor2 = false;
+  bool valor3 = false;
+  bool valor4 = false;
 
   @override
   void initState() {
@@ -80,7 +84,7 @@ class _VendaState extends State<Venda> {
       setState(() {
         for (var row in lista1) {
           produtos.add(
-              "${row['Produto']["IdProduto"]}  ${row["Produto"]["NomeProduto"]}");
+              "${row['Produto']["IdProduto"]} ${row["Produto"]["NomeProduto"]}");
         }
         for (var row in lista2) {
           clientes.add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
@@ -94,7 +98,110 @@ class _VendaState extends State<Venda> {
     return int.parse(soId);
   }
 
-  Widget body() {
+  adicionaPreco(var palavras) async {
+    var lista =
+        await crud.selectInner(tabela: "Estoque", select: 'PrecoMPM', where: {
+      "IdProduto": apenasNumeros(produto!),
+    });
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        valor = false;
+        fieldControllerPreco.text = row['PrecoMPM'].toString();
+        preco = double.parse(fieldControllerPreco.text);
+        calculaTotal();
+      });
+    }
+  }
+
+  adicionaDesconto(var palavras) async {
+    var lista =
+        await crud.selectInner(tabela: "Cliente", select: 'Desconto', where: {
+      "IdCliente": apenasNumeros(cliente!),
+    });
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        valor2 = false;
+        fieldControllerDesconto.text = row['Desconto'].toString();
+        desconto = double.parse(fieldControllerDesconto.text);
+        calculaTotal();
+      });
+    }
+  }
+
+  adicionaQtd(var palavras) async {
+    setState(() {
+      valor3 = false;
+    });
+
+    if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
+      await Voz.instance.mensagem(
+          'Erro ao gravar Quantidade. Comtém letras no campo para números');
+      Voz.instance.palavrasVenda.remove('quantidade');
+    } else {
+      fieldControllerQtd.text = palavras['quantidade']!;
+      calculaTotal();
+    }
+  }
+
+  adicionaAdicional(var palavras) async {
+    setState(() {
+      valor4 = false;
+    });
+
+    if (palavras['adicional']!.contains(RegExp(r'[A-Za-z]'))) {
+      await Voz.instance.mensagem(
+          'Erro ao gravar Adicional. Comtém letras no campo para números');
+      Voz.instance.palavrasVenda.remove('adicional');
+    } else {
+      fieldControllerAdicional.text = palavras['adicional']!;
+      calculaTotal();
+    }
+  }
+
+  calculaTotal() {
+    if (fieldControllerQtd.text != "" &&
+        fieldControllerAdicional.text != "" &&
+        fieldControllerPreco.text != "" &&
+        fieldControllerDesconto.text != "") {
+      quantidade = int.parse(fieldControllerQtd.text);
+      adicional = double.parse(fieldControllerAdicional.text);
+      setState(() {
+        fieldControllerTotal.text = retornaTotal(
+                int.parse(fieldControllerQtd.text),
+                double.parse(fieldControllerPreco.text),
+                double.parse(fieldControllerAdicional.text),
+                double.parse(fieldControllerDesconto.text))
+            .toString();
+        total = double.parse(fieldControllerTotal.text);
+      });
+    } else {
+      fieldControllerTotal.text = "";
+    }
+  }
+
+  Widget body(int tamanhoMap, Map<String, String> palavras) {
+    Future.delayed(Duration.zero, () async {
+      if (palavras.containsKey('produto') && valor) {
+        produto = palavras['produto'];
+        await adicionaPreco(palavras);
+      }
+
+      if (palavras.containsKey('cliente') && valor2) {
+        cliente = palavras['cliente'];
+        await adicionaDesconto(palavras);
+      }
+
+      if (palavras.containsKey('quantidade') && valor3) {
+        await adicionaQtd(palavras);
+      }
+
+      if (palavras.containsKey('adicional') && valor4) {
+        await adicionaAdicional(palavras);
+      }
+    });
+
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -102,6 +209,8 @@ class _VendaState extends State<Venda> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
                 child: ListView(shrinkWrap: true, children: [
+              Text(palavras.toString()),
+              Text(tamanhoMap.toString()),
               Container(
                 decoration: BoxDecoration(
                     border:
@@ -190,6 +299,9 @@ class _VendaState extends State<Venda> {
                 controller: fieldControllerQtd,
                 onChanged: (qtd) {
                   setState(() {
+                    if (Voz.instance.palavrasVenda.containsKey('quantidade')) {
+                      Voz.instance.palavrasVenda.remove('quantidade');
+                    }
                     if (qtd != "") {
                       quantidade = int.parse(qtd);
                       fieldControllerTotal.text =
@@ -230,6 +342,9 @@ class _VendaState extends State<Venda> {
               TextField(
                 controller: fieldControllerAdicional,
                 onChanged: (adicional) {
+                  if (Voz.instance.palavrasVenda.containsKey('adicional')) {
+                    Voz.instance.palavrasVenda.remove('adicional');
+                  }
                   setState(() {
                     if (adicional != "") {
                       this.adicional = double.parse(adicional);
@@ -300,6 +415,10 @@ class _VendaState extends State<Venda> {
                       quantidade = 0;
                       adicional = 0;
                     });
+
+                    if (Voz.instance.palavrasCompra.isNotEmpty) {
+                      Voz.instance.palavrasCompra.clear();
+                    }
                   },
                   child: const Text("Adiciona Linha")),
               SizedBox(
@@ -431,21 +550,51 @@ class _VendaState extends State<Venda> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.phone),
-            onPressed: () async {
-              print(this.context);
-              Voz.instance.context = this.context;
-              await Voz.instance.initSpeechState();
+    return AnimatedBuilder(
+        animation: Voz.instance,
+        builder: (context, snapshot) {
+          return Scaffold(
+              floatingActionButton: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton(
+                      heroTag: null,
+                      child: Icon(Icons.hearing),
+                      onPressed: () async {
+                        setState(() {
+                          valor = true;
+                          valor2 = true;
+                          valor3 = true;
+                          valor4 = true;
+                        });
+                        print(this.context);
+                        Voz.instance.opcao = 2;
+                        Voz.instance.context = this.context;
+                        await Voz.instance.initSpeechState();
+                        await Voz.instance.initTts();
+                        await Voz.instance.buscaComandos();
+                        Voz.instance.startListening();
+                      }),
+                  FloatingActionButton(
+                      heroTag: null,
+                      child: Icon(Icons.phone),
+                      onPressed: () async {
+                        print(this.context);
+                        Voz.instance.context = this.context;
+                        Voz.instance.opcao = 0;
+                        await Voz.instance.initSpeechState();
 
-              await Voz.instance.initTts();
-              await Voz.instance.buscaComandos();
-              Voz.instance.startListening();
-            }),
-        drawer: drawerTela.drawerTela(context),
-        appBar: AppBar(),
-        body: body());
+                        await Voz.instance.initTts();
+                        await Voz.instance.buscaComandos();
+                        Voz.instance.startListening();
+                      })
+                ],
+              ),
+              drawer: drawerTela.drawerTela(context),
+              appBar: AppBar(),
+              body: body(Voz.instance.palavrasVenda.length,
+                  Voz.instance.palavrasVenda));
+        });
   }
 
   List<DataColumn> _createColumns() {

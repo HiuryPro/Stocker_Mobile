@@ -28,6 +28,27 @@ class DrawerTela {
                 Navigator.pushNamed(context, '/Home');
               }),
           ListTile(
+              leading: const Icon(Icons.inventory_2),
+              title: const Text('Estoque'),
+              subtitle: const Text('Tela de Estoque'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Estoque');
+              }),
+          ListTile(
+              leading: const Icon(Icons.bar_chart),
+              title: const Text('Relatorio'),
+              subtitle: const Text('Tela para gera Relatorios'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Relatorio');
+              }),
+          ListTile(
+              leading: const Icon(Icons.post_add),
+              title: const Text('Adicionar Produto'),
+              subtitle: const Text('Tela para Adicionar Produto'),
+              onTap: () {
+                Navigator.pushNamed(context, '/CadastrarProduto');
+              }),
+          ListTile(
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Venda'),
             subtitle: const Text('Tela de Venda'),
@@ -57,8 +78,7 @@ class DrawerTela {
             subtitle: const Text('Sair do Login'),
             onTap: () async {
               Navigator.pushNamed(context, '/');
-              await AuthenticationService.auth
-                  .signOut(email: "jdzj", senha: "vjihsvi");
+              await AuthenticationService.auth.signOut();
             },
           ),
         ],

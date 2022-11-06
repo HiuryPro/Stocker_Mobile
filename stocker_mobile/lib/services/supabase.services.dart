@@ -10,6 +10,7 @@ var url = window.location.href;
 
 class AuthenticationService {
   static AuthenticationService auth = AuthenticationService();
+  String email = "";
   signUp(
       {required BuildContext context,
       required String email,
@@ -44,16 +45,23 @@ class AuthenticationService {
     return response;
   }
 
-  Future<GotrueResponse> signOut(
+  Future<GotrueSessionResponse> signIn2(
       {required String email, required String senha}) async {
+    GotrueSessionResponse response =
+        await SupaBaseCredentials.supaBaseClient.auth.signIn(password: senha);
+
+    return response;
+  }
+
+  Future<GotrueResponse> signOut() async {
     GotrueResponse response =
         await SupaBaseCredentials.supaBaseClient.auth.signOut();
 
     return response;
   }
 
-  Future<GotrueJsonResponse> passwordReset(
-      {required String email, required String url}) async {
+  Future<GotrueJsonResponse> passwordReset({required String email}) async {
+    this.email = email;
     GotrueJsonResponse response = await SupaBaseCredentials
         .supaBaseClient.auth.api
         .resetPasswordForEmail(email);
