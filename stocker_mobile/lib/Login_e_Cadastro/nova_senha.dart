@@ -91,11 +91,6 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      print(AuthenticationService.auth.email);
-                    },
-                    child: Text("lica"))
               ],
             ),
           ),

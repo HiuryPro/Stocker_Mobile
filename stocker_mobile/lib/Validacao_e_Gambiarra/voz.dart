@@ -180,6 +180,7 @@ class Voz extends ChangeNotifier {
           if (item.toLowerCase() == produtoCompara) {
             isProdutoExiste = true;
             produtoSelecionadoCompra = produtos[i];
+
             break;
           }
         }
@@ -192,7 +193,7 @@ class Voz extends ChangeNotifier {
       } else if (comando.toLowerCase() == 'fornecedor'.toLowerCase()) {
         bool isFornecedorExiste = false;
         String fornecedorSelecionado = "";
-
+        print(produtoSelecionadoCompra);
         if (produtoSelecionadoCompra != '') {
           print(lastWords.indexOf(RegExp(r"[ ]")));
 
@@ -227,6 +228,7 @@ class Voz extends ChangeNotifier {
           } else {
             await flutterTts.speak("Esse fornecedor não existe");
           }
+          produtoSelecionadoCompra = "";
         } else {
           await flutterTts.speak('Fale um produto primeiro');
         }
@@ -237,7 +239,6 @@ class Voz extends ChangeNotifier {
       await flutterTts.speak("Campo invalido");
     }
     produtos.clear();
-    produtoSelecionadoCompra = "";
     notifyListeners();
   }
 
@@ -296,6 +297,7 @@ class Voz extends ChangeNotifier {
 
         if (isProdutoExiste) {
           palavrasVenda.addAll({comando: produtoSelecionadoVenda});
+          produtoSelecionadoVenda = "";
         } else {
           await flutterTts.speak("Esse produto não existe");
         }
@@ -327,7 +329,6 @@ class Voz extends ChangeNotifier {
 
     produtos.clear();
     clientes.clear();
-    produtoSelecionadoCompra = "";
     notifyListeners();
   }
 

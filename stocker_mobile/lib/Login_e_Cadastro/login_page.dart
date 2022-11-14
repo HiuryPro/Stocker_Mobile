@@ -83,6 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 15,
                 ),
                 TextField(
+                    obscureText: true,
                     onChanged: (text) {
                       senha = text;
                     },
@@ -104,6 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                         print(resposta.user!.id);
                         setState(() {
                           AppController.instance.response = resposta;
+                          print(resposta);
                         });
 
                         // ignore: use_build_context_synchronously

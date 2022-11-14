@@ -203,9 +203,9 @@ class _CompraState extends State<Compra> {
                   child: DropdownButton<String>(
                       value: produto,
                       menuMaxHeight: 200,
-                      hint: Padding(
+                      hint: const Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text("Produtos ${palavras['produto']}"),
+                        child: Text("Produtos"),
                       ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
@@ -431,6 +431,7 @@ class _CompraState extends State<Compra> {
                     }
                     setState(() {
                       preCompra.clear();
+                      fieldControllerTotal.text = "";
                     });
                   },
                   child: const Text("Comprar"))

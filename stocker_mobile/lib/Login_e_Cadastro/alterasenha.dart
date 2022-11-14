@@ -67,14 +67,29 @@ class _AlteraSenhaState extends State<AlteraSenha> {
               TextField(
                 obscureText: true,
                 controller: senha,
-                decoration: InputDecoration(label: Text("Senha")),
+                decoration: InputDecoration(
+                    label: Text("Senha"), border: OutlineInputBorder()),
+              ),
+              SizedBox(
+                height: 15,
               ),
               TextField(
                 obscureText: true,
                 controller: confirmaSenha,
-                decoration: InputDecoration(label: Text("Confirmar a senha")),
+                decoration: InputDecoration(
+                    label: Text("Confirmar a senha"),
+                    border: OutlineInputBorder()),
+              ),
+              SizedBox(
+                height: 15,
               ),
               ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppController.instance.theme2,
+                    textStyle: const TextStyle(fontSize: 24),
+                    minimumSize: const Size.fromHeight(72),
+                    shape: const StadiumBorder(),
+                  ),
                   onPressed: () async {
                     List<String> lista = [];
                     for (var teste in hashArr) {
@@ -95,7 +110,7 @@ class _AlteraSenhaState extends State<AlteraSenha> {
                       }
                     }
                   },
-                  child: Text("Salavr Nova Senha"))
+                  child: const Text("Salvar Nova Senha"))
             ],
           ))),
     );

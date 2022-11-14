@@ -37,4 +37,5 @@ main() async {
   await crud.selectNovo(function: 'teste');
   print(apenasNumeros("ola meu nome é 35"));
   */
+  print(DateFormat("dd/MM/yyyy").parse('28/12/2002'));
 }

@@ -77,7 +77,7 @@ class DrawerTela {
             title: const Text('Logout'),
             subtitle: const Text('Sair do Login'),
             onTap: () async {
-              Navigator.pushNamed(context, '/');
+              Navigator.pushNamed(context, '/login');
               await AuthenticationService.auth.signOut();
             },
           ),
