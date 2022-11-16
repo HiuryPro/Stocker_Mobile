@@ -6,7 +6,11 @@ import '../credentials/supabase.credentials.dart';
 
 class Chart extends StatefulWidget {
   final int? item;
-  const Chart({Key? key, this.item}) : super(key: key);
+  final int? opcao;
+  final String? data1;
+  final String? data2;
+  const Chart({Key? key, this.item, this.opcao, this.data1, this.data2})
+      : super(key: key);
 
   @override
   State<Chart> createState() => _ChartState();
@@ -25,36 +29,83 @@ class _ChartState extends State<Chart> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      var result =
-          await SupaBaseCredentials.supaBaseClient.rpc('compra').execute();
+      dataMap.clear();
+      legendLabels.clear();
+      nomes.clear();
+      valores.clear();
 
-      if (widget.item == 1) {
-        for (var row in result.data) {
+      if (widget.opcao == 1) {
+        var result = await SupaBaseCredentials.supaBaseClient.rpc('compra',
+            params: {'data1': widget.data1, 'data2': widget.data2}).execute();
+
+        if (widget.item == 1) {
+          for (var row in result.data) {
+            setState(() {
+              nomes.add("${row['valor']} : ${row['qtdtotal']}");
+              valores.add(double.parse("${row['qtdtotal']}"));
+            });
+          }
           setState(() {
-            nomes.add("${row['valor']} : ${row['qtdtotal']}");
-            valores.add(double.parse("${row['qtdtotal']}"));
+            dataMap = Map.fromIterables(nomes, valores);
+            legendLabels = Map.fromIterables(nomes, nomes);
+          });
+        } else {
+          for (var row in result.data) {
+            setState(() {
+              nomes.add(
+                  "${row['valor']} : ${row['precototal'].toStringAsFixed(2)}");
+              valores
+                  .add(double.parse("${row['precototal'].toStringAsFixed(2)}"));
+            });
+          }
+
+          setState(() {
+            dataMap = Map.fromIterables(nomes, valores);
+            legendLabels = Map.fromIterables(nomes, nomes);
           });
         }
-        setState(() {
-          dataMap = Map.fromIterables(nomes, valores);
-          legendLabels = Map.fromIterables(nomes, nomes);
-        });
       } else {
-        for (var row in result.data) {
+        var qtdTotalVenda = await SupaBaseCredentials.supaBaseClient.rpc(
+            'qtdvenda',
+            params: {'data1': widget.data1, 'data2': widget.data2}).execute();
+
+        if (widget.item == 1) {
+          for (var row in qtdTotalVenda.data) {
+            setState(() {
+              nomes.add("${row['nomep']} : ${row['qtdtotal']}");
+              valores.add(double.parse("${row['qtdtotal']}"));
+            });
+          }
           setState(() {
-            nomes.add("${row['valor']} : ${row['precototal']}");
-            valores.add(double.parse("${row['precototal']}"));
+            dataMap = Map.fromIterables(nomes, valores);
+            legendLabels = Map.fromIterables(nomes, nomes);
+          });
+        } else {
+          for (var row in qtdTotalVenda.data) {
+            setState(() {
+              nomes
+                  .add("${row['nomep']} : ${row['totalv'].toStringAsFixed(2)}");
+              valores.add(double.parse("${row['totalv'].toStringAsFixed(2)}"));
+            });
+          }
+
+          setState(() {
+            dataMap = Map.fromIterables(nomes, valores);
+            legendLabels = Map.fromIterables(nomes, nomes);
           });
         }
-
-        setState(() {
-          dataMap = Map.fromIterables(nomes, valores);
-          legendLabels = Map.fromIterables(nomes, nomes);
-        });
       }
     });
 
     super.initState();
+  }
+
+  double retornaTotal(int qtd, double prec, double adic, double desc) {
+    double preTotal = (qtd * prec);
+    double preTotalComAdicional = preTotal + (preTotal * (adic / 100));
+    double total = preTotalComAdicional - (preTotalComAdicional * (desc / 100));
+
+    return total;
   }
 
   @override
@@ -69,7 +120,7 @@ class _ChartState extends State<Chart> {
           legendLabels: legendLabels,
           chartValuesOptions: const ChartValuesOptions(
               showChartValueBackground: false,
-              decimalPlaces: 0,
+              decimalPlaces: 2,
               chartValueStyle: TextStyle(fontSize: 35)),
           legendOptions: const LegendOptions(
               legendShape: BoxShape.rectangle,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:stocker_mobile/Compra_e_Venda/tela_venda.dart';
 import 'package:stocker_mobile/credentials/supabase.credentials.dart';
 
 import '../Cria_PDF/cria_pdf.dart';
@@ -11,6 +12,8 @@ import '../Cria_PDF/uint.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Cria_PDF/cores.dart';
+import '../Validacao_e_Gambiarra/drawertela.dart';
+import '../Validacao_e_Gambiarra/voz.dart';
 
 class Relatorio extends StatefulWidget {
   const Relatorio({Key? key}) : super(key: key);
@@ -22,19 +25,24 @@ class Relatorio extends StatefulWidget {
 class RelatorioState extends State<Relatorio> {
   int count = 0;
 
-  final fieldText = TextEditingController();
-  final fieldText2 = TextEditingController();
+  final deDataCompra = TextEditingController();
+  final ateDataCompra = TextEditingController();
+  final deDataVenda = TextEditingController();
+  final ateDataVenda = TextEditingController();
 
   List<String> venda = ["Suco", "Cerveja", "Puta", "Caralho"];
   List<double> preco = [10, 20, 30, 40];
 
-  String deData = "";
-  String ateData = "";
+  String deDataC = "";
+  String ateDataC = "";
+  String deDataV = "";
+  String ateDataV = "";
   bool carrega = false;
   bool isDone = false;
 
   var criaPdf = CriaPDF();
   var navegar = Navegar();
+  var drawer = DrawerTela();
 
   Cores cor = Cores();
 
@@ -51,17 +59,44 @@ class RelatorioState extends State<Relatorio> {
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
-  criandoPDF() async {
+  criandoPDFCompra() async {
     var lista = await SupaBaseCredentials.supaBaseClient.rpc('relatoriocompra',
-        params: {'data1': deData, 'data2': ateData}).execute();
+        params: {'data1': deDataC, 'data2': ateDataC}).execute();
 
     if (lista.data != null) {
-      criaPdf.deData = deData;
-      criaPdf.ateData = ateData;
+      criaPdf.deData = deDataC;
+      criaPdf.ateData = ateDataC;
       var imageToUint = Uint();
-      await imageToUint.pegaImagem();
-      await criaPdf.relatoriaDados();
-      await criaPdf.createPDF(
+      await imageToUint.pegaImagem(1, deDataC, ateDataC);
+      await criaPdf.relatoriaDadosCompra();
+      await criaPdf.createPDFCompra(
+          imageLogo: imageToUint.image,
+          bytesImage: imageToUint.bytes,
+          bytesImage2: imageToUint.bytes2);
+      setState(() {
+        carrega = false;
+      });
+      mensagem(
+          "Relatório gerado com sucesso! Arquivo baixado na pasta dowloadas");
+    } else {
+      setState(() {
+        carrega = false;
+      });
+      mensagem("Não há registros neste período");
+    }
+  }
+
+  criandoPDFVenda() async {
+    var lista = await SupaBaseCredentials.supaBaseClient.rpc('relatoriovenda',
+        params: {'data1': deDataV, 'data2': ateDataV}).execute();
+
+    if (lista.data != null) {
+      criaPdf.deData = deDataV;
+      criaPdf.ateData = ateDataV;
+      var imageToUint = Uint();
+      await imageToUint.pegaImagem(2, deDataV, ateDataV);
+      await criaPdf.relatoriaDadosVenda();
+      await criaPdf.createPDFVenda(
           imageLogo: imageToUint.image,
           bytesImage: imageToUint.bytes,
           bytesImage2: imageToUint.bytes2);
@@ -80,124 +115,237 @@ class RelatorioState extends State<Relatorio> {
 
   Widget body() {
     return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: Center(
-        child: ListView(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+            child: ListView(
           shrinkWrap: true,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  flex: 3,
-                  fit: FlexFit.tight,
-                  child: TextField(
-                      readOnly: true,
-                      controller: fieldText,
-                      onTap: () {
-                        showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(1980),
-                                lastDate: DateTime(3000))
-                            .then((date) {
-                          if (date != null) {
-                            fieldText.text =
-                                DateFormat('dd/MM/yyyy').format(date);
-                            deData = fieldText.text;
-                          }
-                        });
-                      },
+          children: [compra(), vendatela()],
+        )),
+      ),
+    );
+  }
 
-                      //inputFormatters: [dateMask],
-                      decoration: const InputDecoration(
-                        labelText: 'Dé',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                ),
-                Flexible(
-                  flex: 3,
-                  fit: FlexFit.tight,
-                  child: TextField(
-                      readOnly: true,
-                      controller: fieldText2,
-                      onTap: () {
-                        showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(1980),
-                                lastDate: DateTime(3000))
-                            .then((date) {
-                          if (date != null) {
-                            fieldText2.text =
-                                DateFormat('dd/MM/yyyy').format(date);
-                            ateData = fieldText2.text;
-                          }
-                        });
-                      },
-                      inputFormatters: [dateMask2],
-                      decoration: const InputDecoration(
-                        labelText: 'Até',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red)),
-                      )),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed("/");
-                },
-                child: const Text("Voltar")),
-            const SizedBox(
-              height: 15,
-            ),
-            ElevatedButton(
-                onPressed: () async {
-                  setState(() {
-                    carrega = true;
-                  });
+  Widget compra() {
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          const Center(
+            child: Text('Gerar Relatorio de Compra',
+                style: TextStyle(fontSize: 20)),
+          ),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                flex: 3,
+                fit: FlexFit.tight,
+                child: TextField(
+                    readOnly: true,
+                    controller: deDataCompra,
+                    onTap: () {
+                      showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1980),
+                              lastDate: DateTime(3000))
+                          .then((date) {
+                        if (date != null) {
+                          deDataCompra.text =
+                              DateFormat('dd/MM/yyyy').format(date);
+                          deDataC = deDataCompra.text;
+                        }
+                      });
+                    },
 
-                  if (kIsWeb) {
-                    await criandoPDF();
-                    criaPdf.anchor.click();
+                    //inputFormatters: [dateMask],
+                    decoration: const InputDecoration(
+                      labelText: 'Dé',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red)),
+                    )),
+              ),
+              Flexible(
+                flex: 3,
+                fit: FlexFit.tight,
+                child: TextField(
+                    readOnly: true,
+                    controller: ateDataCompra,
+                    onTap: () {
+                      showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1980),
+                              lastDate: DateTime(3000))
+                          .then((date) {
+                        if (date != null) {
+                          ateDataCompra.text =
+                              DateFormat('dd/MM/yyyy').format(date);
+                          ateDataC = ateDataCompra.text;
+                        }
+                      });
+                    },
+                    inputFormatters: [dateMask2],
+                    decoration: const InputDecoration(
+                      labelText: 'Até',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red)),
+                    )),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                setState(() {
+                  carrega = true;
+                });
+
+                if (kIsWeb) {
+                  await criandoPDFCompra();
+                  criaPdf.anchor.click();
+                } else {
+                  if (await Permission.storage.isGranted) {
+                    await criaPdf.criaDiretorio();
+                    await criandoPDFCompra();
                   } else {
+                    await [Permission.storage].request();
+
                     if (await Permission.storage.isGranted) {
                       await criaPdf.criaDiretorio();
-                      await criandoPDF();
+
+                      await criandoPDFCompra();
                     } else {
-                      await [Permission.storage].request();
-
-                      if (await Permission.storage.isGranted) {
-                        await criaPdf.criaDiretorio();
-
-                        await criandoPDF();
-                      } else {
-                        // ignore: use_build_context_synchronously
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text("Need permissions"),
-                        ));
-                      }
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Need permissions"),
+                      ));
                     }
                   }
-                },
-                child: const Text("Cria PDF")),
-            const SizedBox(
-              height: 15,
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  navegar.navegarEntreTela("/telaCompra", context, true);
-                },
-                child: const Text("Tela de Compra")),
-          ],
-        ),
+                }
+              },
+              child: const Text("Cria PDF")),
+          const SizedBox(
+            height: 30,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget vendatela() {
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          const Center(
+            child: Text('Gerar Relatorio de Venda',
+                style: TextStyle(fontSize: 20)),
+          ),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                flex: 3,
+                fit: FlexFit.tight,
+                child: TextField(
+                    readOnly: true,
+                    controller: deDataVenda,
+                    onTap: () {
+                      showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1980),
+                              lastDate: DateTime(3000))
+                          .then((date) {
+                        if (date != null) {
+                          deDataVenda.text =
+                              DateFormat('dd/MM/yyyy').format(date);
+                          deDataV = deDataVenda.text;
+                        }
+                      });
+                    },
+
+                    //inputFormatters: [dateMask],
+                    decoration: const InputDecoration(
+                      labelText: 'Dé',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red)),
+                    )),
+              ),
+              Flexible(
+                flex: 3,
+                fit: FlexFit.tight,
+                child: TextField(
+                    readOnly: true,
+                    controller: ateDataVenda,
+                    onTap: () {
+                      showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1980),
+                              lastDate: DateTime(3000))
+                          .then((date) {
+                        if (date != null) {
+                          ateDataVenda.text =
+                              DateFormat('dd/MM/yyyy').format(date);
+                          ateDataV = ateDataVenda.text;
+                        }
+                      });
+                    },
+                    inputFormatters: [dateMask2],
+                    decoration: const InputDecoration(
+                      labelText: 'Até',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red)),
+                    )),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                setState(() {
+                  carrega = true;
+                });
+
+                if (kIsWeb) {
+                  await criandoPDFVenda();
+                  criaPdf.anchor.click();
+                } else {
+                  if (await Permission.storage.isGranted) {
+                    await criaPdf.criaDiretorio();
+                    await criandoPDFVenda();
+                  } else {
+                    await [Permission.storage].request();
+
+                    if (await Permission.storage.isGranted) {
+                      await criaPdf.criaDiretorio();
+
+                      await criandoPDFVenda();
+                    } else {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Need permissions"),
+                      ));
+                    }
+                  }
+                }
+              },
+              child: const Text("Cria PDF")),
+          const SizedBox(
+            height: 15,
+          ),
+        ],
       ),
     );
   }
@@ -205,37 +353,21 @@ class RelatorioState extends State<Relatorio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            leading: IconButton(
-              color: AppController.instance.isDarkTheme
-                  ? Colors.white
-                  : Colors.black,
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/', (Route<dynamic> route) => false);
-              },
-            ),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                      style: TextStyle(color: AppController.instance.theme1),
-                      "BlackTheme"),
-                  Switch(
-                    value: AppController.instance.isDarkTheme,
-                    onChanged: (value) {
-                      setState(() {
-                        AppController.instance.changeTheme();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ]),
+        appBar: AppBar(),
+        drawer: drawer.drawerTela(context),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.phone),
+            onPressed: () async {
+              print(this.context);
+              Voz.instance.opcao = 0;
+              Voz.instance.context = this.context;
+              await Voz.instance.initSpeechState();
+
+              await Voz.instance.initTts();
+              await Voz.instance.buscaComandos();
+
+              Voz.instance.startListening();
+            }),
         body: Stack(
           children: [
             body(),

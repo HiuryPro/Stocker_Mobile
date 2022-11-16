@@ -429,7 +429,7 @@ class _CadProdutoState extends State<CadProduto> {
                     }
                   });
 
-                  if (isTudoPreenchido) {
+                  if (isTudoPreenchido && produto != null) {
                     var loteResultado;
                     var produtos = await crud.selectInner(
                         tabela: 'Lote',
@@ -499,6 +499,10 @@ class _CadProdutoState extends State<CadProduto> {
                             double.parse(controllersLote['precoUnd']!.text)
                       });
                       print(estoqueResultado);
+                      var snack = const SnackBar(
+                        content: Text('Cadastro de lote feito com sucesso'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snack);
                     } else {
                       var snack = const SnackBar(
                         content: Text(

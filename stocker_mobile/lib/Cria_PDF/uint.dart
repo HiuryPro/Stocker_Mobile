@@ -11,15 +11,17 @@ class Uint {
   // ignore: prefer_typing_uninitialized_variables
   var image;
 
-  pegaImagem() async {
+  pegaImagem(int opcao, String? deData, String? ateData) async {
     ScreenshotController screenshotController = ScreenshotController();
     bytes = await screenshotController.captureFromWidget(
-      const MediaQuery(data: MediaQueryData(), child: Chart(item: 1)),
+      MediaQuery(
+          data: MediaQueryData(),
+          child: Chart(item: 1, opcao: opcao, data1: deData, data2: ateData)),
     );
     bytes2 = await screenshotController.captureFromWidget(
-      const MediaQuery(
+      MediaQuery(
         data: MediaQueryData(),
-        child: Chart(item: 2),
+        child: Chart(item: 2, opcao: opcao, data1: deData, data2: ateData),
       ),
     );
 

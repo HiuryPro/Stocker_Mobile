@@ -21,7 +21,7 @@ main() async {
   print(await crud.selectInner(
       tabela: "ItemCompra",
       select:
-          "*, FornecedorProduto!inner(Produto!inner(*), Fornecedor!inner(*), Preco)",
+          "*, FornecedorProduto!inner(Produto!inner(*), Fornecedor!inner(*), Prec1o)",
       where: {}));
 
   print(DateFormat.Hms().format(DateTime.now()));
@@ -51,8 +51,8 @@ main() async {
   });
   await SupaBaseCredentials.supaBaseClient.rpc('totalCompra2').execute();
 
-  var response =
-      await SupaBaseCredentials.supaBaseClient.rpc('compra').execute();
+  var response = await SupaBaseCredentials.supaBaseClient.rpc('compra',
+      params: {'data1': "23/04/2022", 'data2': '23/11/2022'}).execute();
   print(response.data);
 
   /*var response2 = await SupaBaseCredentials.supaBaseClient.rpc(
@@ -60,8 +60,23 @@ main() async {
       params: {'data1': '12/05/2022', 'data2': '12/12/2022'}).execute();
   print(response2.data);
   */
-  var response2 = await SupaBaseCredentials.supaBaseClient.rpc(
-      'relatoriocompra',
+
+  double retornaTotal(int qtd1, double prec1, double adic1, double desc1) {
+    double preTotal = (qtd1 * prec1);
+    double preTotalComAdic1ional = preTotal + (preTotal * (adic1 / 100));
+    double total =
+        preTotalComAdic1ional - (preTotalComAdic1ional * (desc1 / 100));
+
+    return total;
+    //return ((qtd1 * prec1) + ((qtd1 * prec1) * (adic1 / 100))) - ((((qtd1 * prec1) + ((qtd1 * prec1) * (adic1 / 100)))) * (desc1 / 100));
+  }
+
+  print(retornaTotal(11, 3, 7, 6) + retornaTotal(12, 3, 10, 5));
+  var response2 = await SupaBaseCredentials.supaBaseClient.rpc('relatoriovenda',
       params: {'data1': "23/04/2022", 'data2': '23/11/2022'}).execute();
   print(response2.data);
+
+  var response3 = await SupaBaseCredentials.supaBaseClient.rpc('qtdvenda',
+      params: {'data1': "23/04/2022", 'data2': '23/11/2022'}).execute();
+  print(response3.data);
 }
