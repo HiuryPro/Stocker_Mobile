@@ -19,14 +19,35 @@ class DataBaseService {
     }
   }
 
-  dynamic selectWithoutFilter({
-    required String tabela,
-    required String select,
-  }) async {
+  dynamic selectWithOrder(
+      {required String tabela,
+      required String select,
+      required Map<String, dynamic> where,
+      required dynamic order}) async {
     try {
       var response = await SupaBaseCredentials.supaBaseClient
           .from(tabela)
           .select(select)
+          .match(where)
+          .order(order, ascending: true)
+          .execute();
+
+      return response.data;
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  dynamic selectWithGrpup(
+      {required String tabela,
+      required String select,
+      required Map<String, dynamic> where,
+      required dynamic group}) async {
+    try {
+      var response = await SupaBaseCredentials.supaBaseClient
+          .from(tabela)
+          .select(select)
+          .match(where)
           .execute();
 
       return response.data;

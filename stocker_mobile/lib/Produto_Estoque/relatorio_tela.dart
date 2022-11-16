@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:stocker_mobile/credentials/supabase.credentials.dart';
 
 import '../Cria_PDF/cria_pdf.dart';
 import '../Cria_PDF/uint.dart';
 
-import '../DadosDB/crud.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Cria_PDF/cores.dart';
@@ -33,7 +33,6 @@ class RelatorioState extends State<Relatorio> {
   bool carrega = false;
   bool isDone = false;
 
-  var dadosBD = CRUD();
   var criaPdf = CriaPDF();
   var navegar = Navegar();
 
@@ -52,30 +51,11 @@ class RelatorioState extends State<Relatorio> {
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
-  atualizaRelatorio() async {
-    await dadosBD.update(
-        "UPDATE relatoriototal set qtd_total = ?, preco_total = ?", [0, 0]);
-    var dados = await dadosBD.select(
-        "SELECT nome_produto  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\"))");
-    for (var row in dados) {
-      var dados2 = await dadosBD.select(
-          "SELECT SUM(quantidade), SUM(total)  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) and nome_produto = '${row['nome_produto']}' ORDER BY data_saida ");
-      for (var row2 in dados2) {
-        await dadosBD.update(
-            "UPDATE relatoriototal set qtd_total = ?, preco_total = ? where nome_produto = '${row['nome_produto']}'",
-            [row2['SUM(quantidade)'], row2['SUM(total)']]);
-      }
-    }
-  }
-
   criandoPDF() async {
-    var lista = [];
+    var lista = await SupaBaseCredentials.supaBaseClient.rpc('relatoriocompra',
+        params: {'data1': deData, 'data2': ateData}).execute();
 
-    lista = await dadosBD.select(
-        "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
-    if (lista.isNotEmpty) {
-      await atualizaRelatorio();
-
+    if (lista.data != null) {
       criaPdf.deData = deData;
       criaPdf.ateData = ateData;
       var imageToUint = Uint();

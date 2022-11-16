@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
 import 'package:stocker_mobile/services/supabase.services.dart';
 import 'package:universal_html/html.dart';
-import '../DadosDB/crud.dart';
+
 import '../SendEmail/send_email.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 

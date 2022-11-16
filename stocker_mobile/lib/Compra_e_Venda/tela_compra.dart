@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -34,6 +35,11 @@ class _CompraState extends State<Compra> {
   var fieldControllerFrete = TextEditingController();
   var fieldControllerTotal = TextEditingController();
   var fieldControllerQtd = TextEditingController();
+  var controllerDataFabricacao = TextEditingController();
+  var controllerDataVencimento = TextEditingController();
+  var controllerNumLote = TextEditingController();
+  var controllerDescLote = TextEditingController();
+
   var crud = DataBaseService();
   final produtos = [""];
   final fornecedores = [""];
@@ -46,10 +52,24 @@ class _CompraState extends State<Compra> {
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
   List<Map> preCompra = [];
+  Map<String, int> lotes = {};
+  String? lote;
 
   bool valor = true;
   bool valor2 = true;
   bool valor3 = true;
+
+  bool isLoteExistente = true;
+
+  var dateMaskFabricacao = MaskTextInputFormatter(
+      mask: '##/##/####',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
+
+  var dateMaskVencimento = MaskTextInputFormatter(
+      mask: '##/##/####',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
 
   @override
   void initState() {
@@ -63,6 +83,13 @@ class _CompraState extends State<Compra> {
       } else {
         if (!await Permission.microphone.isGranted) {
           await Permission.microphone.request();
+        }
+      }
+      var listaLotes = await crud
+          .select(tabela: "Lote", select: 'IdLote, NumeroLote', where: {});
+      if (listaLotes != null) {
+        for (var row in listaLotes) {
+          lotes.addAll({row['NumeroLote']: row['IdLote']});
         }
       }
 
@@ -193,7 +220,7 @@ class _CompraState extends State<Compra> {
             child: Center(
                 child: ListView(shrinkWrap: true, children: [
               Text(palavras.toString()),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               Container(
                 decoration: BoxDecoration(
                     border:
@@ -284,6 +311,48 @@ class _CompraState extends State<Compra> {
               const SizedBox(
                 height: 15,
               ),
+              Container(
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(color: const Color(0xFF0080d9), width: 2),
+                    borderRadius: BorderRadius.circular(12)),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                      value: lote,
+                      menuMaxHeight: 200,
+                      hint: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("Número de Lote"),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      isExpanded: true,
+                      items: lotes.keys.toList().map(buildMenuItem).toList(),
+                      onChanged: isLoteExistente
+                          ? (value) async {
+                              var lista = [];
+                              setState(() {
+                                lote = value;
+                              });
+                            }
+                          : null),
+                ),
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                      value: !isLoteExistente,
+                      onChanged: (value) {
+                        setState(() {
+                          isLoteExistente = !isLoteExistente;
+                        });
+                      }),
+                  const Text("Marcar caso necessario cadastrar novo Lote"),
+                ],
+              ),
+              if (isLoteExistente) const SizedBox(height: 15),
+              if (!isLoteExistente)
+                for (int i = 0; i < cadastraLote().length; i++)
+                  cadastraLote()[i],
               TextField(
                 controller: fieldControllerQtd,
                 onChanged: (qtd) {
@@ -438,6 +507,64 @@ class _CompraState extends State<Compra> {
             ]))));
   }
 
+  List<Widget> cadastraLote() {
+    return [
+      const SizedBox(
+        height: 30,
+      ),
+      TextField(
+        controller: controllerNumLote,
+        decoration: InputDecoration(
+            label: const Text('Numero Do Lote'),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: Color(0xFF0080d9), width: 2))),
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+      TextField(
+        controller: controllerDataFabricacao,
+        inputFormatters: [dateMaskFabricacao],
+        decoration: InputDecoration(
+            label: const Text('Data de Fabricação'),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: Color(0xFF0080d9), width: 2))),
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+      TextField(
+        controller: controllerDataVencimento,
+        inputFormatters: [dateMaskVencimento],
+        decoration: InputDecoration(
+            label: const Text('Data de Fabricação'),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: Color(0xFF0080d9), width: 2))),
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+      TextField(
+        controller: controllerDescLote,
+        maxLines: 4,
+        keyboardType: TextInputType.multiline,
+        decoration: const InputDecoration(
+          label: Text('Descrição do Lote'),
+          border: OutlineInputBorder(),
+        ),
+      ),
+      const SizedBox(
+        height: 45,
+      ),
+    ];
+  }
+
   void adicionaPreCompra() {
     bool podeAdicionar = true;
     setState(() {
@@ -494,7 +621,7 @@ class _CompraState extends State<Compra> {
                 children: [
                   FloatingActionButton(
                       heroTag: null,
-                      child: Icon(Icons.hearing),
+                      child: const Icon(Icons.hearing),
                       onPressed: () async {
                         setState(() {
                           valor = true;
@@ -511,7 +638,7 @@ class _CompraState extends State<Compra> {
                       }),
                   FloatingActionButton(
                       heroTag: null,
-                      child: Icon(Icons.phone),
+                      child: const Icon(Icons.phone),
                       onPressed: () async {
                         print(this.context);
                         Voz.instance.context = this.context;

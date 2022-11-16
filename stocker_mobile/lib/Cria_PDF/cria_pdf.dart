@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import '../DadosDB/crud.dart';
+import 'package:stocker_mobile/services/supabase.databaseService.dart';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
 
+import '../credentials/supabase.credentials.dart';
+
 class CriaPDF {
-  var crud = CRUD();
+  var crud = DataBaseService();
   // ignore: prefer_typing_uninitialized_variables
   var anchor;
 
@@ -16,26 +19,32 @@ class CriaPDF {
   List<List<dynamic>> tabela = [];
 
   relatoriaDados() async {
-    var dados = await crud.select(
-        "SELECT *, date_format(data_saida, '%d/%m/%Y') as datas  FROM produto_venda  where (data_saida BETWEEN STR_TO_DATE( '$deData' , \"%d/%m/%Y\") AND STR_TO_DATE( '$ateData' , \"%d/%m/%Y\")) ORDER BY data_saida ");
+    var dados = await SupaBaseCredentials.supaBaseClient.rpc('relatoriocompra',
+        params: {'data1': deData, 'data2': ateData}).execute();
 
     tabela.add([
-      'produto',
-      'quantidade',
-      'preco',
-      'total',
-      'data de saída',
-      'cliente'
+      'Produto',
+      'Medida',
+      'Número do Lote',
+      'Quantidade',
+      'Preco',
+      'Frete',
+      'Total',
+      'Fornecedor',
+      'Data de Compra',
     ]);
 
-    for (var row in dados) {
+    for (var row in dados.data) {
       tabela.add([
-        row['nome_produto'],
-        row['quantidade'],
-        row['preco_unitario'],
-        row['total'],
-        row['datas'],
-        row['cliente']
+        row['nomep'],
+        row['medida'],
+        row['numerol'],
+        row['qtd'],
+        row['preco'],
+        row['frete'],
+        (row['preco'] * row['qtd']) + row['frete'],
+        row['nomef'],
+        row['data'],
       ]);
     }
   }
@@ -80,30 +89,36 @@ class CriaPDF {
                         child: pw.Image(pw.MemoryImage(imageLogo)))),
                 pw.SizedBox(height: 20),
                 pw.Center(
-                    child: pw.Text("Relatório de Vendas",
+                    child: pw.Text("Relatório de Compras",
                         textAlign: pw.TextAlign.center,
                         style: const pw.TextStyle(fontSize: 30))),
                 pw.SizedBox(height: 20),
-                pw.Table.fromTextArray(data: tabela),
+                pw.Table.fromTextArray(
+                    data: tabela,
+                    defaultColumnWidth: const pw.IntrinsicColumnWidth(flex: 1),
+                    cellStyle: const pw.TextStyle(fontSize: 10),
+                    headerStyle: const pw.TextStyle(fontSize: 10),
+                    headerAlignment: pw.Alignment.topLeft),
                 pw.NewPage(),
                 pw.Center(
-                    child: pw.Text("Gráfico de quantidade de produtos vendidos",
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(
-                          fontSize: 14,
-                        ))),
-                pw.SizedBox(height: 3),
+                    child:
+                        pw.Text("Gráfico de quantidade de produtos comprados",
+                            textAlign: pw.TextAlign.center,
+                            style: const pw.TextStyle(
+                              fontSize: 14,
+                            ))),
+                pw.SizedBox(height: 5),
                 pw.Center(
                     child: pw.SizedBox(
                         height: 320,
                         child: pw.Image(pw.MemoryImage(bytesImage)))),
-                pw.SizedBox(height: 3),
+                pw.SizedBox(height: 5),
                 pw.Center(
                     child: pw.Text(
                         textAlign: pw.TextAlign.center,
-                        "Gráfico de total ganho na venda de cada produto",
+                        "Gráfico de total gasto na compra de cada tipo de produto",
                         style: const pw.TextStyle(fontSize: 14))),
-                pw.SizedBox(height: 3),
+                pw.SizedBox(height: 5),
                 pw.Center(
                     child: pw.SizedBox(
                         height: 320,

@@ -23,7 +23,7 @@ class Uint {
       ),
     );
 
-    image = (await rootBundle.load("assets/images/Stocker_blue_transp.png"))
+    image = (await rootBundle.load("assets/images/Stocker_blue_transpN.png"))
         .buffer
         .asUint8List();
   }

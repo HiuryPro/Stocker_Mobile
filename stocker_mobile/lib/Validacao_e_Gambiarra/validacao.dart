@@ -1,7 +1,4 @@
-import '../DadosDB/crud.dart';
-
 class Validacao {
-  var dados = CRUD();
   String mensagem = '';
 
   bool validacnpj(String cnpj) {
@@ -124,38 +121,6 @@ class Validacao {
     } catch (InputMismatchException) {
       return false;
     }
-  }
-
-  Future<bool> validaCad(String nomeE, String cnpj, String email,
-      String telefone, String endereco) async {
-    Future<bool> valida = Future<bool>.value(true);
-    var itens = await dados.select("SELECT * FROM usuario_dados");
-
-    for (var row in itens) {
-      if (row['nome_empresa'] == nomeE) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse nome de empresa já está em uso';
-        break;
-      } else if (row['cnpj'] == cnpj) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse cnpj já está em uso';
-        break;
-      } else if (row['email'] == email) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse email já está em uso';
-        break;
-      } else if (row['telefone'] == telefone) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse telefone já está em uso';
-        break;
-      } else if (row['endereco'] == endereco) {
-        valida = Future<bool>.value(false);
-        mensagem = 'Esse endereço já está em uso';
-        break;
-      }
-    }
-
-    return valida;
   }
 
   Future<bool> isVazio(List<String> lista) async {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
-import '../DadosDB/crud.dart';
+import '../credentials/supabase.credentials.dart';
 
 class Chart extends StatefulWidget {
   final int? item;
@@ -13,7 +14,7 @@ class Chart extends StatefulWidget {
 
 class _ChartState extends State<Chart> {
   List<dynamic> dados = [];
-  var crud = CRUD();
+  var crud = DataBaseService();
   int? teste;
   List<String> nomes = [];
   List<double> valores = [];
@@ -24,13 +25,14 @@ class _ChartState extends State<Chart> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      var result = await crud.select("SELECT *  FROM relatoriototal ");
+      var result =
+          await SupaBaseCredentials.supaBaseClient.rpc('compra').execute();
 
       if (widget.item == 1) {
-        for (var row in result) {
+        for (var row in result.data) {
           setState(() {
-            nomes.add("${row['nome_produto']} : ${row['qtd_total']}");
-            valores.add(double.parse("${row['qtd_total']}"));
+            nomes.add("${row['valor']} : ${row['qtdtotal']}");
+            valores.add(double.parse("${row['qtdtotal']}"));
           });
         }
         setState(() {
@@ -38,10 +40,10 @@ class _ChartState extends State<Chart> {
           legendLabels = Map.fromIterables(nomes, nomes);
         });
       } else {
-        for (var row in result) {
+        for (var row in result.data) {
           setState(() {
-            nomes.add("${row['nome_produto']} : ${row['preco_total']}");
-            valores.add(double.parse("${row['preco_total']}"));
+            nomes.add("${row['valor']} : ${row['precototal']}");
+            valores.add(double.parse("${row['precototal']}"));
           });
         }
 
