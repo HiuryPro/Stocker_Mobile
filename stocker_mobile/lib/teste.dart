@@ -72,7 +72,8 @@ main() async {
   }
 
   print(retornaTotal(11, 3, 7, 6) + retornaTotal(12, 3, 10, 5));
-  var response2 = await SupaBaseCredentials.supaBaseClient.rpc('relatoriovenda',
+  var response2 = await SupaBaseCredentials.supaBaseClient.rpc(
+      'relatoriocompra',
       params: {'data1': "23/04/2022", 'data2': '23/11/2022'}).execute();
   print(response2.data);
 

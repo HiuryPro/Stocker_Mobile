@@ -70,8 +70,6 @@ class _CompraState extends State<Compra> {
   bool isDataDeVencimento = true;
   bool isDataDeFabricacao = true;
 
-  bool isLoteExistente = true;
-
   var dateMaskFabricacao = MaskTextInputFormatter(
       mask: '##/##/####',
       filter: {"#": RegExp(r'[0-9]')},
@@ -96,28 +94,22 @@ class _CompraState extends State<Compra> {
           await Permission.microphone.request();
         }
       }
-      var listaLotes = await crud
-          .select(tabela: "Lote", select: 'IdLote, NumeroLote', where: {});
-      if (listaLotes != null) {
-        for (var row in listaLotes) {
-          lotes.addAll({row['NumeroLote']: row['IdLote']});
+      var listaProdutos = await crud.select(
+          tabela: "FornecedorPLote",
+          select:
+              'FornecedorProduto!inner(Produto!inner(IdProduto, NomeProduto))',
+          where: {});
+      print(listaProdutos);
+      if (listaProdutos != null) {
+        for (var row in listaProdutos) {
+          setState(() {
+            produtos.add(
+                "${row['FornecedorProduto']['Produto']['IdProduto']} ${row['FornecedorProduto']['Produto']['NomeProduto']}");
+          });
         }
       }
 
-      var lista = await crud.selectInner(
-          tabela: "FornecedorProduto",
-          select:
-              'Preco, Frete, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
-          where: {});
-      print(lista);
-      if (lista != null) {
-        setState(() {
-          for (var row in lista) {
-            produtos.add(
-                "${row["Produto"]["IdProduto"]} ${row["Produto"]["NomeProduto"]}");
-          }
-        });
-      }
+      print(produtos);
     });
   }
 
@@ -132,10 +124,13 @@ class _CompraState extends State<Compra> {
     print(palavras['produto']);
     print(apenasNumeros(palavras['produto']!));
     lista = await crud.selectInner(
-        tabela: "FornecedorProduto",
+        tabela: "FornecedorPLote",
         select:
-            'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
-        where: {"Produto.IdProduto": apenasNumeros(palavras['produto']!)});
+            'FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
+        where: {
+          "FornecedorProduto.Produto.IdProduto":
+              apenasNumeros(palavras['produto']!)
+        });
     setState(() {
       valor = false;
       controllersCompra['preco']!.text = "";
@@ -151,12 +146,14 @@ class _CompraState extends State<Compra> {
 
   adicionaPreco(var palavras) async {
     var lista = await crud.selectInner(
-        tabela: "FornecedorProduto",
+        tabela: "FornecedorPLote",
         select:
-            '*, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
+            '*, FornecedorProduto(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor))',
         where: {
-          "Produto.IdProduto": apenasNumeros(palavras['produto']),
-          "Fornecedor.IdFornecedor": apenasNumeros(palavras['fornecedor'])
+          "FornecedorProduto.Produto.IdProduto":
+              apenasNumeros(palavras['produto']),
+          "FornecedorProduto.Fornecedor.IdFornecedor":
+              apenasNumeros(palavras['fornecedor'])
         });
     print(lista);
     for (var row in lista) {
@@ -255,20 +252,23 @@ class _CompraState extends State<Compra> {
 
                           controllersCompra['preco']!.text = "";
                           fornecedor = null;
+                          lote = null;
                         });
                         print(produto);
                         lista = await crud.selectInner(
-                            tabela: "FornecedorProduto",
+                            tabela: "FornecedorPLote",
                             select:
-                                'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
+                                'FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
                             where: {
-                              "Produto.IdProduto": apenasNumeros(produto!)
+                              "FornecedorProduto.Produto.IdProduto":
+                                  apenasNumeros(produto!)
                             });
                         setState(() {
+                          lotes.clear();
                           fornecedores.clear();
                           for (var row in lista) {
                             fornecedores.add(
-                                "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
+                                "${row['FornecedorProduto']['Fornecedor']['Pessoa']['IdPessoa']} ${row['FornecedorProduto']['Fornecedor']['Pessoa']['Nome']}");
                           }
                         });
                       }),
@@ -296,28 +296,27 @@ class _CompraState extends State<Compra> {
                       onChanged: (value) async {
                         setState(() {
                           fornecedor = value;
+                          lote = null;
+                          lotes.clear();
                         });
                         print(fornecedor);
                         var lista = await crud.selectInner(
-                            tabela: "FornecedorProduto",
+                            tabela: "FornecedorPLote",
                             select:
-                                '*, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)',
+                                '*, Lote!inner(IdLote, NumeroLote), FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
                             where: {
-                              "Produto.IdProduto": int.parse(produto![0]),
-                              "Fornecedor.IdFornecedor":
-                                  int.parse(fornecedor![0])
+                              "FornecedorProduto.Produto.IdProduto":
+                                  apenasNumeros(produto!),
+                              "FornecedorProduto.Fornecedor.IdFornecedor":
+                                  apenasNumeros(fornecedor!)
                             });
                         print(lista);
+
                         for (var row in lista) {
                           setState(() {
-                            controllersCompra['preco']!.text =
-                                row['Preco'].toString();
-                            controllersCompra['frete']!.text =
-                                row['Frete'].toString();
-                            preco =
-                                double.parse(controllersCompra['preco']!.text);
-                            frete =
-                                double.parse(controllersCompra['frete']!.text);
+                            lotes.addAll({
+                              row['Lote']['NumeroLote']: row['Lote']['IdLote']
+                            });
                           });
                         }
                       }),
@@ -342,31 +341,39 @@ class _CompraState extends State<Compra> {
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
                       items: lotes.keys.toList().map(buildMenuItem).toList(),
-                      onChanged: isLoteExistente
-                          ? (value) async {
-                              var lista = [];
-                              setState(() {
-                                lote = value;
-                              });
-                            }
-                          : null),
+                      onChanged: (value) async {
+                        setState(() {
+                          lote = value;
+                        });
+                        print(lote);
+                        var lista = await crud.selectInner(
+                            tabela: "FornecedorPLote",
+                            select:
+                                '*, FornecedorProduto!inner(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor))',
+                            where: {
+                              "FornecedorProduto.Produto.IdProduto":
+                                  apenasNumeros(produto!),
+                              "FornecedorProduto.Fornecedor.IdFornecedor":
+                                  apenasNumeros(fornecedor!),
+                              "IdLote": lotes[lote]
+                            });
+                        print(lista);
+                        for (var row in lista) {
+                          setState(() {
+                            controllersCompra['preco']!.text =
+                                row['Preco'].toString();
+                            controllersCompra['frete']!.text =
+                                row['Frete'].toString();
+                            preco =
+                                double.parse(controllersCompra['preco']!.text);
+                            frete =
+                                double.parse(controllersCompra['frete']!.text);
+                          });
+                        }
+                      }),
                 ),
               ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: !isLoteExistente,
-                      onChanged: (value) {
-                        setState(() {
-                          isLoteExistente = !isLoteExistente;
-                        });
-                      }),
-                  const Text("Marcar caso necessario cadastrar novo Lote"),
-                ],
-              ),
-              if (isLoteExistente) const SizedBox(height: 15),
-              if (!isLoteExistente)
-                for (int i = 0; i < fieldsLote().length; i++) fieldsLote()[i],
+              const SizedBox(height: 15),
               TextField(
                 controller: controllersCompra['qtd']!,
                 onChanged: (qtd) {
@@ -450,9 +457,6 @@ class _CompraState extends State<Compra> {
                     print(preCompra);
                     bool isPreechido = true;
 
-                    if (!isLoteExistente) {
-                      await casdastroLote();
-                    } else {}
                     adicionaPreCompra();
 
                     setState(() {
@@ -548,10 +552,10 @@ class _CompraState extends State<Compra> {
 
     if (isTudoPreenchido && produto != null && fornecedor != null) {
       var loteResultado;
-      var produtos = await crud.selectInner(
+      var teste = await crud.selectInner(
           tabela: 'Lote', select: 'NumeroLote, IdProduto', where: {});
 
-      for (var row in produtos) {
+      for (var row in teste) {
         if (row['IdProduto'] == apenasNumeros(produto!) &&
             row['NumeroLote'] == controllersLote['numeroLote']!.text) {
           isExistente = true;

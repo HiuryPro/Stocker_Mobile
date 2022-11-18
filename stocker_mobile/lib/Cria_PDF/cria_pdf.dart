@@ -123,7 +123,7 @@ class CriaPDF {
                 alignment: pw.Alignment.centerRight,
                 margin: const pw.EdgeInsets.only(top: 1.0 * PdfPageFormat.cm),
                 child: pw.Text(
-                    'Page ${context.pageNumber} of ${context.pagesCount}',
+                    'Página ${context.pageNumber} of ${context.pagesCount}',
                     style: pw.Theme.of(context)
                         .defaultTextStyle
                         .copyWith(color: PdfColors.grey)));
@@ -187,7 +187,7 @@ class CriaPDF {
                 alignment: pw.Alignment.centerRight,
                 margin: const pw.EdgeInsets.only(top: 1.0 * PdfPageFormat.cm),
                 child: pw.Text(
-                    'Page ${context.pageNumber} of ${context.pagesCount}',
+                    'Página ${context.pageNumber} of ${context.pagesCount}',
                     style: pw.Theme.of(context)
                         .defaultTextStyle
                         .copyWith(color: PdfColors.grey)));
