@@ -150,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                   return GestureDetector(
                     onTap: () {
                       navegar.navegarEntreTela(
-                          '/CadastroUsuario', context, true);
+                          '/CadastrarUsuario', context, false);
                     },
                     child: Center(
                       child: Text("Ainda não é cadastrado ?",

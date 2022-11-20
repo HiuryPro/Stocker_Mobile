@@ -49,6 +49,13 @@ class DrawerTela {
                 Navigator.pushNamed(context, '/CadastrarProduto');
               }),
           ListTile(
+              leading: const Icon(Icons.post_add),
+              title: const Text('Adicionar Fornecedor'),
+              subtitle: const Text('Tela para Adicionar Fornecedor'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Fornecedor');
+              }),
+          ListTile(
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Venda'),
             subtitle: const Text('Tela de Venda'),

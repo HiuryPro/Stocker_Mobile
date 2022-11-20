@@ -9,20 +9,20 @@ import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/inscricaoestadual.dart';
 import '../Validacao_e_Gambiarra/maskara.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
-import 'inserecadastro.dart';
+import 'inserefornecedor.dart';
 
-class CadPage extends StatefulWidget {
-  const CadPage({Key? key}) : super(key: key);
+class Fornecedor extends StatefulWidget {
+  const Fornecedor({Key? key}) : super(key: key);
 
   @override
-  State<CadPage> createState() => _CadPageState();
+  State<Fornecedor> createState() => _FornecedorState();
 }
 
-class _CadPageState extends State<CadPage> {
+class _FornecedorState extends State<Fornecedor> {
   var valida = Validacao();
   var inscE = InscE();
   var maskaraIE = MaskaraInscE();
-  var insereDB = InsereCadastro();
+  var insereDB = InsereCadastroF();
 
   var count = 0;
 
@@ -72,31 +72,24 @@ class _CadPageState extends State<CadPage> {
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
-  var maskFormatterCpf = MaskTextInputFormatter(
-      mask: '###.###.###-##',
-      filter: {"#": RegExp(r'[0-9]')},
-      type: MaskAutoCompletionType.lazy);
+  Map<String, TextEditingController> controllersForn = {
+    'nome': TextEditingController(),
+    'cnpj': TextEditingController(),
+    'inscE': TextEditingController(),
+    'telefone': TextEditingController(),
+    'email': TextEditingController()
+  };
 
-  List<TextEditingController> textControllers = [
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-  ];
+  Map<String, TextEditingController> controllersEndereco = {
+    'logradouro': TextEditingController(),
+    'numero': TextEditingController(),
+    'bairro': TextEditingController(),
+    'cidade': TextEditingController(),
+    'cep': TextEditingController(),
+    'complemento': TextEditingController(),
+  };
 
   List<String?> mensagemDeErro = [
-    null,
-    null,
     null,
     null,
     null,
@@ -127,7 +120,7 @@ class _CadPageState extends State<CadPage> {
           shrinkWrap: true,
           children: [
             CarouselSlider(
-                items: [administrador(), empresa(), endereco()],
+                items: [fornecedor(), endereco()],
                 carouselController: carouselController,
                 options: CarouselOptions(
                   height: MediaQuery.of(context).size.height - 200,
@@ -161,44 +154,34 @@ class _CadPageState extends State<CadPage> {
                     onPressed: () async {
                       int id = -1;
                       print(AppController.instance.response!.user!.id);
-                      if (isPreechido()) {
-                        if (valida.validacnpj(
-                                maskFormatterCnpj.getUnmaskedText()) &&
-                            valida.iscpf(maskFormatterCpf.getUnmaskedText())) {
+                      if (isPreechido(controllersForn, controllersEndereco)) {
+                        if (valida
+                            .validacnpj(maskFormatterCnpj.getUnmaskedText())) {
                           if (inscE.valida(maskFormatterInscE.getUnmaskedText(),
                               estado!.substring(0, 2))) {
-                            await insereDB.insereAdministrador(
+                            id = await insereDB.insereFornecedor(
                                 AppController.instance.response!,
-                                textControllers[0].text,
-                                maskFormatterTelefone.getUnmaskedText(),
-                                maskFormatterCpf.getUnmaskedText());
-
-                            id = await insereDB.insereEmpresa(
-                                AppController.instance.response!, [
-                              textControllers[2].text,
+                                controllersForn['nome']!.text,
+                                controllersForn['telefone']!.text, [
                               maskFormatterCnpj.getUnmaskedText(),
                               maskFormatterInscE.getUnmaskedText(),
-                              textControllers[5].text,
-                              textControllers[6].text
+                              controllersForn['email']!.text
                             ]);
 
-                            await insereDB.insereEndereco([
+                            insereDB.insereEndereco([
                               id,
-                              textControllers[7].text,
-                              textControllers[8].text,
-                              textControllers[9].text,
-                              textControllers[10].text,
+                              controllersEndereco['logradouro']!.text,
+                              controllersEndereco['numero']!.text,
+                              controllersEndereco['bairro']!.text,
+                              controllersEndereco['cidade']!.text,
                               estado,
-                              textControllers[11].text,
-                              textControllers[12].text
+                              controllersEndereco['cep']!.text,
+                              controllersEndereco['complemento']!.text
                             ]);
                           } else {
-                            mensagemDeErro[4] = "Inscrição estadual invalida";
+                            mensagemDeErro[0] = "Inscrição estadual invalida";
                           }
                           print("Campos estão preenchidos e cnpj valido");
-                          // ignore: use_build_context_synchronously
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/Home', (route) => false);
                         } else {
                           setState(() {
                             mensagemDeErro[1] = "CNPJ invalido";
@@ -223,63 +206,7 @@ class _CadPageState extends State<CadPage> {
     );
   }
 
-  Widget administrador() {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Center(
-          child: ListView(shrinkWrap: true, children: [
-        TextField(
-          controller: textControllers[0],
-          decoration: InputDecoration(
-            labelText: 'Nome do Administrador',
-            errorText: mensagemDeErro[0],
-            border: const OutlineInputBorder(),
-          ),
-          onChanged: (text) {
-            setState(() {
-              mensagemDeErro[0] = null;
-            });
-          },
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        TextField(
-          inputFormatters: [maskFormatterCpf],
-          controller: textControllers[13],
-          decoration: InputDecoration(
-            labelText: 'CPF',
-            errorText: mensagemDeErro[13],
-            border: const OutlineInputBorder(),
-          ),
-          onChanged: (text) {
-            setState(() {
-              mensagemDeErro[13] = null;
-            });
-          },
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        TextField(
-            controller: textControllers[1],
-            inputFormatters: [maskFormatterTelefone],
-            onChanged: (text) {
-              setState(() {
-                mensagemDeErro[1] = null;
-              });
-            },
-            decoration: InputDecoration(
-              labelText: 'Telefone',
-              errorText: mensagemDeErro[1],
-              border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red)),
-            )),
-      ])),
-    );
-  }
-
-  Widget empresa() {
+  Widget fornecedor() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Center(
@@ -288,7 +215,7 @@ class _CadPageState extends State<CadPage> {
           children: [
             const Center(
               child: Text(
-                "Dados da Empresa",
+                "Dados do Fornecedor",
                 style: TextStyle(fontSize: 25),
               ),
             ),
@@ -296,26 +223,27 @@ class _CadPageState extends State<CadPage> {
               height: 15,
             ),
             TextField(
-              controller: textControllers[2],
+              controller: controllersForn['nome'],
               decoration: InputDecoration(
-                  label: const Text("Nome"), errorText: mensagemDeErro[2]),
+                  label: const Text("Nome do Fornecedor"),
+                  errorText: mensagemDeErro[0]),
               onChanged: (text) {
                 setState(() {
                   enabled = true;
-                  mensagemDeErro[2] = null;
-                  print(textControllers[0].text);
+                  mensagemDeErro[0] = null;
+                  print(controllersForn['nome']!.text);
                 });
               },
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[3],
+              controller: controllersForn['cnpj'],
               inputFormatters: [maskFormatterCnpj],
               decoration: InputDecoration(
-                  label: const Text("Cnpj"), errorText: mensagemDeErro[3]),
+                  label: const Text("Cnpj"), errorText: mensagemDeErro[1]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[3] = null;
+                  mensagemDeErro[1] = null;
                 });
               },
             ),
@@ -397,14 +325,14 @@ class _CadPageState extends State<CadPage> {
                         }
                       : null,
               child: TextField(
-                controller: textControllers[4],
+                controller: controllersForn['inscE'],
                 inputFormatters: [maskFormatterInscE],
                 decoration: InputDecoration(
                     label: const Text("Inscrição estadual"),
-                    errorText: mensagemDeErro[4]),
+                    errorText: mensagemDeErro[2]),
                 onChanged: (text) {
                   setState(() {
-                    mensagemDeErro[4] = null;
+                    mensagemDeErro[2] = null;
                     print(count);
                   });
                 },
@@ -412,28 +340,28 @@ class _CadPageState extends State<CadPage> {
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[5],
+              controller: controllersForn['telefone'],
               inputFormatters: [maskFormatterTelefone],
               decoration: InputDecoration(
-                  label: const Text("Telefone"), errorText: mensagemDeErro[5]),
+                  label: const Text("Telefone"), errorText: mensagemDeErro[3]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[5] = null;
+                  mensagemDeErro[3] = null;
                 });
               },
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[6],
+              controller: controllersForn['email'],
               decoration: InputDecoration(
-                  label: const Text("Ganho Mensal"),
-                  errorText: mensagemDeErro[6]),
+                  label: const Text("Email"), errorText: mensagemDeErro[4]),
               onChanged: (text) {
                 setState(() {
-                  mensagemDeErro[6] = null;
+                  mensagemDeErro[4] = null;
                 });
               },
             ),
+            const SizedBox(height: 15),
           ],
         ),
       ),
@@ -459,7 +387,7 @@ class _CadPageState extends State<CadPage> {
           children: [
             const Center(
               child: Text(
-                "Endereço da Empresa",
+                "Endereço do Fornecedor",
                 style: TextStyle(fontSize: 25),
               ),
             ),
@@ -467,10 +395,32 @@ class _CadPageState extends State<CadPage> {
               height: 15,
             ),
             TextField(
-              controller: textControllers[7],
+              controller: controllersEndereco['logradouro'],
               decoration: InputDecoration(
                   label: const Text("Logradouro"),
-                  errorText: mensagemDeErro[7]),
+                  errorText: mensagemDeErro[5]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[5] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: controllersEndereco['numero'],
+              decoration: InputDecoration(
+                  label: const Text("Numero"), errorText: mensagemDeErro[6]),
+              onChanged: (text) {
+                setState(() {
+                  mensagemDeErro[6] = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: controllersEndereco['bairro'],
+              decoration: InputDecoration(
+                  label: const Text("Bairro"), errorText: mensagemDeErro[7]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[7] = null;
@@ -479,20 +429,9 @@ class _CadPageState extends State<CadPage> {
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[8],
+              controller: controllersEndereco['cidade'],
               decoration: InputDecoration(
-                  label: const Text("Numero"), errorText: mensagemDeErro[8]),
-              onChanged: (text) {
-                setState(() {
-                  mensagemDeErro[8] = null;
-                });
-              },
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: textControllers[9],
-              decoration: InputDecoration(
-                  label: const Text("Bairro"), errorText: mensagemDeErro[9]),
+                  label: const Text("Cidade"), errorText: mensagemDeErro[9]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[9] = null;
@@ -501,9 +440,9 @@ class _CadPageState extends State<CadPage> {
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[10],
+              controller: controllersEndereco['cep'],
               decoration: InputDecoration(
-                  label: const Text("Cidade"), errorText: mensagemDeErro[10]),
+                  label: const Text("CEP"), errorText: mensagemDeErro[10]),
               onChanged: (text) {
                 setState(() {
                   mensagemDeErro[10] = null;
@@ -512,18 +451,7 @@ class _CadPageState extends State<CadPage> {
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: textControllers[11],
-              decoration: InputDecoration(
-                  label: const Text("CEP"), errorText: mensagemDeErro[11]),
-              onChanged: (text) {
-                setState(() {
-                  mensagemDeErro[11] = null;
-                });
-              },
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: textControllers[12],
+              controller: controllersEndereco['complemento'],
               decoration: InputDecoration(
                   label: const Text("Complemento"),
                   errorText: mensagemDeErro[12]),
@@ -539,40 +467,48 @@ class _CadPageState extends State<CadPage> {
     );
   }
 
-  bool isPreechido() {
+  bool isPreechido(
+    Map<String, TextEditingController> controllersF,
+    Map<String, TextEditingController> controllersE,
+  ) {
     bool isPreenchido = true;
-    for (int i = 0; i < textControllers.length; i++) {
-      if (textControllers[i].text == "") {
+    int count = 0;
+    controllersF.forEach((key, value) {
+      if (value.text == "") {
         setState(() {
-          mensagemDeErro[i] = "Campo está vazio";
+          mensagemDeErro[count] = "Campo está vazio";
+          isPreenchido = false;
         });
-        isPreenchido = false;
       }
-    }
+      count++;
+    });
+    controllersE.forEach((key, value) {
+      if (value.text == "") {
+        setState(() {
+          mensagemDeErro[count] = "Campo está vazio";
+          isPreenchido = false;
+        });
+      }
+      count++;
+    });
+
     return isPreenchido;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/Home');
-              },
-              icon: const Icon(Icons.arrow_back)),
-        ),
         body: Stack(
-          children: [
-            SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: Image.asset(
-                  AppController.instance.background,
-                  fit: BoxFit.cover,
-                )),
-            _body()
-          ],
-        ));
+      children: [
+        SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Image.asset(
+              AppController.instance.background,
+              fit: BoxFit.cover,
+            )),
+        _body()
+      ],
+    ));
   }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/on_hover.dart';
+import '../services/supabase.databaseService.dart';
 import '../services/supabase.services.dart';
 
 class CadUsuario extends StatefulWidget {
@@ -20,6 +21,7 @@ class _CadUsuarioState extends State<CadUsuario> {
   var theme = AppController();
   var navegar = Navegar();
   var cadastrar = AuthenticationService();
+  var crud = DataBaseService();
 
   String usuario = '';
   String senha = '';
@@ -79,6 +81,10 @@ class _CadUsuarioState extends State<CadUsuario> {
                           context: context,
                           email: fieldText.text,
                           senha: fieldText2.text);
+
+                      print(response.user!.id);
+                      await crud.insert(
+                          tabela: 'Usuario', map: {'Token': response.user!.id});
 
                       clearText();
                     },

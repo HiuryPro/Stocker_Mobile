@@ -465,7 +465,10 @@ class _CompraState extends State<Compra> {
                       controllersCompra['frete']!.text = "";
                       controllersCompra['preco']!.text = "";
                       fornecedor = null;
+                      fornecedores.clear();
+                      lotes.clear();
                       produto = null;
+                      lote = null;
                     });
 
                     if (Voz.instance.palavrasCompra.isNotEmpty) {
@@ -497,6 +500,8 @@ class _CompraState extends State<Compra> {
               ElevatedButton(
                   onPressed: () async {
                     List<Map<dynamic, dynamic>?> dados = vaiComprar();
+                    print(dados);
+
                     var insertCompra =
                         await crud.insert(tabela: 'Compra', map: {
                       'DataCompra':
@@ -505,17 +510,27 @@ class _CompraState extends State<Compra> {
                     });
 
                     for (int i = 0; i < dados.length; i++) {
-                      var id = await crud.select(
+                      var idPF = await crud.select(
                           tabela: 'FornecedorProduto',
                           select: 'IdFornecedorProduto',
                           where: {
                             'IdFornecedor':
                                 apenasNumeros(dados[i]!['fornecedor']),
-                            'IdProduto': apenasNumeros(dados[i]!['produto'])
+                            'IdProduto': apenasNumeros(dados[i]!['produto']),
                           });
+                      print(idPF);
+                      var idPFL = await crud.select(
+                          tabela: 'FornecedorPLote',
+                          select: 'IdFornecedorPLote',
+                          where: {
+                            'IdFornecedorProduto':
+                                idPF[0]!['IdFornecedorProduto'],
+                            'IdLote': dados[i]!['lote'],
+                          });
+                      print(idPFL);
                       await crud.insert(tabela: 'ItemCompra', map: {
                         'IdCompra': insertCompra[0]['IdCompra'],
-                        'IdFornecedorProduto': id[0]['IdFornecedorProduto'],
+                        'IdFornecedorPLote': idPFL[0]['IdFornecedorPLote'],
                         'Quantidade': dados[i]!['quantidade'],
                         'PrecoCompra': dados[i]!['preco'],
                         'FreteCompra': dados[i]!['frete']
@@ -528,196 +543,6 @@ class _CompraState extends State<Compra> {
                   },
                   child: const Text("Comprar"))
             ]))));
-  }
-
-  casdastroLote() async {
-    bool isTudoPreenchido = true;
-    bool isExistente = false;
-
-    controllersLote.forEach((key, value) {
-      if (value.text == '') {
-        setState(() {
-          print(key);
-          if ((key == 'dataFabricacao' && !isDataDeFabricacao) ||
-              (key == 'dataVencimento' && !isDataDeVencimento)) {
-            print('Entro');
-          } else {
-            //mensagemDeErroLote[key] = 'Campo está vazio';
-            isTudoPreenchido = false;
-            print(value.text);
-          }
-        });
-      }
-    });
-
-    if (isTudoPreenchido && produto != null && fornecedor != null) {
-      var loteResultado;
-      var teste = await crud.selectInner(
-          tabela: 'Lote', select: 'NumeroLote, IdProduto', where: {});
-
-      for (var row in teste) {
-        if (row['IdProduto'] == apenasNumeros(produto!) &&
-            row['NumeroLote'] == controllersLote['numeroLote']!.text) {
-          isExistente = true;
-        }
-      }
-      if (!isExistente) {
-        if (isDataDeFabricacao && isDataDeVencimento) {
-          loteResultado = await crud.insert(tabela: 'Lote', map: {
-            'NumeroLote': controllersLote['numeroLote']!.text,
-            'IdProduto': apenasNumeros(produto!),
-            'DataVencimento': DateFormat.yMMMd().add_Hm().format(
-                DateFormat("dd/MM/yyyy")
-                    .parse(dateMaskVencimento.getMaskedText())),
-            'DataFabricacao': DateFormat.yMMMd().add_Hm().format(
-                DateFormat("dd/MM/yyyy")
-                    .parse(dateMaskFabricacao.getMaskedText())),
-            'Descricao': controllersLote['descricao']!.text,
-          });
-          print(loteResultado);
-          print(DateFormat("dd/MM/yyyy")
-              .parse(dateMaskFabricacao.getMaskedText()));
-        } else if (isDataDeFabricacao) {
-          loteResultado = await crud.insert(tabela: 'Lote', map: {
-            'NumeroLote': int.parse(controllersLote['numeroLote']!.text),
-            'IdProduto': apenasNumeros(produto!),
-            'DataFabricacao': DateFormat.yMMMd().add_Hm().format(
-                DateFormat("dd/MM/yyyy")
-                    .parse(dateMaskFabricacao.getMaskedText())),
-            'Descricao': controllersLote['descricao']!.text,
-          });
-          print(loteResultado);
-        } else if (isDataDeVencimento) {
-          loteResultado = await crud.insert(tabela: 'Lote', map: {
-            'NumeroLote': int.parse(controllersLote['numeroLote']!.text),
-            'IdProduto': apenasNumeros(produto!),
-            'DataVencimento': DateFormat.yMMMd().add_Hm().format(
-                DateFormat("dd/MM/yyyy")
-                    .parse(dateMaskVencimento.getMaskedText())),
-            'Descricao': controllersLote['descricao']!.text,
-          });
-          print(loteResultado);
-        } else {
-          loteResultado = await crud.insert(tabela: 'Lote', map: {
-            'NumeroLote': int.parse(controllersLote['numeroLote']!.text),
-            'IdProduto': apenasNumeros(produto!),
-            'Descricao': controllersLote['descricao']!.text,
-          });
-          print(loteResultado);
-        }
-        var estoqueResultado = await crud.insert(tabela: 'Estoque', map: {
-          'IdLote': loteResultado[0]['IdLote'],
-          'Quantidade': int.parse(controllersLote['quantidade']!.text),
-          'PrecoMPM': double.parse(controllersLote['precoUnd']!.text)
-        });
-        print(estoqueResultado);
-        var snack = const SnackBar(
-          content: Text('Cadastro de lote feito com sucesso'),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snack);
-      } else {
-        var snack = const SnackBar(
-          content: Text(
-              'Esse Lote já existe. Vá para a tela de Estoque para alterar lote'),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snack);
-        setState(() {
-          produto = null;
-          controllersLote['numeroLote']!.text = "";
-        });
-      }
-    } else {
-      var snack = const SnackBar(
-        content: Text('Há campos vazios'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snack);
-    }
-  }
-
-  List<Widget> fieldsLote() {
-    return [
-      const SizedBox(
-        height: 30,
-      ),
-      TextField(
-        controller: controllersLote['numeroLote'],
-        decoration: InputDecoration(
-            label: const Text('Numero Do Lote'),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFF0080d9), width: 2))),
-      ),
-      const SizedBox(
-        height: 15,
-      ),
-      TextField(
-        enabled: isDataDeFabricacao,
-        controller: controllersLote['dataFabricacao'],
-        inputFormatters: [dateMaskFabricacao],
-        decoration: InputDecoration(
-            label: const Text('Data de Fabricação'),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFF0080d9), width: 2))),
-      ),
-      Row(
-        children: [
-          Checkbox(
-              value: !isDataDeFabricacao,
-              onChanged: (valor) {
-                setState(() {
-                  //   mensagemDeErroLote['dataFabricacao'] = null;
-                  isDataDeFabricacao = !isDataDeFabricacao;
-                });
-              }),
-          const Text('Caso não haja data de fabricação')
-        ],
-      ),
-      const SizedBox(
-        height: 15,
-      ),
-      TextField(
-        enabled: isDataDeVencimento,
-        controller: controllersLote['dataVencimento'],
-        inputFormatters: [dateMaskVencimento],
-        decoration: InputDecoration(
-            label: const Text('Data de Vencimento'),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFF0080d9), width: 2))),
-      ),
-      Row(
-        children: [
-          Checkbox(
-              value: !isDataDeVencimento,
-              onChanged: (valor) {
-                setState(() {
-                  //   mensagemDeErroLote['dataVencimento'] = null;
-                  isDataDeVencimento = !isDataDeVencimento;
-                });
-              }),
-          const Text('Caso não haja data de vencimento')
-        ],
-      ),
-      const SizedBox(
-        height: 15,
-      ),
-      TextField(
-        controller: controllersLote['descricao'],
-        maxLines: 4,
-        keyboardType: TextInputType.multiline,
-        decoration: const InputDecoration(
-          label: Text('Descrição do Lote'),
-          border: OutlineInputBorder(),
-        ),
-      ),
-      const SizedBox(
-        height: 45,
-      ),
-    ];
   }
 
   void adicionaPreCompra() {
@@ -734,9 +559,11 @@ class _CompraState extends State<Compra> {
         preCompra.add({
           'produto': produto,
           'fornecedor': fornecedor,
+          'lote': lotes[lote],
           'quantidade': quantidade,
           'preco': preco,
-          'frete': frete
+          'frete': frete,
+          'numerol': lote
         });
         selecionado.add(true);
       }
@@ -817,6 +644,7 @@ class _CompraState extends State<Compra> {
     return const [
       DataColumn(label: Text("Produto")),
       DataColumn(label: Text('Fornecedor')),
+      DataColumn(label: Text('Numero Lote')),
       DataColumn(label: Text('Quantidade')),
       DataColumn(label: Text('Preco')),
       DataColumn(label: Text('Frete')),
@@ -830,6 +658,7 @@ class _CompraState extends State<Compra> {
                 cells: [
                   DataCell(Text(book['produto'])),
                   DataCell(Text(book['fornecedor'])),
+                  DataCell(Text(book['numerol'])),
                   DataCell(TextFormField(
                     initialValue: "${book['quantidade']}",
                     keyboardType: TextInputType.number,

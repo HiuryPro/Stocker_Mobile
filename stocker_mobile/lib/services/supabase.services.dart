@@ -11,7 +11,7 @@ var url = window.location.href;
 class AuthenticationService {
   static AuthenticationService auth = AuthenticationService();
   String email = "";
-  signUp(
+  Future<GotrueSessionResponse> signUp(
       {required BuildContext context,
       required String email,
       required String senha}) async {
@@ -20,9 +20,11 @@ class AuthenticationService {
     if (response.error == null) {
       // ignore: use_build_context_synchronously
       mensagem(context, response);
+      return response;
     } else {
       // ignore: use_build_context_synchronously
       mensagem(context, response);
+      return response;
     }
   }
 
