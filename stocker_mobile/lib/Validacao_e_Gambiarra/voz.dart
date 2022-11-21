@@ -35,6 +35,7 @@ class Voz extends ChangeNotifier {
   String navegar2 = '';
   Map<String, String> palavrasVenda = {};
   Map<String, String> palavrasCompra = {};
+  String fornecedorSelecionado = "";
   List<String> palavrasChavesCompra = [
     'produto',
     'quantidade',
@@ -146,14 +147,15 @@ class Voz extends ChangeNotifier {
     bool isPalavraChave = false;
     List<String> produtos = [];
     List<String> fornecedores = [];
-    String comando = lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]")));
-    String item = lastWords.substring(
+    Map<String, int> lotes = {};
+    String? comando = lastWords.substring(0, lastWords.indexOf(RegExp(r"[ ]")));
+    String? item = lastWords.substring(
         lastWords.indexOf(RegExp(r"[ ]")) + 1, lastWords.length);
 
     var lista = await crud.selectInner(
         tabela: "FornecedorProduto",
         select:
-            'Preco, Frete, Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
+            'Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(Pessoa!inner(IdPessoa, Nome))',
         where: {});
     print(lista);
 
@@ -198,7 +200,7 @@ class Voz extends ChangeNotifier {
         }
       } else if (comando.toLowerCase() == 'fornecedor'.toLowerCase()) {
         bool isFornecedorExiste = false;
-        String fornecedorSelecionado = "";
+
         print(produtoSelecionadoCompra);
         if (produtoSelecionadoCompra != '') {
           print(lastWords.indexOf(RegExp(r"[ ]")));
@@ -231,6 +233,60 @@ class Voz extends ChangeNotifier {
 
           if (isFornecedorExiste) {
             palavrasCompra.addAll({comando: fornecedorSelecionado});
+          } else {
+            await flutterTts.speak("Esse fornecedor não existe");
+          }
+        } else {
+          await flutterTts.speak('Fale um produto primeiro');
+        }
+      } else if (comando.toLowerCase() == 'lote'.toLowerCase()) {
+        print('entro');
+        bool isLoteExiste = false;
+        String loteSelecionado = "";
+        print(produtoSelecionadoCompra);
+        if (produtoSelecionadoCompra != '') {
+          print(lastWords.indexOf(RegExp(r"[ ]")));
+          print(produtoSelecionadoCompra.substring(
+              produtoSelecionadoCompra.indexOf(RegExp(r"[ ]")) + 1,
+              produtoSelecionadoCompra.length));
+          print('agora');
+          print(fornecedorSelecionado.substring(
+              fornecedorSelecionado.indexOf(RegExp(r"[ ]")) + 1,
+              fornecedorSelecionado.length));
+
+          var lista2 = await crud.selectInner(
+              tabela: "FornecedorPLote",
+              select:
+                  'Lote!inner(IdLote, NumeroLote), FornecedorProduto!inner(Produto!inner(NomeProduto), Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)))',
+              where: {
+                'FornecedorProduto.Produto.NomeProduto':
+                    produtoSelecionadoCompra.substring(
+                        produtoSelecionadoCompra.indexOf(RegExp(r"[ ]")) + 1,
+                        produtoSelecionadoCompra.length),
+                'FornecedorProduto.Fornecedor.Pessoa.Nome':
+                    fornecedorSelecionado.substring(
+                        fornecedorSelecionado.indexOf(RegExp(r"[ ]")) + 1,
+                        fornecedorSelecionado.length)
+              });
+          print(lista2);
+          if (lista != null) {
+            for (var row in lista2) {
+              lotes.addAll({row['Lote']['NumeroLote']: row['Lote']['IdLote']});
+            }
+          }
+          var listaLotes = lotes.keys.toList();
+          print(listaLotes);
+
+          for (int i = 0; i < listaLotes.length; i++) {
+            if (item == listaLotes[i]) {
+              isLoteExiste = true;
+              loteSelecionado = listaLotes[i];
+              break;
+            }
+          }
+
+          if (isLoteExiste) {
+            palavrasCompra.addAll({comando: loteSelecionado});
           } else {
             await flutterTts.speak("Esse fornecedor não existe");
           }

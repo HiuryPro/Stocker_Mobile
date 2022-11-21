@@ -66,6 +66,7 @@ class _CompraState extends State<Compra> {
   bool valor = true;
   bool valor2 = true;
   bool valor3 = true;
+  bool valor4 = true;
 
   bool isDataDeVencimento = true;
   bool isDataDeFabricacao = true;
@@ -120,13 +121,14 @@ class _CompraState extends State<Compra> {
   adicionaF(var palavras) async {
     var lista = [];
 
-    print(palavras['fornecedor']);
-    print(apenasNumeros(palavras['fornecedor']!));
+    print(palavras['produto']);
+
     lista = await crud.selectInner(
         tabela: "FornecedorProduto",
         select:
-            'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome), Produto!inner(IdProduto, NomeProduto)',
+            'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
         where: {"Produto.IdProduto": apenasNumeros(palavras['produto']!)});
+    print(lista);
     setState(() {
       valor = false;
       controllersCompra['preco']!.text = "";
@@ -134,8 +136,8 @@ class _CompraState extends State<Compra> {
       fornecedor = null;
       fornecedores.clear();
       for (var row in lista) {
-        fornecedores
-            .add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
+        fornecedores.add(
+            "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
       }
     });
   }
@@ -152,6 +154,13 @@ class _CompraState extends State<Compra> {
               apenasNumeros(palavras['fornecedor'])
         });
     print(lista);
+    setState(() {
+      valor2 = false;
+      controllersCompra['preco']!.text = "";
+      fornecedor = palavras['fornecedor'];
+      lote = null;
+      lotes.clear();
+    });
 
     for (var row in lista) {
       setState(() {
@@ -175,7 +184,7 @@ class _CompraState extends State<Compra> {
     print(lista);
     for (var row in lista) {
       setState(() {
-        valor2 = false;
+        valor4 = false;
         lote = palavras['lote'];
         controllersCompra['preco']!.text = row['Preco'].toString();
         controllersCompra['frete']!.text = row['Frete'].toString();
@@ -218,6 +227,7 @@ class _CompraState extends State<Compra> {
 
   Widget body(int lastWords, Map<String, String> palavras) {
     Future.delayed(Duration.zero, () async {
+      print(palavras);
       if (palavras.containsKey('produto') &&
           !palavras.containsKey('fornecedor') &&
           valor) {
@@ -229,11 +239,15 @@ class _CompraState extends State<Compra> {
           palavras.containsKey('produto') &&
           valor2) {
         fornecedor = palavras['fornecedor'];
-        await adicionaPreco(palavras);
+        await adicionaL(palavras);
       }
 
       if (palavras.containsKey('quantidade') && valor3) {
         await adicionaQtd(palavras);
+      }
+
+      if (palavras.containsKey('lote') && valor4) {
+        await adicionaPreco(palavras);
       }
     });
 
@@ -630,6 +644,7 @@ class _CompraState extends State<Compra> {
                           valor = true;
                           valor2 = true;
                           valor3 = true;
+                          valor4 = true;
                         });
                         print(this.context);
                         Voz.instance.opcao = 1;

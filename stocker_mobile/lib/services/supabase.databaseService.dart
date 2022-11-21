@@ -81,7 +81,9 @@ class DataBaseService {
           .select(select)
           .match(where)
           .execute();
-
+      if (response.error == null) {
+        print(response.error);
+      }
       return response.data;
     } catch (e) {
       print(e.toString());
