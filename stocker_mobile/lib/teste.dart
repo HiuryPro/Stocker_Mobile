@@ -80,4 +80,31 @@ main() async {
   var response3 = await SupaBaseCredentials.supaBaseClient.rpc('qtdvenda',
       params: {'data1': "23/04/2022", 'data2': '23/11/2022'}).execute();
   print(response3.data);
+
+  var produtosFExistentes = await crud.selectInner(
+      tabela: 'FornecedorProduto',
+      select:
+          "IdProduto, Produto!inner(NomeProduto), IdFornecedor, Fornecedor!inner(Pessoa!inner(Nome))",
+      where: {'IdFornecedor': 1});
+  print(produtosFExistentes);
+  List<dynamic> produtos =
+      await crud.select(tabela: 'Produto', select: 'NomeProduto', where: {});
+
+  for (Map row in produtos) {
+    for (Map row2 in produtosFExistentes) {
+      print(row2['Produto']['NomeProduto']);
+      if (row['NomeProduto'] == row2['Produto']['NomeProduto']) {
+        row.clear();
+      }
+    }
+  }
+
+  produtos.removeWhere((item) => item.isEmpty);
+
+  print(produtos);
+
+  print(DateFormat("dd/MM/yyyy")
+      .parse(DateFormat("dd/MM/yyyy").format(DateTime.now())));
+
+  print(DateFormat('dd/MM/yyyy').format(DateTime.now()));
 }

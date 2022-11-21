@@ -14,11 +14,11 @@ class DrawerTela {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
+          const DrawerHeader(
+            decoration: BoxDecoration(
               color: Colors.blue,
             ),
-            child: Image.asset(AppController.instance.background),
+            child: null,
           ),
           ListTile(
               leading: const Icon(Icons.home),
@@ -54,6 +54,20 @@ class DrawerTela {
               subtitle: const Text('Tela para Adicionar Fornecedor'),
               onTap: () {
                 Navigator.pushNamed(context, '/Fornecedor');
+              }),
+          ListTile(
+              leading: const Icon(Icons.post_add),
+              title: const Text('Adicionar Fornecedor Cad'),
+              subtitle: const Text('Tela para Adicionar Fornecedor'),
+              onTap: () {
+                Navigator.pushNamed(context, '/CadFPL');
+              }),
+          ListTile(
+              leading: const Icon(Icons.post_add),
+              title: const Text('Adicionar Cliente'),
+              subtitle: const Text('Tela para Adicionar Cliente'),
+              onTap: () {
+                Navigator.pushNamed(context, '/Cliente');
               }),
           ListTile(
             leading: const Icon(Icons.shopping_cart),

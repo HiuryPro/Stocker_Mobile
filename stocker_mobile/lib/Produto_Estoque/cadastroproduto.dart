@@ -164,7 +164,7 @@ class _CadProdutoState extends State<CadProduto> {
                     menuMaxHeight: 200,
                     hint: const Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text("Produtos"),
+                      child: Text("Unidade de Medida"),
                     ),
                     borderRadius: BorderRadius.circular(12),
                     isExpanded: true,

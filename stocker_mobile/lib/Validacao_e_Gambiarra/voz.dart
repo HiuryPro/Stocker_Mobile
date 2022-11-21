@@ -35,12 +35,18 @@ class Voz extends ChangeNotifier {
   String navegar2 = '';
   Map<String, String> palavrasVenda = {};
   Map<String, String> palavrasCompra = {};
-  List<String> palavrasChavesCompra = ['produto', 'quantidade', 'fornecedor'];
+  List<String> palavrasChavesCompra = [
+    'produto',
+    'quantidade',
+    'fornecedor',
+    'lote'
+  ];
   List<String> palavrasChavesVenda = [
     'produto',
     'quantidade',
     'cliente',
-    'adicional'
+    'adicional',
+    'lote'
   ];
   int opcao = 0;
   late BuildContext context;

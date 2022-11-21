@@ -25,18 +25,15 @@ class Relatorio extends StatefulWidget {
 class RelatorioState extends State<Relatorio> {
   int count = 0;
 
-  final deDataCompra = TextEditingController();
-  final ateDataCompra = TextEditingController();
-  final deDataVenda = TextEditingController();
-  final ateDataVenda = TextEditingController();
+  final deDataController = TextEditingController();
+  final ateDataController = TextEditingController();
 
   List<String> venda = ["Suco", "Cerveja", "Puta", "Caralho"];
   List<double> preco = [10, 20, 30, 40];
 
-  String deDataC = "";
-  String ateDataC = "";
-  String deDataV = "";
-  String ateDataV = "";
+  String deData = "";
+  String ateData = "";
+
   bool carrega = false;
   bool isDone = false;
 
@@ -61,13 +58,13 @@ class RelatorioState extends State<Relatorio> {
 
   criandoPDFCompra() async {
     var lista = await SupaBaseCredentials.supaBaseClient.rpc('relatoriocompra',
-        params: {'data1': deDataC, 'data2': ateDataC}).execute();
+        params: {'data1': deData, 'data2': ateData}).execute();
 
     if (lista.data != null) {
-      criaPdf.deData = deDataC;
-      criaPdf.ateData = ateDataC;
+      criaPdf.deData = deData;
+      criaPdf.ateData = ateData;
       var imageToUint = Uint();
-      await imageToUint.pegaImagem(1, deDataC, ateDataC);
+      await imageToUint.pegaImagem(1, deData, ateData);
       await criaPdf.relatoriaDadosCompra();
       await criaPdf.createPDFCompra(
           imageLogo: imageToUint.image,
@@ -88,13 +85,13 @@ class RelatorioState extends State<Relatorio> {
 
   criandoPDFVenda() async {
     var lista = await SupaBaseCredentials.supaBaseClient.rpc('relatoriovenda',
-        params: {'data1': deDataV, 'data2': ateDataV}).execute();
+        params: {'data1': deData, 'data2': ateData}).execute();
 
     if (lista.data != null) {
-      criaPdf.deData = deDataV;
-      criaPdf.ateData = ateDataV;
+      criaPdf.deData = deData;
+      criaPdf.ateData = ateData;
       var imageToUint = Uint();
-      await imageToUint.pegaImagem(2, deDataV, ateDataV);
+      await imageToUint.pegaImagem(2, deData, ateData);
       await criaPdf.relatoriaDadosVenda();
       await criaPdf.createPDFVenda(
           imageLogo: imageToUint.image,
@@ -133,11 +130,6 @@ class RelatorioState extends State<Relatorio> {
       child: ListView(
         shrinkWrap: true,
         children: [
-          const Center(
-            child: Text('Gerar Relatorio de Compra',
-                style: TextStyle(fontSize: 20)),
-          ),
-          const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -146,7 +138,7 @@ class RelatorioState extends State<Relatorio> {
                 fit: FlexFit.tight,
                 child: TextField(
                     readOnly: true,
-                    controller: deDataCompra,
+                    controller: deDataController,
                     onTap: () {
                       showDatePicker(
                               context: context,
@@ -155,9 +147,9 @@ class RelatorioState extends State<Relatorio> {
                               lastDate: DateTime(3000))
                           .then((date) {
                         if (date != null) {
-                          deDataCompra.text =
+                          deDataController.text =
                               DateFormat('dd/MM/yyyy').format(date);
-                          deDataC = deDataCompra.text;
+                          deData = deDataController.text;
                         }
                       });
                     },
@@ -174,7 +166,7 @@ class RelatorioState extends State<Relatorio> {
                 fit: FlexFit.tight,
                 child: TextField(
                     readOnly: true,
-                    controller: ateDataCompra,
+                    controller: ateDataController,
                     onTap: () {
                       showDatePicker(
                               context: context,
@@ -183,9 +175,9 @@ class RelatorioState extends State<Relatorio> {
                               lastDate: DateTime(3000))
                           .then((date) {
                         if (date != null) {
-                          ateDataCompra.text =
+                          ateDataController.text =
                               DateFormat('dd/MM/yyyy').format(date);
-                          ateDataC = ateDataCompra.text;
+                          ateData = ateDataController.text;
                         }
                       });
                     },
@@ -230,7 +222,7 @@ class RelatorioState extends State<Relatorio> {
                   }
                 }
               },
-              child: const Text("Cria PDF")),
+              child: const Text("Cria Relátorio de Compra")),
           const SizedBox(
             height: 30,
           ),
@@ -244,74 +236,7 @@ class RelatorioState extends State<Relatorio> {
       child: ListView(
         shrinkWrap: true,
         children: [
-          const Center(
-            child: Text('Gerar Relatorio de Venda',
-                style: TextStyle(fontSize: 20)),
-          ),
           const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                flex: 3,
-                fit: FlexFit.tight,
-                child: TextField(
-                    readOnly: true,
-                    controller: deDataVenda,
-                    onTap: () {
-                      showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(1980),
-                              lastDate: DateTime(3000))
-                          .then((date) {
-                        if (date != null) {
-                          deDataVenda.text =
-                              DateFormat('dd/MM/yyyy').format(date);
-                          deDataV = deDataVenda.text;
-                        }
-                      });
-                    },
-
-                    //inputFormatters: [dateMask],
-                    decoration: const InputDecoration(
-                      labelText: 'Dé',
-                      border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red)),
-                    )),
-              ),
-              Flexible(
-                flex: 3,
-                fit: FlexFit.tight,
-                child: TextField(
-                    readOnly: true,
-                    controller: ateDataVenda,
-                    onTap: () {
-                      showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(1980),
-                              lastDate: DateTime(3000))
-                          .then((date) {
-                        if (date != null) {
-                          ateDataVenda.text =
-                              DateFormat('dd/MM/yyyy').format(date);
-                          ateDataV = ateDataVenda.text;
-                        }
-                      });
-                    },
-                    inputFormatters: [dateMask2],
-                    decoration: const InputDecoration(
-                      labelText: 'Até',
-                      border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red)),
-                    )),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
           ElevatedButton(
               onPressed: () async {
                 setState(() {
@@ -341,7 +266,7 @@ class RelatorioState extends State<Relatorio> {
                   }
                 }
               },
-              child: const Text("Cria PDF")),
+              child: const Text("Cria Relátorio de Venda")),
           const SizedBox(
             height: 15,
           ),

@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:supabase/supabase.dart';
 
 import 'package:universal_html/html.dart';
 
@@ -38,7 +39,7 @@ class _VendaState extends State<Venda> {
   var fieldControllerQtd = TextEditingController();
   var fieldControllerDesconto = TextEditingController();
   var crud = DataBaseService();
-  final produtos = [""];
+
   final clientes = [""];
   String? produto;
   String? cliente;
@@ -54,6 +55,10 @@ class _VendaState extends State<Venda> {
   bool valor2 = false;
   bool valor3 = false;
   bool valor4 = false;
+  String? lote;
+  Map<String, int> lotes = {};
+  Map<String, int> produtos = {};
+  int count = 1;
 
   @override
   void initState() {
@@ -71,10 +76,8 @@ class _VendaState extends State<Venda> {
         }
       }
 
-      var lista1 = await crud.selectInner(
-          tabela: "Estoque",
-          select: 'Produto!inner(IdProduto,NomeProduto)PrecoMPM',
-          where: {});
+      var lista1 =
+          await crud.selectInner(tabela: "Produto", select: '*', where: {});
       var lista2 = await crud.selectInner(
           tabela: "Cliente", select: 'Pessoa!inner(IdPessoa, Nome)', where: {});
 
@@ -83,8 +86,7 @@ class _VendaState extends State<Venda> {
 
       setState(() {
         for (var row in lista1) {
-          produtos.add(
-              "${row['Produto']["IdProduto"]} ${row["Produto"]["NomeProduto"]}");
+          produtos.addAll({row['NomeProduto']: row['IdProduto']});
         }
         for (var row in lista2) {
           clientes.add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
@@ -226,10 +228,50 @@ class _VendaState extends State<Venda> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
-                      items: produtos.map(buildMenuItem).toList(),
+                      items: produtos.keys.toList().map(buildMenuItem).toList(),
                       onChanged: (value) async {
                         setState(() {
                           produto = value;
+                          fieldControllerPreco.text = "";
+                          cliente = null;
+                        });
+                        var lista = await crud.selectInner(
+                            tabela: 'Estoque',
+                            select: 'Lote!inner(*, IdProduto)',
+                            where: {'Lote.IdProduto': produtos[produto]});
+                        print(lista);
+                        for (var row in lista) {
+                          setState(() {
+                            lotes.addAll({
+                              row['Lote']['NumeroLote']: row['Lote']['IdLote']
+                            });
+                          });
+                        }
+                      }),
+                ),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(color: const Color(0xFF0080d9), width: 2),
+                    borderRadius: BorderRadius.circular(12)),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                      value: lote,
+                      menuMaxHeight: 200,
+                      hint: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("Lotes"),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      isExpanded: true,
+                      items: lotes.keys.toList().map(buildMenuItem).toList(),
+                      onChanged: (value) async {
+                        setState(() {
+                          lote = value;
                           fieldControllerPreco.text = "";
                           cliente = null;
                         });
@@ -238,7 +280,7 @@ class _VendaState extends State<Venda> {
                             tabela: "Estoque",
                             select: 'PrecoMPM',
                             where: {
-                              "IdProduto": apenasNumeros(produto!),
+                              "IdLote": lotes[lote],
                             });
                         print(lista);
                         for (var row in lista) {
@@ -412,6 +454,15 @@ class _VendaState extends State<Venda> {
                       fieldControllerQtd.text = "";
                       fieldControllerAdicional.text = "";
                       fieldControllerTotal.text = "";
+                      fieldControllerPreco.text = "";
+                      produto = null;
+                      preco = 0;
+                      fieldControllerDesconto.text = "";
+                      lotes.clear();
+                      lote = null;
+                      cliente = null;
+                      desconto = 0;
+
                       quantidade = 0;
                       adicional = 0;
                     });
@@ -454,46 +505,81 @@ class _VendaState extends State<Venda> {
 
                     if (dados[0] != null) {
                       for (int i = 0; i < dados.length; i++) {
-                        if (vendaCliente.isEmpty ||
-                            !vendaCliente.containsKey(
-                                apenasNumeros(dados[i]!['cliente']))) {
-                          var insertVenda =
-                              await crud.insert(tabela: 'Venda', map: {
-                            'DataVenda': DateFormat.yMMMd()
-                                .add_Hm()
-                                .format(DateTime.now()),
-                            'HoraVenda':
-                                DateFormat.Hms().format(DateTime.now()),
-                            'IdCliente': apenasNumeros(dados[i]!['cliente'])
-                          });
-                          print(insertVenda);
-                          vendaCliente.addAll({
-                            insertVenda[0]['IdCliente']: insertVenda[0]
-                                ['IdVenda']
-                          });
+                        var qtdEstoque = await crud.select(
+                            tabela: 'Estoque',
+                            select: 'IdEstoque, Quantidade',
+                            where: {'IdLote': dados[i]!['idLote']});
+                        print(qtdEstoque);
+                        if (qtdEstoque[0]['Quantidade'] >
+                            dados[i]!['quantidade']) {
+                          if (vendaCliente.isEmpty ||
+                              !vendaCliente.containsKey(
+                                  apenasNumeros(dados[i]!['cliente']))) {
+                            var insertVenda =
+                                await crud.insert(tabela: 'Venda', map: {
+                              'DataVenda': DateFormat.yMMMd()
+                                  .add_Hm()
+                                  .format(DateTime.now()),
+                              'HoraVenda':
+                                  DateFormat.Hms().format(DateTime.now()),
+                              'IdCliente': apenasNumeros(dados[i]!['cliente'])
+                            });
+                            print(insertVenda);
+                            vendaCliente.addAll({
+                              insertVenda[0]['IdCliente']: insertVenda[0]
+                                  ['IdVenda']
+                            });
 
-                          await crud.insert(tabela: 'ItemVenda', map: {
-                            'IdVenda': vendaCliente[
-                                apenasNumeros(dados[i]!['cliente'])],
-                            'IdProduto': apenasNumeros(dados[i]!['produto']),
-                            'Quantidade': dados[i]!['quantidade'],
-                            'PrecoVenda': dados[i]!['preco'],
-                            'Adicional': dados[i]!['adicional'],
-                            'DescontoVenda': dados[i]!['desconto']
-                          });
+                            await crud.insert(tabela: 'ItemVenda', map: {
+                              'IdVenda': vendaCliente[
+                                  apenasNumeros(dados[i]!['cliente'])],
+                              'IdLote': dados[i]!['idLote'],
+                              'Quantidade': dados[i]!['quantidade'],
+                              'PrecoVenda': dados[i]!['preco'],
+                              'Adicional': dados[i]!['adicional'],
+                              'DescontoVenda': dados[i]!['desconto']
+                            });
+                            var estoqueUpdate = await crud.update(
+                                tabela: 'Estoque',
+                                where: {
+                                  'IdEstoque': qtdEstoque[0]['IdEstoque']
+                                },
+                                setValue: {
+                                  'Quantidade': qtdEstoque[0]['Quantidade'] -
+                                      dados[i]!['quantidade']
+                                });
+                          } else {
+                            await crud.insert(tabela: 'ItemVenda', map: {
+                              'IdVenda': vendaCliente[
+                                  apenasNumeros(dados[i]!['cliente'])],
+                              'IdLote': dados[i]!['idLote'],
+                              'Quantidade': dados[i]!['quantidade'],
+                              'PrecoVenda': dados[i]!['preco'],
+                              'Adicional': dados[i]!['adicional'],
+                              'DescontoVenda': dados[i]!['desconto']
+                            });
+                            var estoqueUpdate = await crud.update(
+                                tabela: 'Estoque',
+                                where: {
+                                  'IdEstoque': qtdEstoque[0]['IdEstoque']
+                                },
+                                setValue: {
+                                  'Quantidade': qtdEstoque[0]['Quantidade'] -
+                                      dados[i]!['quantidade']
+                                });
+                          }
                         } else {
-                          await crud.insert(tabela: 'ItemVenda', map: {
-                            'IdVenda': vendaCliente[
-                                apenasNumeros(dados[i]!['cliente'])],
-                            'IdProduto': apenasNumeros(dados[i]!['produto']),
-                            'Quantidade': dados[i]!['quantidade'],
-                            'PrecoVenda': dados[i]!['preco'],
-                            'Adicional': dados[i]!['adicional'],
-                            'DescontoVenda': dados[i]!['desconto']
-                          });
+                          var snackBar = SnackBar(
+                            content: Text(
+                                'A venda ${dados[i]!['id']} não pode ser completa por falta de produto'),
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
+
                         setState(() {
                           preVenda.clear();
+                          count = 1;
                         });
                       }
                     }
@@ -515,7 +601,10 @@ class _VendaState extends State<Venda> {
 
       if (podeAdicionar) {
         preVenda.add({
+          'id': count,
           'produto': produto,
+          'lote': lote,
+          'idLote': lotes[lote],
           'cliente': cliente,
           'quantidade': quantidade,
           'preco': preco,
@@ -523,6 +612,9 @@ class _VendaState extends State<Venda> {
           'desconto': desconto
         });
         selecionado.add(true);
+        setState(() {
+          count++;
+        });
       }
     });
   }
@@ -599,7 +691,9 @@ class _VendaState extends State<Venda> {
 
   List<DataColumn> _createColumns() {
     return const [
+      DataColumn(label: Text("Id")),
       DataColumn(label: Text("Produto")),
+      DataColumn(label: Text("Número Lote")),
       DataColumn(label: Text('Cliente')),
       DataColumn(label: Text('Quantidade')),
       DataColumn(label: Text('Preco')),
@@ -621,7 +715,9 @@ class _VendaState extends State<Venda> {
     return preVenda
         .mapIndexed((index, book) => DataRow(
                 cells: [
+                  DataCell(Text(book['id'].toString())),
                   DataCell(Text(book['produto'])),
+                  DataCell(Text(book['lote'])),
                   DataCell(Text(book['cliente'])),
                   DataCell(TextFormField(
                     initialValue: "${book['quantidade']}",

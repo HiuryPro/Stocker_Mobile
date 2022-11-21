@@ -4,6 +4,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_compra.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_venda.dart';
 import 'package:stocker_mobile/Configuru%C3%A7%C3%B5es/configuracaotelas.dart';
+import 'package:stocker_mobile/Fornecedor_Cliente/cliente.dart';
+import 'package:stocker_mobile/Fornecedor_Cliente/fornecedorpl.dart';
 import 'package:stocker_mobile/Fornecedor_Cliente/fornedor.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/alterasenha.dart';
 import 'package:stocker_mobile/Login_e_Cadastro/cadastro_page.dart';
@@ -70,7 +72,9 @@ class AppWidget extends StatelessWidget {
                 '/': (context) => const AlteraSenha(),
                 '/Estoque': (context) => const Estoque(),
                 '/Relatorio': (context) => const Relatorio(),
-                '/Fornecedor': (context) => const Fornecedor()
+                '/Fornecedor': (context) => const Fornecedor(),
+                '/CadFPL': (context) => const CadFornePL(),
+                '/Cliente': (context) => const Cliente()
               });
         });
   }

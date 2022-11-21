@@ -137,7 +137,7 @@ class _FornecedorState extends State<Fornecedor> {
             Center(
                 child: AnimatedSmoothIndicator(
               activeIndex: indexAtivo,
-              count: 3,
+              count: 2,
               onDotClicked: (index) {
                 setState(() {
                   indexAtivo = index;

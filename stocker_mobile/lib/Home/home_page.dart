@@ -57,16 +57,6 @@ class _HomePageState extends State<HomePage> {
         shrinkWrap: true,
         children: [
           card(),
-          SizedBox(height: 15),
-          Center(
-            child: ElevatedButton(
-                onPressed: () async {
-                  var teste = await AuthenticationService.auth
-                      .passwordChange(novaSenha: '1234567');
-                  print(teste.data);
-                },
-                child: Text("Mudar Senha")),
-          )
         ],
       ),
     );

@@ -95,16 +95,15 @@ class _CompraState extends State<Compra> {
         }
       }
       var listaProdutos = await crud.select(
-          tabela: "FornecedorPLote",
-          select:
-              'FornecedorProduto!inner(Produto!inner(IdProduto, NomeProduto))',
+          tabela: "FornecedorProduto",
+          select: 'Produto!inner(IdProduto, NomeProduto)',
           where: {});
       print(listaProdutos);
       if (listaProdutos != null) {
         for (var row in listaProdutos) {
           setState(() {
             produtos.add(
-                "${row['FornecedorProduto']['Produto']['IdProduto']} ${row['FornecedorProduto']['Produto']['NomeProduto']}");
+                "${row['Produto']['IdProduto']} ${row['Produto']['NomeProduto']}");
           });
         }
       }
@@ -121,16 +120,13 @@ class _CompraState extends State<Compra> {
   adicionaF(var palavras) async {
     var lista = [];
 
-    print(palavras['produto']);
-    print(apenasNumeros(palavras['produto']!));
+    print(palavras['fornecedor']);
+    print(apenasNumeros(palavras['fornecedor']!));
     lista = await crud.selectInner(
-        tabela: "FornecedorPLote",
+        tabela: "FornecedorProduto",
         select:
-            'FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
-        where: {
-          "FornecedorProduto.Produto.IdProduto":
-              apenasNumeros(palavras['produto']!)
-        });
+            'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome), Produto!inner(IdProduto, NomeProduto)',
+        where: {"Produto.IdProduto": apenasNumeros(palavras['produto']!)});
     setState(() {
       valor = false;
       controllersCompra['preco']!.text = "";
@@ -138,17 +134,17 @@ class _CompraState extends State<Compra> {
       fornecedor = null;
       fornecedores.clear();
       for (var row in lista) {
-        fornecedores.add(
-            "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
+        fornecedores
+            .add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
       }
     });
   }
 
-  adicionaPreco(var palavras) async {
+  adicionaL(var palavras) async {
     var lista = await crud.selectInner(
         tabela: "FornecedorPLote",
         select:
-            '*, FornecedorProduto(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor))',
+            '*, Lote!inner(IdLote, NumeroLote), FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
         where: {
           "FornecedorProduto.Produto.IdProduto":
               apenasNumeros(palavras['produto']),
@@ -156,10 +152,31 @@ class _CompraState extends State<Compra> {
               apenasNumeros(palavras['fornecedor'])
         });
     print(lista);
+
+    for (var row in lista) {
+      setState(() {
+        lotes.addAll({row['Lote']['NumeroLote']: row['Lote']['IdLote']});
+      });
+    }
+  }
+
+  adicionaPreco(var palavras) async {
+    var lista = await crud.selectInner(
+        tabela: "FornecedorPLote",
+        select:
+            '*, FornecedorProduto(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)), Lote!inner(NumeroLote)',
+        where: {
+          "FornecedorProduto.Produto.IdProduto":
+              apenasNumeros(palavras['produto']),
+          "FornecedorProduto.Fornecedor.IdFornecedor":
+              apenasNumeros(palavras['fornecedor']),
+          'Lote.NumeroLote': palavras['lote']
+        });
+    print(lista);
     for (var row in lista) {
       setState(() {
         valor2 = false;
-        fornecedor = palavras['fornecedor'];
+        lote = palavras['lote'];
         controllersCompra['preco']!.text = row['Preco'].toString();
         controllersCompra['frete']!.text = row['Frete'].toString();
         preco = double.parse(controllersCompra['preco']!.text);
@@ -256,19 +273,19 @@ class _CompraState extends State<Compra> {
                         });
                         print(produto);
                         lista = await crud.selectInner(
-                            tabela: "FornecedorPLote",
+                            tabela: "FornecedorProduto",
                             select:
-                                'FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
+                                'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
                             where: {
-                              "FornecedorProduto.Produto.IdProduto":
-                                  apenasNumeros(produto!)
+                              "Produto.IdProduto": apenasNumeros(produto!)
                             });
+                        print(lista);
                         setState(() {
                           lotes.clear();
                           fornecedores.clear();
                           for (var row in lista) {
                             fornecedores.add(
-                                "${row['FornecedorProduto']['Fornecedor']['Pessoa']['IdPessoa']} ${row['FornecedorProduto']['Fornecedor']['Pessoa']['Nome']}");
+                                "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
                           }
                         });
                       }),
@@ -486,17 +503,6 @@ class _CompraState extends State<Compra> {
                 ],
               ),
               const SizedBox(height: 15),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                  onPressed: () {
-                    print(preCompra);
-                    print(selecionado);
-                    print(vaiComprar());
-                  },
-                  child: const Text("Imprimi")),
-              const SizedBox(
-                height: 30,
-              ),
               ElevatedButton(
                   onPressed: () async {
                     List<Map<dynamic, dynamic>?> dados = vaiComprar();
@@ -535,7 +541,22 @@ class _CompraState extends State<Compra> {
                         'PrecoCompra': dados[i]!['preco'],
                         'FreteCompra': dados[i]!['frete']
                       });
+
+                      var estoque = await crud.select(
+                          tabela: 'Estoque',
+                          select: 'IdEstoque, Quantidade',
+                          where: {'IdLote': dados[i]!['lote']});
+                      print(estoque);
+
+                      var estoqueUpdate = await crud
+                          .update(tabela: 'Estoque', where: {
+                        'IdEstoque': estoque[0]['IdEstoque']
+                      }, setValue: {
+                        'Quantidade':
+                            estoque[0]['Quantidade'] + dados[i]!['quantidade']
+                      });
                     }
+
                     setState(() {
                       preCompra.clear();
                       fieldControllerTotal.text = "";
