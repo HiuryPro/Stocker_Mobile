@@ -101,7 +101,6 @@ class _EstoqueState extends State<Estoque> {
                       }),
                 ),
               ),
-              Center(child: Text("Funciona")),
               Center(
                 child: ListView(
                   shrinkWrap: true,

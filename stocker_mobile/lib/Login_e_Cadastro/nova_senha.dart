@@ -52,7 +52,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                   child: Text(
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 20),
-                      "Informe o email que está vinculado a seu cadastrado \n que iremos envia-ló uma nova senha"),
+                      "Informe o email que está vinculado a seu cadastrado \n que iremos envia-ló um email de recuperação"),
                 ),
                 Text(url.substring(0, url.indexOf(RegExp(r'[#]')) + 1)),
                 const SizedBox(
@@ -77,6 +77,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
                           await AuthenticationService.auth.passwordReset(
                         email: fieldText.text,
                       );
+                      print(resposta.error);
                       print(resposta.data);
 
                       clearText();

@@ -6,6 +6,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:supabase/supabase.dart';
 
 import '../Validacao_e_Gambiarra/app_controller.dart';
+import '../Validacao_e_Gambiarra/drawertela.dart';
 import '../Validacao_e_Gambiarra/inscricaoestadual.dart';
 import '../Validacao_e_Gambiarra/maskara.dart';
 import '../Validacao_e_Gambiarra/validacao.dart';
@@ -23,6 +24,7 @@ class _FornecedorState extends State<Fornecedor> {
   var inscE = InscE();
   var maskaraIE = MaskaraInscE();
   var insereDB = InsereCadastroF();
+  var drawer = DrawerTela();
 
   var count = 0;
 
@@ -498,17 +500,19 @@ class _FornecedorState extends State<Fornecedor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(),
+        drawer: drawer.drawerTela(context),
         body: Stack(
-      children: [
-        SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: Image.asset(
-              AppController.instance.background,
-              fit: BoxFit.cover,
-            )),
-        _body()
-      ],
-    ));
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: Image.asset(
+                  AppController.instance.background,
+                  fit: BoxFit.cover,
+                )),
+            _body()
+          ],
+        ));
   }
 }

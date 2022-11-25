@@ -288,7 +288,7 @@ class Voz extends ChangeNotifier {
           if (isLoteExiste) {
             palavrasCompra.addAll({comando: loteSelecionado});
           } else {
-            await flutterTts.speak("Esse fornecedor não existe");
+            await flutterTts.speak("Esse lote não existe");
           }
           produtoSelecionadoCompra = "";
         } else {

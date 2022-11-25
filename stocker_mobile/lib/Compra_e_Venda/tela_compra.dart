@@ -528,6 +528,7 @@ class _CompraState extends State<Compra> {
                           DateFormat.yMMMd().add_Hm().format(DateTime.now()),
                       'HoraCompra': DateFormat.Hms().format(DateTime.now())
                     });
+                    print(insertCompra);
 
                     for (int i = 0; i < dados.length; i++) {
                       var idPF = await crud.select(
@@ -560,6 +561,7 @@ class _CompraState extends State<Compra> {
                           tabela: 'Estoque',
                           select: 'IdEstoque, Quantidade',
                           where: {'IdLote': dados[i]!['lote']});
+
                       print(estoque);
 
                       var estoqueUpdate = await crud
