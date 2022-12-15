@@ -9,9 +9,10 @@ import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
 import 'package:stocker_mobile/credentials/supabase.credentials.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
-import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart' as html;
 
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Metodos_das_Telas/navegar.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 
 class CadFornePL extends StatefulWidget {
   const CadFornePL({super.key});
@@ -92,7 +93,7 @@ class _CadFornePLState extends State<CadFornePL> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       if (kIsWeb) {
-        await window.navigator.getUserMedia(audio: true);
+        await html.window.navigator.getUserMedia(audio: true);
       } else {
         if (!await Permission.microphone.isGranted) {
           await Permission.microphone.request();
@@ -112,6 +113,7 @@ class _CadFornePLState extends State<CadFornePL> {
           }
         });
       }
+      await Navegar.instance.buscaComandos();
     });
   }
 
@@ -540,10 +542,6 @@ class _CadFornePLState extends State<CadFornePL> {
               print(this.context);
               Voz.instance.opcao = 0;
               Voz.instance.context = this.context;
-              await Voz.instance.initSpeechState();
-
-              await Voz.instance.initTts();
-              await Voz.instance.buscaComandos();
 
               Voz.instance.startListening();
 

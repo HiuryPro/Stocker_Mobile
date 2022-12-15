@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:stocker_mobile/Metodos_das_Telas/navegar.dart';
 
 import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
 
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 import 'package:collection/collection.dart';
 
 class Estoque extends StatefulWidget {
@@ -172,8 +173,7 @@ class _EstoqueState extends State<Estoque> {
                   Voz.instance.opcao = 0;
                   await Voz.instance.initSpeechState();
 
-                  await Voz.instance.initTts();
-                  await Voz.instance.buscaComandos();
+                  await Navegar.instance.buscaComandos();
                   Voz.instance.startListening();
                 })
           ],

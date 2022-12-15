@@ -11,11 +11,11 @@ import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
 import 'package:stocker_mobile/services/supabase.services.dart';
 
-import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart' as html;
 
 import '../Metodos_das_Telas/navegar.dart';
 
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 import '../services/supabase.databaseService.dart';
 
 class HomePage extends StatefulWidget {
@@ -40,12 +40,13 @@ class _HomePageState extends State<HomePage> {
     voz = Voz();
     Future.delayed(Duration.zero, () async {
       if (kIsWeb) {
-        await window.navigator.getUserMedia(audio: true);
+        await html.window.navigator.getUserMedia(audio: true);
       } else {
         if (!await Permission.microphone.isGranted) {
           await Permission.microphone.request();
         }
       }
+      await Navegar.instance.buscaComandos();
     });
   }
 
@@ -88,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 20),
                 ),
                 onPressed: () {
-                  navegar.navegarEntreTela('/Cadastro', context, true);
+                  Navigator.of(context).pushNamed('/Cadastro');
                 },
               ),
             ),
@@ -111,10 +112,6 @@ class _HomePageState extends State<HomePage> {
             print(this.context);
             Voz.instance.opcao = 0;
             Voz.instance.context = this.context;
-            await Voz.instance.initSpeechState();
-
-            await Voz.instance.initTts();
-            await Voz.instance.buscaComandos();
 
             Voz.instance.startListening();
 

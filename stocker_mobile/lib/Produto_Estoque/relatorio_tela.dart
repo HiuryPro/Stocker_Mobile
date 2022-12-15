@@ -5,6 +5,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stocker_mobile/Compra_e_Venda/tela_venda.dart';
 import 'package:stocker_mobile/credentials/supabase.credentials.dart';
+import 'package:universal_html/html.dart' as html;
 
 import '../Cria_PDF/cria_pdf.dart';
 import '../Cria_PDF/uint.dart';
@@ -13,7 +14,7 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Cria_PDF/cores.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 
 class Relatorio extends StatefulWidget {
   const Relatorio({Key? key}) : super(key: key);
@@ -81,6 +82,21 @@ class RelatorioState extends State<Relatorio> {
       });
       mensagem("Não há registros neste período");
     }
+  }
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(Duration.zero, () async {
+      if (kIsWeb) {
+        await html.window.navigator.getUserMedia(audio: true);
+      } else {
+        if (!await Permission.microphone.isGranted) {
+          await Permission.microphone.request();
+        }
+      }
+      await Navegar.instance.buscaComandos();
+    });
   }
 
   criandoPDFVenda() async {
@@ -286,10 +302,6 @@ class RelatorioState extends State<Relatorio> {
               print(this.context);
               Voz.instance.opcao = 0;
               Voz.instance.context = this.context;
-              await Voz.instance.initSpeechState();
-
-              await Voz.instance.initTts();
-              await Voz.instance.buscaComandos();
 
               Voz.instance.startListening();
             }),

@@ -5,13 +5,15 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
+import 'package:stocker_mobile/Metodos_das_Telas/navegar.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 import 'package:stocker_mobile/Validacao_e_Gambiarra/drawertela.dart';
+import 'package:stocker_mobile/Validacao_e_Gambiarra/textoprafala.dart';
 import 'package:stocker_mobile/credentials/supabase.credentials.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
-import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart' as html;
 
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 
 class CadProduto extends StatefulWidget {
   const CadProduto({super.key});
@@ -95,7 +97,7 @@ class _CadProdutoState extends State<CadProduto> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       if (kIsWeb) {
-        await window.navigator.getUserMedia(audio: true);
+        await html.window.navigator.getUserMedia(audio: true);
       } else {
         if (!await Permission.microphone.isGranted) {
           await Permission.microphone.request();
@@ -566,10 +568,7 @@ class _CadProdutoState extends State<CadProduto> {
               Voz.instance.opcao = 0;
               Voz.instance.context = this.context;
               await Voz.instance.initSpeechState();
-
-              await Voz.instance.initTts();
-              await Voz.instance.buscaComandos();
-
+              await Navegar.instance.buscaComandos();
               Voz.instance.startListening();
 
               //  navegar.navegarEntreTela(voz.navegar, context);

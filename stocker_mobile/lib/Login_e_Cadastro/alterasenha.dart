@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -5,7 +6,7 @@ import 'package:stocker_mobile/Validacao_e_Gambiarra/app_controller.dart';
 import 'package:stocker_mobile/credentials/supabase.credentials.dart';
 import 'package:stocker_mobile/services/supabase.services.dart';
 import 'package:supabase/supabase.dart';
-import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart' as html;
 
 import '../Metodos_das_Telas/navegar.dart';
 
@@ -29,19 +30,22 @@ class _AlteraSenhaState extends State<AlteraSenha> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      hash = window.location.hash;
-      hashArr = hash.substring(1).split("&").map((param) => param.split("="));
-    });
+    if (kIsWeb) {
+      setState(() {
+        hash = html.window.location.hash;
+        hashArr = hash.substring(1).split("&").map((param) => param.split("="));
+      });
 
-    if (hashArr.length >= 2) {
-      List<String> lista = [];
-      for (var teste in hashArr) {
-        lista = teste;
-      }
+      if (hashArr.length >= 2) {
+        List<String> lista = [];
+        for (var teste in hashArr) {
+          lista = teste;
+        }
 
-      if (lista[1] == "signup") {
-        Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+        if (lista[1] == "signup") {
+          Navigator.pushNamedAndRemoveUntil(
+              context, "/login", (route) => false);
+        }
       }
     }
   }

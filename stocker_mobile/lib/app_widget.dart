@@ -16,6 +16,7 @@ import 'package:stocker_mobile/Produto_Estoque/estoque.dart';
 
 import 'package:stocker_mobile/sttteste.dart';
 import 'package:stocker_mobile/talkinh.dart';
+import 'package:stocker_mobile/teste2.dart';
 import 'package:stocker_mobile/voice.dart';
 
 import 'Cria_PDF/chart.dart';
@@ -55,7 +56,7 @@ class AppWidget extends StatelessWidget {
                   brightness: AppController.instance.isDarkTheme
                       ? Brightness.dark
                       : Brightness.light),
-              initialRoute: '/login',
+              initialRoute: '/Teste',
               routes: {
                 '/login': (context) => const LoginPage(),
                 '/Cadastro': (context) => const CadPage(),
@@ -74,7 +75,8 @@ class AppWidget extends StatelessWidget {
                 '/Relatorio': (context) => const Relatorio(),
                 '/Fornecedor': (context) => const Fornecedor(),
                 '/CadFPL': (context) => const CadFornePL(),
-                '/Cliente': (context) => const Cliente()
+                '/Cliente': (context) => const Cliente(),
+                '/Teste': (context) => const Teste()
               });
         });
   }

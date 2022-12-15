@@ -1,7 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -9,21 +8,14 @@ import 'dart:io' as plataforma;
 import '../Metodos_das_Telas/navegar.dart';
 import '../services/supabase.databaseService.dart';
 
-enum TtsState { playing, stopped, paused, continued }
-
 class Voz extends ChangeNotifier {
   static Voz instance = Voz();
   Map<String, String> comandos = {};
   var crud = DataBaseService();
-  final audioPlayer = AudioPlayer();
   late Navegar navegar;
 
-  static late FlutterTts flutterTts;
-  TtsState ttsState = TtsState.stopped;
-  int pause = 15;
   bool isEscutando = false;
 
-  bool get isAndroid => !kIsWeb && plataforma.Platform.isAndroid;
   String lastWords = '';
   String lastError = '';
   String lastStatus = '';
@@ -61,6 +53,7 @@ class Voz extends ChangeNotifier {
 
   Future<void> initSpeechState() async {
     _logEvent('Initialize');
+    print('Inicializou');
     try {
       var hasSpeech = await speech.initialize(
         onError: errorListener,
@@ -99,6 +92,7 @@ class Voz extends ChangeNotifier {
         'Received listener status: $status, listening: ${speech.isListening}');
 
     lastStatus = status;
+    /*
     print(status);
     print(opcao);
 
@@ -117,28 +111,7 @@ class Voz extends ChangeNotifier {
         await speech.cancel();
       }
     }
-  }
-
-  Future _comando() async {
-    List<String> comandosDados = comandos.keys.toList();
-    String? acao;
-    bool isComandoExistente = false;
-    for (int i = 0; i < comandosDados.length; i++) {
-      if (lastWords.toLowerCase() == comandosDados[i].toLowerCase()) {
-        isComandoExistente = true;
-        acao = comandos[comandosDados[i]];
-        break;
-      }
-    }
-
-    lastWords = '';
-    if (isComandoExistente) {
-      await flutterTts.speak("Tela ${acao!}");
-      navegar2 = "/$acao";
-      Navigator.pushNamed(context, navegar2);
-    } else {
-      await flutterTts.speak("Esse Comando não existe");
-    }
+    */
   }
 
 //Compra
@@ -176,8 +149,6 @@ class Voz extends ChangeNotifier {
     }
 
     if (isPalavraChave) {
-      await flutterTts.speak("$acao");
-
       if (comando.toLowerCase() == 'produto'.toLowerCase()) {
         bool isProdutoExiste = false;
         for (int i = 0; i < produtos.length; i++) {
@@ -196,7 +167,7 @@ class Voz extends ChangeNotifier {
         if (isProdutoExiste) {
           palavrasCompra.addAll({comando: produtoSelecionadoCompra});
         } else {
-          await flutterTts.speak("Esse produto não existe");
+          print('Esse Produto não existe');
         }
       } else if (comando.toLowerCase() == 'fornecedor'.toLowerCase()) {
         bool isFornecedorExiste = false;
@@ -234,10 +205,10 @@ class Voz extends ChangeNotifier {
           if (isFornecedorExiste) {
             palavrasCompra.addAll({comando: fornecedorSelecionado});
           } else {
-            await flutterTts.speak("Esse fornecedor não existe");
+            print("Esse fornecedor não existe");
           }
         } else {
-          await flutterTts.speak('Fale um produto primeiro');
+          print('Fale um produto primeiro');
         }
       } else if (comando.toLowerCase() == 'lote'.toLowerCase()) {
         print('entro');
@@ -288,17 +259,17 @@ class Voz extends ChangeNotifier {
           if (isLoteExiste) {
             palavrasCompra.addAll({comando: loteSelecionado});
           } else {
-            await flutterTts.speak("Esse lote não existe");
+            print("Esse lote não existe");
           }
           produtoSelecionadoCompra = "";
         } else {
-          await flutterTts.speak('Fale um produto primeiro');
+          print('Fale um produto primeiro');
         }
       } else {
         palavrasCompra.addAll({comando: item});
       }
     } else {
-      await flutterTts.speak("Campo invalido");
+      print("Campo invalido");
     }
     produtos.clear();
     notifyListeners();
@@ -339,7 +310,7 @@ class Voz extends ChangeNotifier {
     }
 
     if (isPalavraChave) {
-      await flutterTts.speak("$acao");
+      print("$acao");
 
       if (comando.toLowerCase() == "produto".toLowerCase()) {
         bool isProdutoExiste = false;
@@ -361,7 +332,7 @@ class Voz extends ChangeNotifier {
           palavrasVenda.addAll({comando: produtoSelecionadoVenda});
           produtoSelecionadoVenda = "";
         } else {
-          await flutterTts.speak("Esse produto não existe");
+          print("Esse produto não existe");
         }
       } else if (comando.toLowerCase() == "cliente".toLowerCase()) {
         bool isClienteExiste = false;
@@ -382,7 +353,7 @@ class Voz extends ChangeNotifier {
         if (isClienteExiste) {
           palavrasVenda.addAll({comando: clienteSelecionado});
         } else {
-          await flutterTts.speak("Esse produto não existe");
+          print("Esse produto não existe");
         }
       } else {
         palavrasVenda.addAll({comando: item});
@@ -399,83 +370,25 @@ class Voz extends ChangeNotifier {
     print('$eventTime $eventDescription');
   }
 
-  Future<void> buscaComandos() async {
-    List<dynamic> teste = await crud.selectComando(
-        tabela: "Comando", select: "comando, acao", id: 1);
-    comandos.clear();
-    for (var row in teste) {
-      comandos
-          .addEntries(<String, String>{row['comando']: row['acao']}.entries);
-    }
-
-    print(comandos.keys.toList());
-    print(comandos);
-  }
-
-  initTts() async {
-    flutterTts = FlutterTts();
-    await flutterTts.setVolume(1);
-    await flutterTts.setSpeechRate(1);
-    await flutterTts.setPitch(1.8);
-
-    _setAwaitOptions();
-
-    if (isAndroid) {
-      _getDefaultEngine();
-      _getDefaultVoice();
-    }
-
-    flutterTts.setErrorHandler((msg) {
-      print("error: $msg");
-      ttsState = TtsState.stopped;
-    });
-  }
-
-  Future _getDefaultEngine() async {
-    var engine = await flutterTts.getDefaultEngine;
-    if (engine != null) {
-      print(engine);
-    }
-  }
-
-  Future _getDefaultVoice() async {
-    var voice = await flutterTts.getDefaultVoice;
-    if (voice != null) {
-      print(voice);
-    }
-  }
-
-  Future _setAwaitOptions() async {
-    await flutterTts.awaitSpeakCompletion(true);
-  }
-
-  Future<void> somEntrou() async {
-    var player = AudioCache(prefix: 'assets/sounds/');
-    var url = await player.load('entro.mp3');
-    await audioPlayer.play(url.path);
-  }
-
-  Future<void> somSaiu() async {
-    var player = AudioCache(prefix: 'assets/sounds/');
-    var url = await player.load('saiu.mp3');
-    await audioPlayer.play(url.path);
-  }
-
   void startListening() {
     _logEvent('start listening');
-    somEntrou();
 
     speech.listen(
         onResult: resultListener,
         listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(milliseconds: 2500),
+        pauseFor: const Duration(seconds: 30),
         partialResults: true,
         localeId: _currentLocaleId,
         cancelOnError: true,
         listenMode: ListenMode.confirmation);
   }
 
+  void stopListening() {
+    _logEvent('stop');
+    speech.cancel();
+  }
+
   Future<void> mensagem(String mensagem) async {
-    await flutterTts.speak(mensagem);
+    print(mensagem);
   }
 }

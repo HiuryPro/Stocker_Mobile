@@ -12,11 +12,11 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart' as html;
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -89,7 +89,7 @@ class _CompraState extends State<Compra> {
     print('Funciona inferno');
     Future.delayed(Duration.zero, () async {
       if (kIsWeb) {
-        await window.navigator.getUserMedia(audio: true);
+        await html.window.navigator.getUserMedia(audio: true);
       } else {
         if (!await Permission.microphone.isGranted) {
           await Permission.microphone.request();
@@ -110,6 +110,7 @@ class _CompraState extends State<Compra> {
       }
 
       print(produtos);
+      await Navegar.instance.buscaComandos();
     });
   }
 
@@ -258,8 +259,6 @@ class _CompraState extends State<Compra> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
                 child: ListView(shrinkWrap: true, children: [
-              Text(palavras.toString()),
-              const SizedBox(height: 15),
               Container(
                 decoration: BoxDecoration(
                     border:
@@ -651,9 +650,7 @@ class _CompraState extends State<Compra> {
                         print(this.context);
                         Voz.instance.opcao = 1;
                         Voz.instance.context = this.context;
-                        await Voz.instance.initSpeechState();
-                        await Voz.instance.initTts();
-                        await Voz.instance.buscaComandos();
+
                         Voz.instance.startListening();
                       }),
                   FloatingActionButton(
@@ -665,8 +662,6 @@ class _CompraState extends State<Compra> {
                         Voz.instance.opcao = 0;
                         await Voz.instance.initSpeechState();
 
-                        await Voz.instance.initTts();
-                        await Voz.instance.buscaComandos();
                         Voz.instance.startListening();
                       })
                 ],

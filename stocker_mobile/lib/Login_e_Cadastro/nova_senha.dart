@@ -3,8 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:stocker_mobile/services/supabase.databaseService.dart';
 import 'package:stocker_mobile/services/supabase.services.dart';
-import 'package:universal_html/html.dart';
-
+import 'package:flutter/src/widgets/navigator.dart' as nav;
 import '../SendEmail/send_email.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 
@@ -19,7 +18,6 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
   final fieldText = TextEditingController();
   final fieldText2 = TextEditingController();
   var auth = AuthenticationService();
-  var url = window.location.href;
 
   var crud = DataBaseService();
   var sendMail = SendMail();
@@ -147,7 +145,7 @@ class _NovaSenhaPageState extends State<NovaSenhaPage> {
       actions: [
         TextButton(
             onPressed: () {
-              Navigator.of(context).pushNamed('/');
+              nav.Navigator.of(context).pushNamed('/');
             },
             child: const Text("Ok"))
       ],

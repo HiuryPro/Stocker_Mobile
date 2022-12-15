@@ -13,7 +13,7 @@ import 'package:universal_html/html.dart';
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 import '../services/supabase.databaseService.dart';
 
 class Configuracoes extends StatefulWidget {
@@ -42,6 +42,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
           await Permission.microphone.request();
         }
       }
+      await Navegar.instance.buscaComandos();
     });
   }
 
@@ -77,10 +78,6 @@ class _ConfiguracoesState extends State<Configuracoes> {
             print(this.context);
             Voz.instance.opcao = 0;
             Voz.instance.context = this.context;
-            await Voz.instance.initSpeechState();
-
-            await Voz.instance.initTts();
-            await Voz.instance.buscaComandos();
 
             Voz.instance.startListening();
           }),

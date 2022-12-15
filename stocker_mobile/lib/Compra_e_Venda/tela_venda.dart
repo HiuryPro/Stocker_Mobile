@@ -6,17 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_recognition_error.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:supabase/supabase.dart';
 
-import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart' as html;
 
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
-import '../Validacao_e_Gambiarra/voz.dart';
+import '../Validacao_e_Gambiarra/falapratexto.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -69,7 +65,7 @@ class _VendaState extends State<Venda> {
 
     Future.delayed(Duration.zero, () async {
       if (kIsWeb) {
-        await window.navigator.getUserMedia(audio: true);
+        await html.window.navigator.getUserMedia(audio: true);
       } else {
         if (!await Permission.microphone.isGranted) {
           await Permission.microphone.request();
@@ -92,6 +88,7 @@ class _VendaState extends State<Venda> {
           clientes.add("${row['Pessoa']['IdPessoa']} ${row['Pessoa']['Nome']}");
         }
       });
+      await Navegar.instance.buscaComandos();
     });
   }
 
@@ -211,8 +208,6 @@ class _VendaState extends State<Venda> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
                 child: ListView(shrinkWrap: true, children: [
-              Text(palavras.toString()),
-              Text(tamanhoMap.toString()),
               Container(
                 decoration: BoxDecoration(
                     border:
@@ -472,32 +467,18 @@ class _VendaState extends State<Venda> {
                     }
                   },
                   child: const Text("Adiciona Linha")),
-              SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 200,
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Center(
-                        child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                                columns: _createColumns(), rows: createRows())),
-                      )
-                    ],
-                  )),
-              const SizedBox(height: 15),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                  onPressed: () {
-                    print(preVenda);
-                    print(selecionado);
-                    print(vaiVendar());
-                  },
-                  child: const Text("Imprimi")),
-              const SizedBox(
-                height: 30,
+              ListView(
+                shrinkWrap: true,
+                children: [
+                  Center(
+                    child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                            columns: _createColumns(), rows: createRows())),
+                  )
+                ],
               ),
+              const SizedBox(height: 15),
               ElevatedButton(
                   onPressed: () async {
                     List<Map<dynamic, dynamic>?> dados = vaiVendar();
@@ -662,9 +643,7 @@ class _VendaState extends State<Venda> {
                         print(this.context);
                         Voz.instance.opcao = 2;
                         Voz.instance.context = this.context;
-                        await Voz.instance.initSpeechState();
-                        await Voz.instance.initTts();
-                        await Voz.instance.buscaComandos();
+
                         Voz.instance.startListening();
                       }),
                   FloatingActionButton(
@@ -676,8 +655,6 @@ class _VendaState extends State<Venda> {
                         Voz.instance.opcao = 0;
                         await Voz.instance.initSpeechState();
 
-                        await Voz.instance.initTts();
-                        await Voz.instance.buscaComandos();
                         Voz.instance.startListening();
                       })
                 ],
