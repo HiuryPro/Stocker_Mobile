@@ -13,6 +13,7 @@ import 'package:universal_html/html.dart' as html;
 
 import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/falapratexto.dart';
+import '../Validacao_e_Gambiarra/textoprafala.dart';
 
 class CadFornePL extends StatefulWidget {
   const CadFornePL({super.key});
@@ -536,17 +537,24 @@ class _CadFornePLState extends State<CadFornePL> {
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.phone),
-            onPressed: () async {
-              print(this.context);
-              Voz.instance.opcao = 0;
-              Voz.instance.context = this.context;
-
-              Voz.instance.startListening();
-
-              //  navegar.navegarEntreTela(voz.navegar, context);
-            }),
+        floatingActionButton: GestureDetector(
+          onLongPress: () {
+            print('segura');
+          },
+          onLongPressStart: (detaisl) async {
+            await Fala.instance.somEntrou();
+            Voz.instance.startListening();
+            print('Começou a clicar');
+          },
+          onLongPressEnd: ((details) async {
+            await Fala.instance.somSaiu();
+            await Future.delayed(Duration(milliseconds: 500));
+            Voz.instance.stopListening();
+            await Navegar.instance.navegar(Voz.instance.lastWords, context);
+          }),
+          child: FloatingActionButton(
+              child: Icon(Icons.phone), onPressed: () async {}),
+        ),
         appBar: AppBar(
           foregroundColor: AppController.instance.theme1,
           shadowColor: Colors.transparent,

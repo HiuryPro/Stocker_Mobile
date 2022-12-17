@@ -15,6 +15,7 @@ import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Cria_PDF/cores.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
 import '../Validacao_e_Gambiarra/falapratexto.dart';
+import '../Validacao_e_Gambiarra/textoprafala.dart';
 
 class Relatorio extends StatefulWidget {
   const Relatorio({Key? key}) : super(key: key);
@@ -296,15 +297,24 @@ class RelatorioState extends State<Relatorio> {
     return Scaffold(
         appBar: AppBar(),
         drawer: drawer.drawerTela(context),
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.phone),
-            onPressed: () async {
-              print(this.context);
-              Voz.instance.opcao = 0;
-              Voz.instance.context = this.context;
-
-              Voz.instance.startListening();
-            }),
+        floatingActionButton: GestureDetector(
+          onLongPress: () {
+            print('segura');
+          },
+          onLongPressStart: (detaisl) async {
+            await Fala.instance.somEntrou();
+            Voz.instance.startListening();
+            print('Começou a clicar');
+          },
+          onLongPressEnd: ((details) async {
+            await Fala.instance.somSaiu();
+            await Future.delayed(Duration(milliseconds: 500));
+            Voz.instance.stopListening();
+            await Navegar.instance.navegar(Voz.instance.lastWords, context);
+          }),
+          child: FloatingActionButton(
+              child: Icon(Icons.phone), onPressed: () async {}),
+        ),
         body: Stack(
           children: [
             body(),

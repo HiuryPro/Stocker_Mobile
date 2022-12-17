@@ -22,7 +22,6 @@ class Navegar {
     }
 
     if (isComandoExistente) {
-      await Fala.instance.somSaiu();
       await Fala.instance.flutterTts.speak("Tela ${acao!}");
       navegar2 = "/$acao";
       Navigator.pushNamed(context, navegar2);

@@ -8,6 +8,8 @@ import 'package:stocker_mobile/services/supabase.databaseService.dart';
 import '../Validacao_e_Gambiarra/falapratexto.dart';
 import 'package:collection/collection.dart';
 
+import '../Validacao_e_Gambiarra/textoprafala.dart';
+
 class Estoque extends StatefulWidget {
   const Estoque({super.key});
 
@@ -164,18 +166,24 @@ class _EstoqueState extends State<Estoque> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FloatingActionButton(
-                heroTag: null,
-                child: Icon(Icons.phone),
-                onPressed: () async {
-                  print(this.context);
-                  Voz.instance.context = this.context;
-                  Voz.instance.opcao = 0;
-                  await Voz.instance.initSpeechState();
-
-                  await Navegar.instance.buscaComandos();
-                  Voz.instance.startListening();
-                })
+            GestureDetector(
+              onLongPress: () {
+                print('segura');
+              },
+              onLongPressStart: (detaisl) async {
+                await Fala.instance.somEntrou();
+                Voz.instance.startListening();
+                print('Começou a clicar');
+              },
+              onLongPressEnd: ((details) async {
+                await Fala.instance.somSaiu();
+                await Future.delayed(Duration(milliseconds: 500));
+                Voz.instance.stopListening();
+                await Navegar.instance.navegar(Voz.instance.lastWords, context);
+              }),
+              child: FloatingActionButton(
+                  child: Icon(Icons.phone), onPressed: () async {}),
+            ),
           ],
         ),
         drawer: drawerTela.drawerTela(context),

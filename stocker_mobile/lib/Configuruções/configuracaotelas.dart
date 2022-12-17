@@ -14,6 +14,7 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
 import '../Validacao_e_Gambiarra/falapratexto.dart';
+import '../Validacao_e_Gambiarra/textoprafala.dart';
 import '../services/supabase.databaseService.dart';
 
 class Configuracoes extends StatefulWidget {
@@ -72,15 +73,24 @@ class _ConfiguracoesState extends State<Configuracoes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.phone),
-          onPressed: () async {
-            print(this.context);
-            Voz.instance.opcao = 0;
-            Voz.instance.context = this.context;
-
-            Voz.instance.startListening();
-          }),
+      floatingActionButton: GestureDetector(
+        onLongPress: () {
+          print('segura');
+        },
+        onLongPressStart: (detaisl) async {
+          await Fala.instance.somEntrou();
+          Voz.instance.startListening();
+          print('Começou a clicar');
+        },
+        onLongPressEnd: ((details) async {
+          await Fala.instance.somSaiu();
+          await Future.delayed(Duration(milliseconds: 500));
+          Voz.instance.stopListening();
+          await Navegar.instance.navegar(Voz.instance.lastWords, context);
+        }),
+        child: FloatingActionButton(
+            child: Icon(Icons.phone), onPressed: () async {}),
+      ),
       body: body(),
       appBar: AppBar(),
       drawer: drawerTela.drawerTela(context),

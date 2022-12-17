@@ -272,7 +272,6 @@ class Voz extends ChangeNotifier {
       print("Campo invalido");
     }
     produtos.clear();
-    notifyListeners();
   }
 
 //Venda

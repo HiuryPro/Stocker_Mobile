@@ -17,6 +17,7 @@ import '../Metodos_das_Telas/navegar.dart';
 import '../Validacao_e_Gambiarra/app_controller.dart';
 import '../Validacao_e_Gambiarra/drawertela.dart';
 import '../Validacao_e_Gambiarra/falapratexto.dart';
+import '../Validacao_e_Gambiarra/textoprafala.dart';
 import '../services/supabase.databaseService.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -39,19 +40,12 @@ class _CompraState extends State<Compra> {
     'qtd': TextEditingController()
   };
 
-  Map<String, TextEditingController> controllersLote = {
-    'numeroLote': TextEditingController(),
-    'quantidade': TextEditingController(),
-    'precoUnd': TextEditingController(),
-    'descricao': TextEditingController(),
-    'dataVencimento': TextEditingController(),
-    'dataFabricacao': TextEditingController()
-  };
-
   var crud = DataBaseService();
-  final produtos = [""];
-  final fornecedores = [""];
+
   String? produto;
+  Map<String, int> produtos = {};
+  Map<String, int> fornecedores = {};
+
   String? fornecedor;
   int? quantidade;
   double? preco;
@@ -62,14 +56,6 @@ class _CompraState extends State<Compra> {
   List<Map> preCompra = [];
   Map<String, int> lotes = {};
   String? lote;
-
-  bool valor = true;
-  bool valor2 = true;
-  bool valor3 = true;
-  bool valor4 = true;
-
-  bool isDataDeVencimento = true;
-  bool isDataDeFabricacao = true;
 
   var dateMaskFabricacao = MaskTextInputFormatter(
       mask: '##/##/####',
@@ -103,8 +89,8 @@ class _CompraState extends State<Compra> {
       if (listaProdutos != null) {
         for (var row in listaProdutos) {
           setState(() {
-            produtos.add(
-                "${row['Produto']['IdProduto']} ${row['Produto']['NomeProduto']}");
+            produtos.addAll(
+                {row['Produto']['NomeProduto']: row['Produto']['IdProduto']});
           });
         }
       }
@@ -119,49 +105,37 @@ class _CompraState extends State<Compra> {
     return int.parse(soId);
   }
 
-  adicionaF(var palavras) async {
+  Future<void> pegaFornecedor() async {
     var lista = [];
-
-    print(palavras['produto']);
-
+    print(produto);
     lista = await crud.selectInner(
         tabela: "FornecedorProduto",
         select:
             'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
-        where: {"Produto.IdProduto": apenasNumeros(palavras['produto']!)});
+        where: {"Produto.IdProduto": produtos[produto]});
     print(lista);
     setState(() {
-      valor = false;
-      controllersCompra['preco']!.text = "";
-      produto = palavras['produto'];
-      fornecedor = null;
+      lotes.clear();
       fornecedores.clear();
       for (var row in lista) {
-        fornecedores.add(
-            "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
+        fornecedores.addAll({
+          row['Fornecedor']['Pessoa']['Nome']: row['Fornecedor']['Pessoa']
+              ['IdPessoa']
+        });
       }
     });
   }
 
-  adicionaL(var palavras) async {
+  Future<void> pegaLote() async {
     var lista = await crud.selectInner(
         tabela: "FornecedorPLote",
         select:
             '*, Lote!inner(IdLote, NumeroLote), FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
         where: {
-          "FornecedorProduto.Produto.IdProduto":
-              apenasNumeros(palavras['produto']),
-          "FornecedorProduto.Fornecedor.IdFornecedor":
-              apenasNumeros(palavras['fornecedor'])
+          "FornecedorProduto.Produto.IdProduto": produtos[produto],
+          "FornecedorProduto.Fornecedor.IdFornecedor": fornecedores[fornecedor]
         });
     print(lista);
-    setState(() {
-      valor2 = false;
-      controllersCompra['preco']!.text = "";
-      fornecedor = palavras['fornecedor'];
-      lote = null;
-      lotes.clear();
-    });
 
     for (var row in lista) {
       setState(() {
@@ -170,88 +144,46 @@ class _CompraState extends State<Compra> {
     }
   }
 
-  adicionaPreco(var palavras) async {
-    var lista = await crud.selectInner(
-        tabela: "FornecedorPLote",
-        select:
-            '*, FornecedorProduto(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor)), Lote!inner(NumeroLote)',
-        where: {
-          "FornecedorProduto.Produto.IdProduto":
-              apenasNumeros(palavras['produto']),
-          "FornecedorProduto.Fornecedor.IdFornecedor":
-              apenasNumeros(palavras['fornecedor']),
-          'Lote.NumeroLote': palavras['lote']
-        });
-    print(lista);
-    for (var row in lista) {
-      setState(() {
-        valor4 = false;
-        lote = palavras['lote'];
-        controllersCompra['preco']!.text = row['Preco'].toString();
-        controllersCompra['frete']!.text = row['Frete'].toString();
-        preco = double.parse(controllersCompra['preco']!.text);
-        frete = double.parse(controllersCompra['frete']!.text);
-        calculaTotal();
-      });
-    }
+  void resetaValoresCompra() {
+    controllersCompra['preco']!.text = "";
+    controllersCompra['frete']!.text = "";
+    fieldControllerTotal.text = "";
+    preco = null;
+    frete = null;
   }
 
-  adicionaQtd(var palavras) async {
-    setState(() {
-      valor3 = false;
-    });
-
-    if (palavras['quantidade']!.contains(RegExp(r'[A-Za-z]'))) {
-      await Voz.instance
-          .mensagem('Erro ao gravar Quantidade. Tente falar novamente');
-      Voz.instance.palavrasCompra.remove('quantidade');
+  void calculaTotal() {
+    if (quantidade != null && preco != null && frete != null) {
+      fieldControllerTotal.text = ((quantidade! * preco!) + frete!).toString();
+      total = double.parse(fieldControllerTotal.text);
     } else {
-      controllersCompra['qtd']!.text = palavras['quantidade']!;
-      calculaTotal();
-    }
-  }
-
-  calculaTotal() {
-    if (controllersCompra['qtd']!.text != "" &&
-        controllersCompra['frete']!.text != "" &&
-        controllersCompra['preco']!.text != "") {
-      quantidade = int.parse(controllersCompra['qtd']!.text);
-      setState(() {
-        fieldControllerTotal.text =
-            ((quantidade! * preco!) + frete!).toString();
-        total = double.parse(fieldControllerTotal.text);
-      });
-    } else {
+      quantidade = 0;
       fieldControllerTotal.text = "";
     }
   }
 
+  Future<void> preencheCamposPF() async {
+    var lista = await crud.selectInner(
+        tabela: "FornecedorPLote",
+        select:
+            '*, FornecedorProduto!inner(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor))',
+        where: {
+          "FornecedorProduto.Produto.IdProduto": produtos[produto],
+          "FornecedorProduto.Fornecedor.IdFornecedor": fornecedores[fornecedor],
+          "IdLote": lotes[lote]
+        });
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        controllersCompra['preco']!.text = row['Preco'].toString();
+        controllersCompra['frete']!.text = row['Frete'].toString();
+        preco = double.parse(controllersCompra['preco']!.text);
+        frete = double.parse(controllersCompra['frete']!.text);
+      });
+    }
+  }
+
   Widget body(int lastWords, Map<String, String> palavras) {
-    Future.delayed(Duration.zero, () async {
-      print(palavras);
-      if (palavras.containsKey('produto') &&
-          !palavras.containsKey('fornecedor') &&
-          valor) {
-        produto = palavras['produto'];
-        await adicionaF(palavras);
-      }
-
-      if (palavras.containsKey('fornecedor') &&
-          palavras.containsKey('produto') &&
-          valor2) {
-        fornecedor = palavras['fornecedor'];
-        await adicionaL(palavras);
-      }
-
-      if (palavras.containsKey('quantidade') && valor3) {
-        await adicionaQtd(palavras);
-      }
-
-      if (palavras.containsKey('lote') && valor4) {
-        await adicionaPreco(palavras);
-      }
-    });
-
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -274,33 +206,16 @@ class _CompraState extends State<Compra> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
-                      items: produtos.map(buildMenuItem).toList(),
+                      items: produtos.keys.toList().map(buildMenuItem).toList(),
                       onChanged: (value) async {
-                        var lista = [];
                         setState(() {
                           produto = value;
-
-                          controllersCompra['preco']!.text = "";
                           fornecedor = null;
                           lote = null;
+                          resetaValoresCompra();
                         });
-                        print(produto);
-                        lista = await crud.selectInner(
-                            tabela: "FornecedorProduto",
-                            select:
-                                'Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto)',
-                            where: {
-                              "Produto.IdProduto": apenasNumeros(produto!)
-                            });
-                        print(lista);
-                        setState(() {
-                          lotes.clear();
-                          fornecedores.clear();
-                          for (var row in lista) {
-                            fornecedores.add(
-                                "${row['Fornecedor']['Pessoa']['IdPessoa']} ${row['Fornecedor']['Pessoa']['Nome']}");
-                          }
-                        });
+
+                        await pegaFornecedor();
                       }),
                 ),
               ),
@@ -322,33 +237,19 @@ class _CompraState extends State<Compra> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                       isExpanded: true,
-                      items: fornecedores.map(buildMenuItem).toList(),
+                      items: fornecedores.keys
+                          .toList()
+                          .map(buildMenuItem)
+                          .toList(),
                       onChanged: (value) async {
                         setState(() {
                           fornecedor = value;
                           lote = null;
                           lotes.clear();
+                          resetaValoresCompra();
                         });
                         print(fornecedor);
-                        var lista = await crud.selectInner(
-                            tabela: "FornecedorPLote",
-                            select:
-                                '*, Lote!inner(IdLote, NumeroLote), FornecedorProduto!inner(Fornecedor!inner(Pessoa!inner(IdPessoa, Nome)), Produto!inner(IdProduto, NomeProduto))',
-                            where: {
-                              "FornecedorProduto.Produto.IdProduto":
-                                  apenasNumeros(produto!),
-                              "FornecedorProduto.Fornecedor.IdFornecedor":
-                                  apenasNumeros(fornecedor!)
-                            });
-                        print(lista);
-
-                        for (var row in lista) {
-                          setState(() {
-                            lotes.addAll({
-                              row['Lote']['NumeroLote']: row['Lote']['IdLote']
-                            });
-                          });
-                        }
+                        await pegaLote();
                       }),
                 ),
               ),
@@ -374,32 +275,11 @@ class _CompraState extends State<Compra> {
                       onChanged: (value) async {
                         setState(() {
                           lote = value;
+                          resetaValoresCompra();
                         });
                         print(lote);
-                        var lista = await crud.selectInner(
-                            tabela: "FornecedorPLote",
-                            select:
-                                '*, FornecedorProduto!inner(Produto!inner(IdProduto, NomeProduto), Fornecedor!inner(IdFornecedor))',
-                            where: {
-                              "FornecedorProduto.Produto.IdProduto":
-                                  apenasNumeros(produto!),
-                              "FornecedorProduto.Fornecedor.IdFornecedor":
-                                  apenasNumeros(fornecedor!),
-                              "IdLote": lotes[lote]
-                            });
-                        print(lista);
-                        for (var row in lista) {
-                          setState(() {
-                            controllersCompra['preco']!.text =
-                                row['Preco'].toString();
-                            controllersCompra['frete']!.text =
-                                row['Frete'].toString();
-                            preco =
-                                double.parse(controllersCompra['preco']!.text);
-                            frete =
-                                double.parse(controllersCompra['frete']!.text);
-                          });
-                        }
+                        await preencheCamposPF();
+                        calculaTotal();
                       }),
                 ),
               ),
@@ -408,18 +288,13 @@ class _CompraState extends State<Compra> {
                 controller: controllersCompra['qtd']!,
                 onChanged: (qtd) {
                   setState(() {
-                    if (Voz.instance.palavrasCompra.containsKey('quantidade')) {
-                      Voz.instance.palavrasCompra.remove('quantidade');
-                    }
-
-                    if (qtd != "") {
+                    if (qtd != '') {
                       quantidade = int.parse(qtd);
-                      fieldControllerTotal.text =
-                          ((quantidade! * preco!) + frete!).toString();
-                      total = double.parse(fieldControllerTotal.text);
+                      calculaTotal();
                     } else {
-                      quantidade = 0;
-                      fieldControllerTotal.text = "";
+                      setState(() {
+                        quantidade = null;
+                      });
                     }
                   });
                 },
@@ -491,9 +366,8 @@ class _CompraState extends State<Compra> {
 
                     setState(() {
                       controllersCompra['qtd']!.text = "";
-                      fieldControllerTotal.text = "";
-                      controllersCompra['frete']!.text = "";
-                      controllersCompra['preco']!.text = "";
+                      quantidade = null;
+                      resetaValoresCompra();
                       fornecedor = null;
                       fornecedores.clear();
                       lotes.clear();
@@ -628,6 +502,64 @@ class _CompraState extends State<Compra> {
             )),
       ));
 
+  Future<void> selecionaProduto(String item) async {
+    List produtosConfere = produtos.keys.toList();
+    List pordutosMinisculo =
+        produtos.keys.toList().map((produto) => produto.toLowerCase()).toList();
+    print(pordutosMinisculo);
+    print(item);
+    if (pordutosMinisculo.contains(item)) {
+      print('Entro');
+      setState(() {
+        produto = produtosConfere[pordutosMinisculo.indexOf(item)];
+        fornecedor = null;
+        lote = null;
+        resetaValoresCompra();
+      });
+      await pegaFornecedor();
+    } else {
+      await Fala.instance.flutterTts.speak('Esse produto não existe');
+    }
+  }
+
+  Future<void> selecionaFornecedor(String item) async {
+    List fornecedorConfere = fornecedores.keys.toList();
+    List fornecedorMinisculo = fornecedores.keys
+        .toList()
+        .map((fornecedor) => fornecedor.toLowerCase())
+        .toList();
+    print(fornecedorMinisculo);
+    print(item);
+
+    if (fornecedorMinisculo.contains(item)) {
+      setState(() {
+        fornecedor = fornecedorConfere[fornecedorMinisculo.indexOf(item)];
+        lote = null;
+        lotes.clear();
+      });
+      resetaValoresCompra();
+      await pegaLote();
+    } else {
+      await Fala.instance.flutterTts.speak('Esse Fornecedor não existe');
+    }
+  }
+
+  Future<void> selecionaLote(String item) async {
+    List loteConfere = lotes.keys.toList();
+    if (loteConfere.contains(item)) {
+      setState(() {
+        lote = item;
+        resetaValoresCompra();
+      });
+      print(lote);
+      await preencheCamposPF();
+      calculaTotal();
+    } else {
+      await Fala.instance.flutterTts.speak('Esse Lote não existe');
+    }
+    print(item);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -637,33 +569,97 @@ class _CompraState extends State<Compra> {
               floatingActionButton: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  FloatingActionButton(
-                      heroTag: null,
-                      child: const Icon(Icons.hearing),
-                      onPressed: () async {
-                        setState(() {
-                          valor = true;
-                          valor2 = true;
-                          valor3 = true;
-                          valor4 = true;
-                        });
-                        print(this.context);
-                        Voz.instance.opcao = 1;
-                        Voz.instance.context = this.context;
+                  GestureDetector(
+                    onLongPress: () {
+                      print('segura');
+                    },
+                    onLongPressStart: (detaisl) async {
+                      await Fala.instance.somEntrou();
+                      Voz.instance.startListening();
+                      print('Começou a clicar');
+                    },
+                    onLongPressEnd: ((details) async {
+                      await Fala.instance.somSaiu();
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      Voz.instance.stopListening();
+                      var falou = Voz.instance.lastWords;
+                      print(falou);
+                      Voz.instance.lastWords = '';
 
-                        Voz.instance.startListening();
-                      }),
-                  FloatingActionButton(
-                      heroTag: null,
-                      child: const Icon(Icons.phone),
-                      onPressed: () async {
-                        print(this.context);
-                        Voz.instance.context = this.context;
-                        Voz.instance.opcao = 0;
-                        await Voz.instance.initSpeechState();
+                      var comando = falou
+                          .substring(0, falou.indexOf(RegExp(r'[ ]')))
+                          .toLowerCase();
 
-                        Voz.instance.startListening();
-                      })
+                      print(comando);
+                      var item = falou
+                          .substring(
+                              falou.indexOf(RegExp(r'[ ]')) + 1, falou.length)
+                          .toLowerCase();
+
+                      if (comando == 'produto'.toLowerCase()) {
+                        await selecionaProduto(item);
+                      } else if (comando == 'fornecedor'.toLowerCase()) {
+                        if (produto == null) {
+                          await Fala.instance.flutterTts
+                              .speak('Fale um produto primeiro');
+                        } else {
+                          await selecionaFornecedor(item);
+                        }
+                      } else if (comando == 'lote'.toLowerCase()) {
+                        if (produto == null) {
+                          await Fala.instance.flutterTts
+                              .speak('Fale um produto primeiro');
+                        } else if (fornecedor == null) {
+                          await Fala.instance.flutterTts
+                              .speak('Fale um fornecedor primeiro');
+                        } else {
+                          await selecionaLote(item);
+                        }
+                      } else if (comando == 'quantidade') {
+                        String soNum = item.replaceAll(RegExp(r'[^0-9]'), '');
+                        if (soNum != '') {
+                          setState(() {
+                            quantidade = apenasNumeros(item);
+                            controllersCompra['qtd']!.text = item;
+                            calculaTotal();
+                          });
+                        } else {
+                          setState(() {
+                            quantidade = null;
+                          });
+                          await Fala.instance.flutterTts
+                              .speak('Fale um número');
+                        }
+                      } else {
+                        Fala.instance.flutterTts
+                            .speak('Esse comando não existe');
+                      }
+                    }),
+                    child: FloatingActionButton(
+                        child: const Icon(Icons.hearing),
+                        onPressed: () async {}),
+                  ),
+                  GestureDetector(
+                    onLongPress: () {
+                      print('segura');
+                    },
+                    onLongPressStart: (detaisl) async {
+                      await Fala.instance.somEntrou();
+                      Voz.instance.startListening();
+                      print('Começou a clicar');
+                    },
+                    onLongPressEnd: ((details) async {
+                      await Fala.instance.somSaiu();
+                      await Future.delayed(const Duration(milliseconds: 750));
+                      Voz.instance.stopListening();
+                      var tela = Voz.instance.lastWords;
+                      Voz.instance.lastWords = '';
+                      // ignore: use_build_context_synchronously
+                      await Navegar.instance.navegar(tela, context);
+                    }),
+                    child: FloatingActionButton(
+                        child: const Icon(Icons.phone), onPressed: () async {}),
+                  ),
                 ],
               ),
               drawer: drawerTela.drawerTela(context),
