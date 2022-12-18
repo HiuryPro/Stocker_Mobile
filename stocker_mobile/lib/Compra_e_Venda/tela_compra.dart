@@ -183,7 +183,7 @@ class _CompraState extends State<Compra> {
     }
   }
 
-  Widget body(int lastWords, Map<String, String> palavras) {
+  Widget body() {
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -374,10 +374,6 @@ class _CompraState extends State<Compra> {
                       produto = null;
                       lote = null;
                     });
-
-                    if (Voz.instance.palavrasCompra.isNotEmpty) {
-                      Voz.instance.palavrasCompra.clear();
-                    }
                   },
                   child: const Text("Adiciona Linha")),
               ListView(
@@ -664,8 +660,7 @@ class _CompraState extends State<Compra> {
               ),
               drawer: drawerTela.drawerTela(context),
               appBar: AppBar(),
-              body: body(Voz.instance.palavrasCompra.length,
-                  Voz.instance.palavrasCompra));
+              body: body());
         });
   }
 

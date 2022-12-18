@@ -48,10 +48,6 @@ class _VendaState extends State<Venda> {
   int quantidadeLinhas = 0;
   List<bool> selecionado = [];
   List<Map> preVenda = [];
-  bool valor = false;
-  bool valor2 = false;
-  bool valor3 = false;
-  bool valor4 = false;
   String? lote;
   Map<String, int> lotes = {};
   Map<String, int> produtos = {};
@@ -119,7 +115,35 @@ class _VendaState extends State<Venda> {
     }
   }
 
-  Widget body(int tamanhoMap, Map<String, String> palavras) {
+  Future<void> pegaLote() async {
+    lotes.clear();
+    var lista = await crud.selectInner(
+        tabela: 'Estoque',
+        select: 'Lote!inner(*, IdProduto)',
+        where: {'Lote.IdProduto': produtos[produto]});
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        lotes.addAll({row['Lote']['NumeroLote']: row['Lote']['IdLote']});
+      });
+    }
+  }
+
+  Future<void> pegaDesconto() async {
+    var lista =
+        await crud.selectInner(tabela: "Cliente", select: 'Desconto', where: {
+      "IdCliente": clientes[cliente],
+    });
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        fieldControllerDesconto.text = row['Desconto'].toString();
+        desconto = double.parse(fieldControllerDesconto.text);
+      });
+    }
+  }
+
+  Widget body() {
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -147,20 +171,10 @@ class _VendaState extends State<Venda> {
                         setState(() {
                           produto = value;
                           fieldControllerPreco.text = "";
+                          preco = null;
                           cliente = null;
                         });
-                        var lista = await crud.selectInner(
-                            tabela: 'Estoque',
-                            select: 'Lote!inner(*, IdProduto)',
-                            where: {'Lote.IdProduto': produtos[produto]});
-                        print(lista);
-                        for (var row in lista) {
-                          setState(() {
-                            lotes.addAll({
-                              row['Lote']['NumeroLote']: row['Lote']['IdLote']
-                            });
-                          });
-                        }
+                        await pegaLote();
                       }),
                 ),
               ),
@@ -187,23 +201,9 @@ class _VendaState extends State<Venda> {
                         setState(() {
                           lote = value;
                           fieldControllerPreco.text = "";
-                          cliente = null;
+                          preco = null;
                         });
-
-                        var lista = await crud.selectInner(
-                            tabela: "Estoque",
-                            select: 'PrecoMPM',
-                            where: {
-                              "IdLote": lotes[lote],
-                            });
-                        print(lista);
-                        for (var row in lista) {
-                          setState(() {
-                            fieldControllerPreco.text =
-                                row['PrecoMPM'].toString();
-                            preco = double.parse(fieldControllerPreco.text);
-                          });
-                        }
+                        await preencheCampoP();
                       }),
                 ),
               ),
@@ -230,21 +230,7 @@ class _VendaState extends State<Venda> {
                         setState(() {
                           cliente = value;
                         });
-                        var lista = await crud.selectInner(
-                            tabela: "Cliente",
-                            select: 'Desconto',
-                            where: {
-                              "IdCliente": clientes[cliente],
-                            });
-                        print(lista);
-                        for (var row in lista) {
-                          setState(() {
-                            fieldControllerDesconto.text =
-                                row['Desconto'].toString();
-                            desconto =
-                                double.parse(fieldControllerDesconto.text);
-                          });
-                        }
+                        await pegaDesconto();
                       }),
                 ),
               ),
@@ -296,12 +282,10 @@ class _VendaState extends State<Venda> {
               TextField(
                 controller: fieldControllerAdicional,
                 onChanged: (adicional) {
-                  if (Voz.instance.palavrasVenda.containsKey('adicional')) {
-                    Voz.instance.palavrasVenda.remove('adicional');
-                  }
                   setState(() {
                     if (adicional != "") {
                       this.adicional = double.parse(adicional);
+
                       fieldControllerTotal.text = retornaTotal(
                               quantidade!, preco!, this.adicional, desconto)
                           .toStringAsFixed(2);
@@ -378,10 +362,6 @@ class _VendaState extends State<Venda> {
                       quantidade = 0;
                       adicional = 0;
                     });
-
-                    if (Voz.instance.palavrasCompra.isNotEmpty) {
-                      Voz.instance.palavrasCompra.clear();
-                    }
                   },
                   child: const Text("Adiciona Linha")),
               ListView(
@@ -538,6 +518,74 @@ class _VendaState extends State<Venda> {
             )),
       ));
 
+  Future<void> selecionaProduto(String item) async {
+    List produtosConfere = produtos.keys.toList();
+    List pordutosMinisculo =
+        produtos.keys.toList().map((produto) => produto.toLowerCase()).toList();
+    print(pordutosMinisculo);
+    print(item);
+    if (pordutosMinisculo.contains(item)) {
+      print('Entro');
+      setState(() {
+        produto = produtosConfere[pordutosMinisculo.indexOf(item)];
+        lote = null;
+        fieldControllerPreco.text = "";
+        preco = null;
+      });
+      await pegaLote();
+    } else {
+      await Fala.instance.flutterTts.speak('Esse produto não existe');
+    }
+  }
+
+  Future<void> preencheCampoP() async {
+    var lista =
+        await crud.selectInner(tabela: "Estoque", select: 'PrecoMPM', where: {
+      "IdLote": lotes[lote],
+    });
+    print(lista);
+    for (var row in lista) {
+      setState(() {
+        fieldControllerPreco.text = row['PrecoMPM'].toString();
+        preco = double.parse(fieldControllerPreco.text);
+      });
+    }
+  }
+
+  Future<void> selecionaLote(String item) async {
+    List loteConfere = lotes.keys.toList();
+    if (loteConfere.contains(item)) {
+      setState(() {
+        lote = item;
+        fieldControllerPreco.text = "";
+        preco = null;
+      });
+      print(lote);
+      await preencheCampoP();
+      calculaTotal();
+    } else {
+      await Fala.instance.flutterTts.speak('Esse Lote não existe');
+    }
+    print(item);
+  }
+
+  Future<void> selecionaCliente(String item) async {
+    List clientesConfere = clientes.keys.toList();
+    List clientesMinisculo =
+        clientes.keys.toList().map((cliente) => cliente.toLowerCase()).toList();
+    print(clientesMinisculo);
+    print(item);
+    if (clientesMinisculo.contains(item)) {
+      print('Entro');
+      setState(() {
+        cliente = clientesConfere[clientesMinisculo.indexOf(item)];
+      });
+      await pegaDesconto();
+    } else {
+      await Fala.instance.flutterTts.speak('Esse Cliente não existe');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -547,22 +595,6 @@ class _VendaState extends State<Venda> {
               floatingActionButton: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  FloatingActionButton(
-                      heroTag: null,
-                      child: Icon(Icons.hearing),
-                      onPressed: () async {
-                        setState(() {
-                          valor = true;
-                          valor2 = true;
-                          valor3 = true;
-                          valor4 = true;
-                        });
-                        print(this.context);
-                        Voz.instance.opcao = 2;
-                        Voz.instance.context = this.context;
-
-                        Voz.instance.startListening();
-                      }),
                   GestureDetector(
                     onLongPress: () {
                       print('segura');
@@ -574,7 +606,85 @@ class _VendaState extends State<Venda> {
                     },
                     onLongPressEnd: ((details) async {
                       await Fala.instance.somSaiu();
-                      await Future.delayed(Duration(milliseconds: 500));
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      Voz.instance.stopListening();
+                      var falou = Voz.instance.lastWords;
+                      print(falou);
+                      Voz.instance.lastWords = '';
+
+                      var comando = falou
+                          .substring(0, falou.indexOf(RegExp(r'[ ]')))
+                          .toLowerCase();
+
+                      print(comando);
+                      var item = falou
+                          .substring(
+                              falou.indexOf(RegExp(r'[ ]')) + 1, falou.length)
+                          .toLowerCase();
+
+                      if (comando.toLowerCase() == 'produto'.toLowerCase()) {
+                        await selecionaProduto(item);
+                      } else if (comando.toLowerCase() == 'lote') {
+                        if (produto == null) {
+                          await Fala.instance.flutterTts
+                              .speak('Fale um produto primeiro');
+                        } else {
+                          await selecionaLote(item);
+                        }
+                      } else if (comando.toLowerCase() ==
+                          'cliente'.toLowerCase()) {
+                        await selecionaCliente(item);
+                      } else if (comando == 'quantidade') {
+                        String soNum = item.replaceAll(RegExp(r'[^0-9]'), '');
+                        if (soNum != '') {
+                          setState(() {
+                            quantidade = apenasNumeros(item);
+                            fieldControllerQtd.text = item;
+                            calculaTotal();
+                          });
+                        } else {
+                          setState(() {
+                            quantidade = null;
+                          });
+                          await Fala.instance.flutterTts
+                              .speak('Fale um número');
+                        }
+                      } else if (comando == 'adicional') {
+                        setState(() {
+                          if (item.contains(RegExp(r'^[0-9.,]'))) {
+                            fieldControllerAdicional.text = item;
+                            adicional = double.parse(item);
+                            fieldControllerTotal.text = retornaTotal(
+                                    quantidade!, preco!, adicional, desconto)
+                                .toStringAsFixed(2);
+                          } else {
+                            adicional = 0;
+                            fieldControllerTotal.text = retornaTotal(
+                                    quantidade!, preco!, adicional, desconto)
+                                .toStringAsFixed(2);
+                          }
+                        });
+                      } else {
+                        await Fala.instance.flutterTts
+                            .speak('Esse comando não existe');
+                      }
+                    }),
+                    child: FloatingActionButton(
+                        child: const Icon(Icons.hearing),
+                        onPressed: () async {}),
+                  ),
+                  GestureDetector(
+                    onLongPress: () {
+                      print('segura');
+                    },
+                    onLongPressStart: (detaisl) async {
+                      await Fala.instance.somEntrou();
+                      Voz.instance.startListening();
+                      print('Começou a clicar');
+                    },
+                    onLongPressEnd: ((details) async {
+                      await Fala.instance.somSaiu();
+                      await Future.delayed(const Duration(milliseconds: 500));
                       Voz.instance.stopListening();
                       var tela = Voz.instance.lastWords;
                       Voz.instance.lastWords = '';
@@ -582,14 +692,13 @@ class _VendaState extends State<Venda> {
                       await Navegar.instance.navegar(tela, context);
                     }),
                     child: FloatingActionButton(
-                        child: Icon(Icons.phone), onPressed: () async {}),
+                        child: const Icon(Icons.phone), onPressed: () async {}),
                   ),
                 ],
               ),
               drawer: drawerTela.drawerTela(context),
               appBar: AppBar(),
-              body: body(Voz.instance.palavrasVenda.length,
-                  Voz.instance.palavrasVenda));
+              body: body());
         });
   }
 
